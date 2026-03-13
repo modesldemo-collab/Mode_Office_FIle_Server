@@ -13,7 +13,7 @@ import {
   Image as ImageIcon,
   LayoutGrid,
   List
-} from 'lucide-react'; // icons සඳහා lucide-react install කරගන්න (npm install lucide-react)
+} from 'lucide-react'; 
 
 const Dashboard = () => {
   const [viewMode, setViewMode] = useState('grid');
