@@ -1,0 +1,234 @@
+:root {
+	font-family: 'Space Grotesk', 'Avenir Next', 'Segoe UI', sans-serif;
+	--white: #ffffff;
+	--cloud: #f4f5f6;
+	--aqua: #02e3a7;
+	--navy: #13144d;
+	--lime: #6af15c;
+	--ink: var(--navy);
+	--ink-soft: rgb(19 20 77 / 72%);
+	--card: var(--white);
+	--accent: var(--aqua);
+	--accent-hover: #00c790;
+	--accent-shadow: rgb(2 227 167 / 35%);
+	--border: rgb(19 20 77 / 16%);
+	--focus-ring: rgb(2 227 167 / 30%);
+	--success-bg: rgb(106 241 92 / 22%);
+	--success-ink: var(--navy);
+	--error-bg: rgb(19 20 77 / 10%);
+	--error-ink: var(--navy);
+}
+
+* {
+	box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+	height: 100%;
+	margin: 0;
+}
+
+body {
+	color: var(--ink);
+	background:
+		radial-gradient(circle at 12% 15%, rgb(2 227 167 / 16%) 0, transparent 42%),
+		radial-gradient(circle at 88% 88%, rgb(106 241 92 / 18%) 0, transparent 45%),
+		linear-gradient(155deg, var(--cloud), var(--white));
+}
+
+.login-shell {
+	min-height: 100%;
+	display: grid;
+	place-items: center;
+	padding: 2rem 1.2rem;
+}
+
+.login-panel {
+	width: min(900px, 100%);
+	background: var(--card);
+	border: 1px solid var(--border);
+	border-radius: 24px;
+	padding: 2rem;
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 2rem;
+	box-shadow:
+		0 16px 38px rgb(19 20 77 / 16%),
+		0 6px 14px rgb(19 20 77 / 11%);
+	animation: panel-in 480ms ease-out both;
+}
+
+.brand-block {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	gap: 0.8rem;
+	transform: translateY(0);
+	animation: rise-in 540ms ease-out both;
+}
+
+.brand-eyebrow {
+	margin: 0;
+	font-weight: 700;
+	letter-spacing: 0.16em;
+	text-transform: uppercase;
+	color: var(--aqua);
+	font-size: 0.78rem;
+}
+
+.brand-block h1 {
+	margin: 0;
+	font-size: clamp(2rem, 3vw, 3rem);
+	line-height: 1.05;
+	letter-spacing: -0.02em;
+}
+
+.brand-copy {
+	margin: 0;
+	color: var(--ink-soft);
+	max-width: 32ch;
+}
+
+.login-form {
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+	animation: rise-in 620ms ease-out both;
+}
+
+.login-form label {
+	font-size: 0.88rem;
+	font-weight: 700;
+	color: var(--ink);
+}
+
+.login-form input[type='email'],
+.login-form input[type='password'] {
+	width: 100%;
+	border: 1px solid var(--border);
+	border-radius: 12px;
+	padding: 0.84rem 0.9rem;
+	font: inherit;
+	outline: none;
+	transition: border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.login-form input[type='email']:focus,
+.login-form input[type='password']:focus {
+	border-color: var(--aqua);
+	box-shadow: 0 0 0 4px var(--focus-ring);
+}
+
+.form-row {
+	margin-top: 0.2rem;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.75rem;
+}
+
+.checkbox-wrap {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	font-size: 0.9rem;
+	color: var(--ink-soft);
+}
+
+.checkbox-wrap input {
+	width: 1rem;
+	height: 1rem;
+	accent-color: var(--aqua);
+}
+
+.link-button {
+	border: 0;
+	background: transparent;
+	color: var(--navy);
+	font: inherit;
+	font-size: 0.88rem;
+	cursor: pointer;
+	padding: 0;
+}
+
+.link-button:hover {
+	text-decoration: underline;
+}
+
+.feedback {
+	border-radius: 10px;
+	padding: 0.7rem 0.8rem;
+	margin: 0.15rem 0 0;
+	font-size: 0.88rem;
+}
+
+.feedback.error {
+	background: var(--error-bg);
+	color: var(--error-ink);
+}
+
+.feedback.success {
+	background: var(--success-bg);
+	color: var(--success-ink);
+}
+
+.login-button {
+	margin-top: 0.35rem;
+	border: 0;
+	border-radius: 12px;
+	background: var(--accent);
+	color: var(--navy);
+	padding: 0.92rem 1rem;
+	font: inherit;
+	font-weight: 700;
+	cursor: pointer;
+	transition: transform 150ms ease, box-shadow 150ms ease, background 150ms ease;
+}
+
+.login-button:hover:enabled {
+	background: var(--accent-hover);
+	transform: translateY(-1px);
+	box-shadow: 0 8px 18px var(--accent-shadow);
+}
+
+.login-button:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+}
+
+@keyframes panel-in {
+	from {
+		opacity: 0;
+		transform: scale(0.98);
+	}
+	to {
+		opacity: 1;
+		transform: scale(1);
+	}
+}
+
+@keyframes rise-in {
+	from {
+		opacity: 0;
+		transform: translateY(20px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@media (max-width: 820px) {
+	.login-panel {
+		grid-template-columns: 1fr;
+		gap: 1.5rem;
+		padding: 1.35rem;
+		border-radius: 20px;
+	}
+
+	.brand-copy {
+		max-width: 100%;
+	}
+}
