@@ -13,6 +13,7 @@ function App() {
           
           {/* Dashboard Route එක */}
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/my-files" element={<Dashboard />} />
 
           {/* ඉදිරියට Login පිටුව හැදුවම මෙතනට add කරන්න පුළුවන් */}
           {/* <Route path="/login" element={<Login />} /> */}
