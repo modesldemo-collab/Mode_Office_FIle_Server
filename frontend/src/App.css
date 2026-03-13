@@ -1,0 +1,126 @@
+/* App.css - Modern Dark & Purple Theme */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Oya dunna palette eke colors */
+  --primary-dark: #0F172A;    /* Dark Navy Blue */
+  --secondary-purple: #7C3AED; /* Main Purple */
+  --accent-purple: #C4B5FD;    /* Light Purple for hover */
+  --bg-light: #F8FAFC;         /* Light Gray/White Background */
+  --text-main: #1E293B;        /* Dark Text */
+  --sidebar-width: 260px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Inter', sans-serif; /* Modern font ekak */
+}
+
+body {
+  background-color: var(--bg-light);
+  color: var(--text-main);
+}
+
+/* Layout Containers */
+.app-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+.main-content {
+  flex: 1;
+  background-color: var(--bg-light);
+  padding: 2rem;
+}
+
+/* Sidebar Styles */
+.sidebar {
+  width: var(--sidebar-width);
+  background-color: var(--primary-dark);
+  color: white;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  transition: all 0.3s ease;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  color: #94A3B8;
+  transition: 0.2s;
+  cursor: pointer;
+  border-radius: 8px;
+  margin: 0.25rem 1rem;
+}
+
+.sidebar-item:hover, .sidebar-item.active {
+  background-color: var(--secondary-purple);
+  color: white;
+}
+
+/* Navbar Styles */
+.navbar {
+  height: 64px;
+  background-color: white;
+  border-bottom: 1px solid #E2E8F0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+}
+
+/* Custom Buttons */
+.btn-primary {
+  background-color: var(--secondary-purple);
+  color: white;
+  padding: 0.5rem 1.25rem;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: 0.3s;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background-color: #6D28D9; /* Tikak dark purple ekak hover ekata */
+  transform: translateY(-1px);
+}
+
+/* File Card Glassmorphism Effect */
+.file-card {
+  background: white;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 1rem;
+  transition: 0.3s;
+}
+
+.file-card:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  border-color: var(--accent-purple);
+}
+
+/* Scrollbar Customization */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--secondary-purple);
+}
