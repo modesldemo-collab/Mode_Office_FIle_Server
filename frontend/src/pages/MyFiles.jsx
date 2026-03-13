@@ -15,7 +15,7 @@ const MyFiles = () => {
     <div className="flex min-h-screen bg-[#F4F5F6]">
       <Sidebar />
       <div className="flex-1 flex flex-col">
-        <Navbar />
+        {/* <Navbar /> */}
         
         <main className="p-8 animate-fade-in">
           {/* Header Section */}
