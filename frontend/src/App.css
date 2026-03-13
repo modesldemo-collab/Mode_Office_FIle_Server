@@ -1,4 +1,4 @@
-/* src/App.css */
+
 
 @tailwind base;
 @tailwind components;
@@ -12,17 +12,17 @@
   --brand-lime: #6AF15C;
 }
 
-/* මුළු පිටුවේම background එක සහ font එක සකස් කිරීම */
+
 body {
   background-color: var(--brand-ghost);
   color: var(--brand-dark);
-  font-family: 'Inter', sans-serif; /* Inter font එක ලස්සනයි dashboard වලට */
+  font-family: 'Inter', sans-serif; 
   margin: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ලස්සන Scrollbar එකක් (Dashboard එකකට ගැලපෙන විදියට) */
+
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -33,43 +33,41 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1; /* ටිකක් ලා අළු පාටක් */
+  background: #cbd5e1;
   border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--brand-teal); /* Hover කරද්දී අපේ brand color එක එනවා */
+  background: var(--brand-teal);
 }
 
-/* Custom Selection Color */
+
 ::selection {
   background-color: var(--brand-teal);
   color: var(--brand-dark);
 }
 
-/* Reusable Utility Classes (ඔයාට මේවා ඕනෑම තැනක පාවිච්චි කරන්න පුළුවන්) */
 
 @layer components {
-  /* මෘදු shadow එකක් සහිත card එකක් */
+  
   .brand-card {
     @apply bg-white rounded-2xl border border-gray-100 shadow-sm transition-all duration-300;
   }
 
-  /* ප්‍රධාන බටන් එක */
   .btn-primary {
     @apply bg-[#02E3A7] text-[#13144D] font-bold py-2 px-6 rounded-xl 
            hover:bg-[#6AF15C] transition-all duration-300 transform active:scale-95
            shadow-lg shadow-[#02E3A7]/20;
   }
 
-  /* Input fields වලට style එකක් */
+ 
   .brand-input {
     @apply bg-[#F4F5F6] border-none rounded-xl px-4 py-2 focus:ring-2 
            focus:ring-[#02E3A7] outline-none transition-all text-sm;
   }
 }
 
-/* Animations */
+
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
