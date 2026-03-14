@@ -1,12 +1,9 @@
-
 import React from 'react';
-import Dashboard from './pages/Dashboard'; // Dashboard එක තියෙන තැන බලන්න
-import './App.css';
+import Dashboard from './pages/Dashboard'; // path එක හරිද බලන්න
 
 function App() {
   return (
-    <div className="min-h-screen bg-brand-ghost">
-   
+    <div className="App">
       <Dashboard />
     </div>
   );
