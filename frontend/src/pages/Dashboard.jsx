@@ -1,185 +1,191 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { 
-  Folder, 
-  HardDrive, 
-  Clock, 
-  Star, 
-  Trash2, 
-  Search, 
-  Bell, 
-  Plus,
-  MoreVertical,
-  FileText,
-  Image as ImageIcon,
-  LayoutGrid,
-  List
-} from 'lucide-react'; 
+  Folder, HardDrive, Search, Plus, Clock, Star, Trash2, 
+  FileText, Image as ImageIcon, MoreVertical 
+} from 'lucide-react';
 
 const Dashboard = () => {
-  const [viewMode, setViewMode] = useState('grid');
+  // --- CSS Styles (Internal) ---
+  const styles = {
+    container: {
+      display: 'flex',
+      height: '100vh',
+      backgroundColor: '#f1f5f9',
+      fontFamily: 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif',
+      color: '#1e293b'
+    },
+    sidebar: {
+      width: '260px',
+      backgroundColor: '#0f172a',
+      color: '#fff',
+      display: 'flex',
+      flexDirection: 'column',
+      padding: '24px'
+    },
+    logoSection: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '12px',
+      marginBottom: '40px'
+    },
+    navItem: (active) => ({
+      display: 'flex',
+      alignItems: 'center',
+      gap: '12px',
+      padding: '12px 16px',
+      borderRadius: '12px',
+      cursor: 'pointer',
+      marginBottom: '8px',
+      backgroundColor: active ? '#334155' : 'transparent',
+      color: active ? '#22d3ee' : '#94a3b8',
+      transition: 'all 0.3s'
+    }),
+    main: {
+      flex: 1,
+      display: 'flex',
+      flexDirection: 'column',
+      overflow: 'hidden'
+    },
+    header: {
+      height: '70px',
+      backgroundColor: '#fff',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      padding: '0 40px',
+      borderBottom: '1px solid #e2e8f0'
+    },
+    searchBox: {
+      display: 'flex',
+      alignItems: 'center',
+      backgroundColor: '#f8fafc',
+      padding: '8px 16px',
+      borderRadius: '20px',
+      width: '350px',
+      gap: '10px'
+    },
+    uploadBtn: {
+      backgroundColor: '#0ea5e9',
+      color: '#fff',
+      border: 'none',
+      padding: '10px 20px',
+      borderRadius: '12px',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '8px',
+      cursor: 'pointer',
+      fontWeight: '600'
+    },
+    content: {
+      padding: '40px',
+      overflowY: 'auto'
+    },
+    tableCard: {
+      backgroundColor: '#fff',
+      borderRadius: '16px',
+      boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
+      overflow: 'hidden'
+    },
+    table: {
+      width: '100%',
+      borderCollapse: 'collapse'
+    },
+    th: {
+      textAlign: 'left',
+      padding: '16px 24px',
+      backgroundColor: '#f8fafc',
+      color: '#64748b',
+      fontSize: '12px',
+      textTransform: 'uppercase'
+    },
+    td: {
+      padding: '16px 24px',
+      borderBottom: '1px solid #f1f5f9',
+      fontSize: '14px'
+    }
+  };
 
-  // Dummy data for files
   const files = [
-    { id: 1, name: "Project_Proposal.pdf", size: "2.4 MB", type: "PDF", date: "Oct 12, 2023" },
-    { id: 2, name: "Landing_Page_Design.png", size: "5.1 MB", type: "Image", date: "Oct 10, 2023" },
-    { id: 3, name: "Backend_API_Docs.docx", size: "1.2 MB", type: "Doc", date: "Oct 08, 2023" },
-    { id: 4, name: "Budget_2024.xlsx", size: "850 KB", type: "Spreadsheet", date: "Oct 05, 2023" },
+    { id: 1, name: "Project_Proposal.pdf", size: "2.4 MB", type: "PDF" },
+    { id: 2, name: "Landing_Design.png", size: "5.1 MB", type: "Image" },
+    { id: 3, name: "Budget_2024.xlsx", size: "850 KB", type: "Spreadsheet" },
   ];
 
   return (
-    <div className="flex h-screen bg-brand-ghost font-sans text-brand-dark">
-      
+    <div style={styles.container}>
       {/* --- SIDEBAR --- */}
-      <aside className="w-64 bg-brand-dark text-brand-white flex flex-col">
-        <div className="p-6 flex items-center gap-3">
-          <div className="bg-brand-teal p-2 rounded-lg">
-            <HardDrive size={24} className="text-brand-dark" />
+      <aside style={styles.sidebar}>
+        <div style={styles.logoSection}>
+          <div style={{ backgroundColor: '#22d3ee', padding: '8px', borderRadius: '10px' }}>
+            <HardDrive size={24} color="#0f172a" />
           </div>
-          <h1 className="text-xl font-bold tracking-tight">CloudSafe</h1>
+          <h2 style={{ fontSize: '20px', fontWeight: 'bold' }}>CloudSafe</h2>
         </div>
 
-        <nav className="flex-1 px-4 space-y-2">
-          <NavItem icon={<Folder size={20} />} label="All Files" active />
-          <NavItem icon={<Clock size={20} />} label="Recent" />
-          <NavItem icon={<Star size={20} />} label="Starred" />
-          <NavItem icon={<Trash2 size={20} />} label="Trash" />
+        <nav>
+          <div style={styles.navItem(true)}><Folder size={20} /> All Files</div>
+          <div style={styles.navItem(false)}><Clock size={20} /> Recent</div>
+          <div style={styles.navItem(false)}><Star size={20} /> Starred</div>
+          <div style={styles.navItem(false)}><Trash2 size={20} /> Trash</div>
         </nav>
-
-        <div className="p-4 mt-auto">
-          <div className="bg-white/10 p-4 rounded-xl">
-            <p className="text-xs text-gray-400 mb-2">Storage (75%)</p>
-            <div className="w-full bg-white/20 h-2 rounded-full overflow-hidden">
-              <div className="bg-brand-lime h-full w-3/4"></div>
-            </div>
-            <p className="text-[10px] mt-2 text-brand-teal">12.5 GB of 20 GB used</p>
-          </div>
-        </div>
       </aside>
 
       {/* --- MAIN CONTENT --- */}
-      <main className="flex-1 flex flex-col overflow-hidden">
-        
-        {/* TOP NAVBAR */}
-        <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-8">
-          <div className="relative w-96">
-            <span className="absolute inset-y-0 left-3 flex items-center text-gray-400">
-              <Search size={18} />
-            </span>
+      <main style={styles.main}>
+        <header style={styles.header}>
+          <div style={styles.searchBox}>
+            <Search size={18} color="#94a3b8" />
             <input 
               type="text" 
               placeholder="Search files..." 
-              className="w-full pl-10 pr-4 py-2 bg-brand-ghost rounded-full border-none focus:ring-2 focus:ring-brand-teal outline-none transition-all text-sm"
+              style={{ border: 'none', background: 'transparent', outline: 'none', width: '100%' }} 
             />
           </div>
-
-          <div className="flex items-center gap-4">
-            <button className="p-2 text-gray-500 hover:bg-brand-ghost rounded-full transition">
-              <Bell size={20} />
-            </button>
-            <div className="h-8 w-8 bg-brand-teal rounded-full flex items-center justify-center font-bold text-brand-dark text-sm border-2 border-brand-dark/10">
-              JD
-            </div>
-          </div>
+          <button style={styles.uploadBtn}>
+            <Plus size={20} /> Upload New
+          </button>
         </header>
 
-        {/* CONTENT AREA */}
-        <section className="flex-1 overflow-y-auto p-8">
+        <section style={styles.content}>
+          <h2 style={{ marginBottom: '24px', fontSize: '24px', fontWeight: 'bold' }}>My Documents</h2>
           
-          {/* HEADER SECTION */}
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h2 className="text-2xl font-bold">My Files</h2>
-              <p className="text-gray-500 text-sm">Welcome back! Manage your documents here.</p>
-            </div>
-            <button className="bg-brand-teal hover:bg-brand-lime text-brand-dark px-6 py-2.5 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-brand-teal/20 transition-all transform hover:-translate-y-0.5 active:scale-95">
-              <Plus size={20} />
-              Upload New
-            </button>
-          </div>
-
-          {/* QUICK STATS CARDS */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <StatCard title="Total Files" value="1,245" color="bg-white" />
-            <StatCard title="Shared Items" value="48" color="bg-white" />
-            <StatCard title="Recent Activity" value="+12 today" color="bg-white border-l-4 border-brand-teal" />
-          </div>
-
-          {/* FILES LIST SECTION */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-            <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
-              <h3 className="font-semibold text-gray-700">Recent Documents</h3>
-              <div className="flex bg-gray-200 p-1 rounded-lg">
-                <button 
-                  onClick={() => setViewMode('grid')}
-                  className={`p-1.5 rounded-md ${viewMode === 'grid' ? 'bg-white shadow-sm' : 'text-gray-500'}`}
-                >
-                  <LayoutGrid size={16} />
-                </button>
-                <button 
-                  onClick={() => setViewMode('list')}
-                  className={`p-1.5 rounded-md ${viewMode === 'list' ? 'bg-white shadow-sm' : 'text-gray-500'}`}
-                >
-                  <List size={16} />
-                </button>
-              </div>
-            </div>
-
-            <div className="overflow-x-auto">
-              <table className="w-full text-left">
-                <thead className="text-xs text-gray-400 uppercase bg-gray-50/30">
-                  <tr>
-                    <th className="px-6 py-4 font-medium">Name</th>
-                    <th className="px-6 py-4 font-medium">Type</th>
-                    <th className="px-6 py-4 font-medium">Size</th>
-                    <th className="px-6 py-4 font-medium">Modified</th>
-                    <th className="px-6 py-4 font-medium text-right">Action</th>
+          <div style={styles.tableCard}>
+            <table style={styles.table}>
+              <thead>
+                <tr>
+                  <th style={styles.th}>Name</th>
+                  <th style={styles.th}>Type</th>
+                  <th style={styles.th}>Size</th>
+                  <th style={styles.th}></th>
+                </tr>
+              </thead>
+              <tbody>
+                {files.map(file => (
+                  <tr key={file.id}>
+                    <td style={styles.td}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        {file.type === "Image" ? <ImageIcon size={18} color="#0ea5e9" /> : <FileText size={18} color="#64748b" />}
+                        <span style={{ fontWeight: '500' }}>{file.name}</span>
+                      </div>
+                    </td>
+                    <td style={styles.td}>
+                      <span style={{ backgroundColor: '#f1f5f9', padding: '4px 10px', borderRadius: '6px', fontSize: '11px' }}>
+                        {file.type}
+                      </span>
+                    </td>
+                    <td style={styles.td}>{file.size}</td>
+                    <td style={{ ...styles.td, textAlign: 'right' }}>
+                      <MoreVertical size={16} color="#94a3b8" cursor="pointer" />
+                    </td>
                   </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {files.map((file) => (
-                    <tr key={file.id} className="hover:bg-brand-ghost/50 transition cursor-pointer group">
-                      <td className="px-6 py-4 flex items-center gap-3">
-                        <div className="p-2 bg-brand-teal/10 rounded-lg text-brand-teal group-hover:bg-brand-teal group-hover:text-brand-dark transition">
-                          {file.type === "Image" ? <ImageIcon size={18} /> : <FileText size={18} />}
-                        </div>
-                        <span className="font-medium text-sm">{file.name}</span>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-500">{file.type}</td>
-                      <td className="px-6 py-4 text-sm text-gray-500">{file.size}</td>
-                      <td className="px-6 py-4 text-sm text-gray-500">{file.date}</td>
-                      <td className="px-6 py-4 text-right">
-                        <button className="p-1 hover:bg-gray-200 rounded-full transition">
-                          <MoreVertical size={16} />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                ))}
+              </tbody>
+            </table>
           </div>
         </section>
       </main>
     </div>
   );
 };
-
-// --- HELPER COMPONENTS ---
-
-const NavItem = ({ icon, label, active = false }) => (
-  <div className={`flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all ${
-    active ? 'bg-brand-teal text-brand-dark font-bold' : 'hover:bg-white/5 text-gray-300'
-  }`}>
-    {icon}
-    <span className="text-sm">{label}</span>
-  </div>
-);
-
-const StatCard = ({ title, value, color }) => (
-  <div className={`${color} p-6 rounded-2xl shadow-sm border border-gray-100`}>
-    <p className="text-gray-500 text-xs font-medium uppercase tracking-wider">{title}</p>
-    <p className="text-2xl font-bold mt-1">{value}</p>
-  </div>
-);
 
 export default Dashboard;
