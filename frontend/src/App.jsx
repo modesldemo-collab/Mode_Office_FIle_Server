@@ -1,5 +1,5 @@
 import React from 'react';
-import Dashboard from './pages/Dashboard'; // path එක හරිද බලන්න
+import Dashboard from './pages/Dashboard'; 
 
 function App() {
   return (
