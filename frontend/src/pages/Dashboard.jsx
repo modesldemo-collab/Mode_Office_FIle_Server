@@ -22,34 +22,7 @@ const Dashboard = () => {
   return (
     <div className="flex h-screen bg-slate-100 font-sans text-slate-800">
       
-      {/* SIDEBAR */}
-      <aside className="w-[260px] bg-slate-900 text-white flex flex-col p-6">
-        <div className="flex items-center gap-3 mb-10">
-          <div className="bg-cyan-400 p-2 rounded-lg">
-            <HardDrive size={24} className="text-slate-900" />
-          </div>
-          <h2 className="text-xl font-bold">CloudSafe</h2>
-        </div>
-
-        <nav className="space-y-2">
-          <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-700 text-cyan-400 cursor-pointer">
-            <Folder size={20} /> All Files
-          </div>
-
-          <div className="flex items-center gap-3 p-3 rounded-xl text-slate-400 hover:bg-slate-800 cursor-pointer">
-            <Clock size={20} /> Recent
-          </div>
-
-          <div className="flex items-center gap-3 p-3 rounded-xl text-slate-400 hover:bg-slate-800 cursor-pointer">
-            <Star size={20} /> Starred
-          </div>
-
-          <div className="flex items-center gap-3 p-3 rounded-xl text-slate-400 hover:bg-slate-800 cursor-pointer">
-            <Trash2 size={20} /> Trash
-          </div>
-        </nav>
-      </aside>
-
+      
       {/* MAIN */}
       <main className="flex-1 flex flex-col overflow-hidden">
         
