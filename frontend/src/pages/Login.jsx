@@ -65,6 +65,7 @@ function Login() {
   return (
     <main className="login-shell">
       <section className="login-panel" aria-label="Login panel">
+        {/* Left Card  */}
         <div className="brand-block">
           <p className="brand-eyebrow">Mode Office File Server</p>
           <h1>Secure Access</h1>
