@@ -1,75 +1,181 @@
-import React, { useState, useEffect } from 'react';
-import Sidebar from '../components/Sidebar';
-import Navbar from '../components/Navbar';
-import FileCard from '../components/FileCard';
-import UploadBox from '../components/UploadBox';
+import React from "react";
+import {
+  Folder,
+  HardDrive,
+  Search,
+  Plus,
+  Clock,
+  Star,
+  Trash2,
+  FileText,
+  Image as ImageIcon,
+  MoreVertical,
+  Cloud,
+} from "lucide-react";
 
 const Dashboard = () => {
-    const [files, setFiles] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [showUploadModal, setShowUploadModal] = useState(false);
+  const files = [
+    { id: 1, name: "Project_Proposal.pdf", size: "2.4 MB", type: "PDF" },
+    { id: 2, name: "Landing_Design.png", size: "5.1 MB", type: "Image" },
+    { id: 3, name: "Budget_2024.xlsx", size: "850 KB", type: "Spreadsheet" },
+    { id: 4, name: "MarketingPlan.docx", size: "1.3 MB", type: "DOC" },
+  ];
 
-    // Backend එක නැති නිසා dummy data ටිකක් මෙතනට දාමු
-    const dummyFiles = [
-        { id: 1, name: "Project_Report.pdf", mimeType: "application/pdf", size: 1240, createdAt: new Date() },
-        { id: 2, name: "Design_Assets.zip", mimeType: "application/zip", size: 5420, createdAt: new Date() },
-        { id: 3, name: "Profile_Pic.png", mimeType: "image/png", size: 850, createdAt: new Date() },
-        { id: 4, name: "Expenses.xlsx", mimeType: "application/vnd.ms-excel", size: 450, createdAt: new Date() },
-    ];
+  return (
+    <div className="flex h-screen bg-slate-100 font-sans text-slate-800">
 
-    const fetchFiles = async () => {
-        setLoading(true);
-        // ඇත්තටම API එකකට කතා කරනවා වෙනුවට තත්පරයක් ඉඳලා dummy data ටික set කරනවා
-        setTimeout(() => {
-            setFiles(dummyFiles);
-            setLoading(false);
-        }, 1000);
-    };
+      {/* SIDEBAR */}
+      <aside className="w-[260px] bg-gradient-to-b from-slate-900 to-slate-800 text-white flex flex-col p-6">
 
-    useEffect(() => {
-        fetchFiles();
-    }, []);
+        <div className="flex items-center gap-3 mb-10">
+          <div className="bg-cyan-400 p-2 rounded-lg">
+            <Cloud size={24} className="text-slate-900" />
+          </div>
+          <h2 className="text-xl font-bold">CloudSafe</h2>
+        </div>
 
-    return (
-        <div className="flex h-screen bg-gray-50">
-            <Sidebar />
-            <div className="flex-1 flex flex-col overflow-hidden">
-                <Navbar onUploadClick={() => setShowUploadModal(true)} />
-                <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-6">
-                    <div className="container mx-auto">
-                        <div className="flex justify-between items-center mb-6">
-                            <h1 className="text-2xl font-semibold text-gray-800">All Files</h1>
-                            <button 
-                                onClick={() => setShowUploadModal(true)}
-                                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition"
-                            >
-                                + Upload New
-                            </button>
-                        </div>
+        <nav className="space-y-2">
 
-                        {loading ? (
-                            <div className="flex justify-center items-center h-64">
-                                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-                            </div>
-                        ) : (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                                {files.map((file) => (
-                                    <FileCard key={file.id} file={file} onRefresh={fetchFiles} />
-                                ))}
-                            </div>
-                        )}
-                    </div>
-                </main>
+          <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-700 text-cyan-400 cursor-pointer">
+            <Folder size={20} /> All Files
+          </div>
+
+          <div className="flex items-center gap-3 p-3 rounded-xl text-slate-400 hover:bg-slate-800 cursor-pointer">
+            <Clock size={20} /> Recent
+          </div>
+
+          <div className="flex items-center gap-3 p-3 rounded-xl text-slate-400 hover:bg-slate-800 cursor-pointer">
+            <Star size={20} /> Starred
+          </div>
+
+          <div className="flex items-center gap-3 p-3 rounded-xl text-slate-400 hover:bg-slate-800 cursor-pointer">
+            <Trash2 size={20} /> Trash
+          </div>
+
+        </nav>
+
+        {/* STORAGE */}
+        <div className="mt-auto bg-slate-800 rounded-xl p-4">
+          <p className="text-sm text-slate-400 mb-2">Storage</p>
+          <div className="w-full bg-slate-700 h-2 rounded-full">
+            <div className="bg-cyan-400 h-2 rounded-full w-2/3"></div>
+          </div>
+          <p className="text-xs text-slate-400 mt-2">6.5 GB of 10 GB used</p>
+        </div>
+
+      </aside>
+
+      {/* MAIN */}
+      <main className="flex-1 flex flex-col overflow-hidden">
+
+        {/* HEADER */}
+        <header className="h-[70px] bg-white flex items-center justify-between px-10 border-b">
+
+          <div className="flex items-center bg-slate-100 px-4 py-2 rounded-full w-[350px] gap-2">
+            <Search size={18} className="text-slate-400" />
+            <input
+              type="text"
+              placeholder="Search files..."
+              className="bg-transparent outline-none w-full"
+            />
+          </div>
+
+          <button className="bg-gradient-to-r from-sky-500 to-cyan-400 hover:opacity-90 text-white px-5 py-2 rounded-xl flex items-center gap-2 font-semibold shadow">
+            <Plus size={20} /> Upload
+          </button>
+
+        </header>
+
+        {/* CONTENT */}
+        <section className="p-10 overflow-y-auto">
+
+          {/* QUICK STATS */}
+          <div className="grid grid-cols-3 gap-6 mb-10">
+
+            <div className="bg-white p-6 rounded-2xl shadow hover:shadow-lg transition">
+              <p className="text-slate-400 text-sm">Total Files</p>
+              <h3 className="text-2xl font-bold mt-2">128</h3>
             </div>
 
-            {showUploadModal && (
-                <UploadBox 
-                    onClose={() => setShowUploadModal(false)} 
-                    onUploadSuccess={() => setShowUploadModal(false)} 
-                />
-            )}
-        </div>
-    );
+            <div className="bg-white p-6 rounded-2xl shadow hover:shadow-lg transition">
+              <p className="text-slate-400 text-sm">Storage Used</p>
+              <h3 className="text-2xl font-bold mt-2">6.5 GB</h3>
+            </div>
+
+            <div className="bg-white p-6 rounded-2xl shadow hover:shadow-lg transition">
+              <p className="text-slate-400 text-sm">Shared Files</p>
+              <h3 className="text-2xl font-bold mt-2">32</h3>
+            </div>
+
+          </div>
+
+          <h2 className="mb-6 text-2xl font-bold">My Documents</h2>
+
+          {/* FILE TABLE */}
+          <div className="bg-white rounded-2xl shadow overflow-hidden">
+
+            <table className="w-full">
+
+              <thead className="bg-slate-50 text-slate-500 text-xs uppercase">
+                <tr>
+                  <th className="text-left px-6 py-4">Name</th>
+                  <th className="text-left px-6 py-4">Type</th>
+                  <th className="text-left px-6 py-4">Size</th>
+                  <th className="px-6 py-4"></th>
+                </tr>
+              </thead>
+
+              <tbody>
+
+                {files.map((file) => (
+                  <tr
+                    key={file.id}
+                    className="border-b last:border-none hover:bg-slate-50 transition"
+                  >
+
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+
+                        {file.type === "Image" ? (
+                          <ImageIcon size={18} className="text-sky-500" />
+                        ) : (
+                          <FileText size={18} className="text-slate-500" />
+                        )}
+
+                        <span className="font-medium">{file.name}</span>
+
+                      </div>
+                    </td>
+
+                    <td className="px-6 py-4">
+                      <span className="bg-slate-100 px-3 py-1 rounded text-xs">
+                        {file.type}
+                      </span>
+                    </td>
+
+                    <td className="px-6 py-4">{file.size}</td>
+
+                    <td className="px-6 py-4 text-right">
+                      <MoreVertical
+                        className="text-slate-400 cursor-pointer"
+                        size={16}
+                      />
+                    </td>
+
+                  </tr>
+                ))}
+
+              </tbody>
+
+            </table>
+
+          </div>
+
+        </section>
+
+      </main>
+    </div>
+  );
 };
 
 export default Dashboard;
