@@ -3,9 +3,9 @@
  */
 
 const router = require("express").Router();
-const { authenticate }          = require("../middleware/auth.middleware");
-const { getDashboardStats }     = require("../controllers/stats.controller");
+const { authenticate } = require("../middleware/auth.middleware");
+const { getDashboardStats } = require("../controllers/stats.controller");
 
-router.get("/", authenticate, getDashboardStats);
+router.get("/dashboard", authenticate, getDashboardStats);
 
 module.exports = router;
