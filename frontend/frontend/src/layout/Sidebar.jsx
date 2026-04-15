@@ -2,6 +2,7 @@ import React, { createContext } from "react";
 import {
   LayoutDashboard,
   FileText,
+  CheckCheck,
   ScrollText,
   Users,
   Building2,
@@ -17,6 +18,7 @@ export const NavCtx = createContext(null);
 export const NAV_ITEMS = [
   { id: "dashboard", label: "Dashboard",  icon: LayoutDashboard },
   { id: "documents", label: "Documents",  icon: FileText },
+  { id: "completed", label: "Completed",  icon: CheckCheck },
   { id: "logs",      label: "Audit Logs", icon: ScrollText },
 ];
 

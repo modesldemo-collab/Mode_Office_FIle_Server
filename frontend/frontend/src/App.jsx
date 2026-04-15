@@ -6,6 +6,7 @@ import { Shell } from "./layout/Shell";
 import { LoginPage } from "./pages/LoginPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { DocumentsPage } from "./pages/DocumentsPage";
+import { CompletedPage } from "./pages/CompletedPage";
 import { LogsPage } from "./pages/LogsPage";
 import { UsersPage } from "./pages/admin/UsersPage";
 import { DepartmentsPage } from "./pages/admin/DepartmentsPage";
@@ -19,6 +20,7 @@ function AppRouter() {
   const PageContent = {
     dashboard:   DashboardPage,
     documents:   DocumentsPage,
+    completed:   CompletedPage,
     logs:        LogsPage,
     users:       UsersPage,
     departments: DepartmentsPage,
