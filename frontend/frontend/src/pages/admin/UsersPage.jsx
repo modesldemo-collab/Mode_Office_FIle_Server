@@ -14,6 +14,11 @@ export function UsersPage() {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState("");
+  const [pwdModalOpen, setPwdModalOpen] = useState(false);
+  const [pwdUser, setPwdUser] = useState(null);
+  const [newPassword, setNewPassword] = useState("");
+  const [pwdError, setPwdError] = useState("");
+  const [pwdLoading, setPwdLoading] = useState(false);
 
   const fetchAll = () => {
     UsersAPI.list().then((r) => setUsers(r.data));
@@ -35,6 +40,13 @@ export function UsersPage() {
     setModalOpen(true);
   };
 
+  const openPasswordModal = (u) => {
+    setPwdUser(u);
+    setNewPassword("");
+    setPwdError("");
+    setPwdModalOpen(true);
+  };
+
   const handleSave = async () => {
     setError(""); setLoading(true);
     try {
@@ -50,6 +62,24 @@ export function UsersPage() {
       setError(err?.response?.data?.error || "Failed to save");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleChangePassword = async () => {
+    setPwdError("");
+    if (!newPassword || newPassword.length < 6) {
+      setPwdError("New password must be at least 6 characters");
+      return;
+    }
+
+    setPwdLoading(true);
+    try {
+      await UsersAPI.changePassword(pwdUser.id, { new_password: newPassword });
+      setPwdModalOpen(false);
+    } catch (err) {
+      setPwdError(err?.response?.data?.error || "Failed to update password");
+    } finally {
+      setPwdLoading(false);
     }
   };
 
@@ -88,9 +118,14 @@ export function UsersPage() {
                   <span className={`w-2 h-2 rounded-full inline-block ${u.is_active ? "bg-emerald-400" : "bg-slate-600"}`} />
                 </td>
                 <td className="px-4 py-3">
-                  <button onClick={() => openEdit(u)} className="text-slate-500 hover:text-amber-400 p-1.5 rounded-lg hover:bg-amber-500/10">
-                    <Pencil className="w-4 h-4" />
-                  </button>
+                  <div className="flex items-center gap-1">
+                    <button onClick={() => openEdit(u)} className="text-slate-500 hover:text-amber-400 p-1.5 rounded-lg hover:bg-amber-500/10" title="Edit user">
+                      <Pencil className="w-4 h-4" />
+                    </button>
+                    <button onClick={() => openPasswordModal(u)} className="text-slate-500 hover:text-cyan-400 p-1.5 rounded-lg hover:bg-cyan-500/10" title="Change password">
+                      PW
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -145,6 +180,25 @@ export function UsersPage() {
           <button onClick={handleSave} disabled={loading}
             className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold py-3 rounded-lg disabled:opacity-50">
             {loading ? "Saving…" : "Save"}
+          </button>
+        </div>
+      </Modal>
+
+      <Modal open={pwdModalOpen} onClose={() => setPwdModalOpen(false)} title={`Set Password: ${pwdUser?.username || "User"}`}>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-xs font-medium text-slate-400 mb-1.5 uppercase tracking-wider">New Password</label>
+            <input
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-cyan-500"
+            />
+          </div>
+          {pwdError && <p className="text-red-400 text-sm">{pwdError}</p>}
+          <button onClick={handleChangePassword} disabled={pwdLoading}
+            className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold py-3 rounded-lg disabled:opacity-50">
+            {pwdLoading ? "Updating..." : "Update Password"}
           </button>
         </div>
       </Modal>

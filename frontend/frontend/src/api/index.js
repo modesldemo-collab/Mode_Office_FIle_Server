@@ -12,7 +12,10 @@ api.interceptors.request.use((cfg) => {
 
 export const Auth = {
   login: (data) => api.post("/api/auth/login", data),
+  register: (data) => api.post("/api/auth/register", data),
   me:    ()     => api.get("/api/auth/me"),
+  changePassword: (data) => api.post("/api/auth/change-password", data),
+  shareUsers: () => api.get("/api/auth/share-users"),
 };
 
 export const Departments = {
@@ -26,6 +29,7 @@ export const UsersAPI = {
   list:   ()         => api.get("/api/users"),
   create: (data)     => api.post("/api/users", data),
   update: (id, data) => api.put(`/api/users/${id}`, data),
+  changePassword: (id, data) => api.put(`/api/users/${id}/password`, data),
 };
 
 export const PersonsAPI = {
@@ -43,6 +47,9 @@ export const DocsAPI = {
     }),
   update: (id, data) => api.put(`/api/documents/${id}`, data),
   delete: (id) => api.delete(`/api/documents/${id}`),
+  listShares: (id) => api.get(`/api/documents/${id}/shares`),
+  share: (id, data) => api.post(`/api/documents/${id}/share`, data),
+  unshare: (id, userId) => api.delete(`/api/documents/${id}/share/${userId}`),
   previewUrl:  (id) =>
     `${BASE_URL}/api/documents/${id}/preview?token=${localStorage.getItem("mde_token")}`,
   downloadUrl: (id) =>

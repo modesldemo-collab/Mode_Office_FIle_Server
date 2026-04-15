@@ -20,10 +20,22 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  const login = async (email, password) => {
-    const r = await Auth.login({ email, password });
+  const login = async (identifier, password) => {
+    const r = await Auth.login({ identifier, password });
     localStorage.setItem("mde_token", r.data.token);
     setUser(r.data.user);
+  };
+
+  const signup = async (identifier, password) => {
+    await Auth.register({ identifier, password });
+    await login(identifier, password);
+  };
+
+  const changePassword = async (currentPassword, newPassword) => {
+    await Auth.changePassword({
+      current_password: currentPassword,
+      new_password: newPassword,
+    });
   };
 
   const logout = () => {
@@ -39,7 +51,7 @@ export function AuthProvider({ children }) {
     );
 
   return (
-    <AuthCtx.Provider value={{ user, login, logout }}>
+    <AuthCtx.Provider value={{ user, login, signup, changePassword, logout }}>
       {children}
     </AuthCtx.Provider>
   );

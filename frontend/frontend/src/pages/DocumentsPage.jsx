@@ -1,17 +1,17 @@
 import React, { useState, useEffect, useCallback } from "react";
 import {
-  Search, RefreshCw, Plus, Eye, Download, Pencil, ScrollText, Trash2,
+  Search, RefreshCw, Plus, Eye, Download, Pencil, ScrollText, Trash2, Send,
 } from "lucide-react";
-import { DocsAPI, Departments, PersonsAPI } from "../api";
+import { Auth, DocsAPI, Departments, PersonsAPI } from "../api";
 import { useAuth } from "../context/AuthContext";
 import { Badge } from "../components/Badge";
 import { FileIcon } from "../components/FileIcon";
-import { Modal } from "../components/Modal";
 import { formatBytes, formatDate } from "../utils";
 import { UploadModal } from "./documents/UploadModal";
 import { EditModal } from "./documents/EditModal";
 import { PreviewModal } from "./documents/PreviewModal";
 import { DocLogsModal } from "./documents/DocLogsModal";
+import { ShareModal } from "./documents/ShareModal";
 
 export function DocumentsPage() {
   const { user } = useAuth();
@@ -19,6 +19,7 @@ export function DocumentsPage() {
   const [total, setTotal]             = useState(0);
   const [departments, setDepartments] = useState([]);
   const [persons, setPersons]         = useState([]);
+  const [shareUsers, setShareUsers]   = useState([]);
   const [loading, setLoading]         = useState(false);
   const [page, setPage]               = useState(1);
   const limit = 20;
@@ -26,6 +27,7 @@ export function DocumentsPage() {
   const [search, setSearch]             = useState("");
   const [filterDept, setFilterDept]     = useState("");
   const [filterStatus, setFilterStatus] = useState("");
+  const [filterFolder, setFilterFolder] = useState("");
   const [fromDate, setFromDate]         = useState("");
   const [toDate, setToDate]             = useState("");
 
@@ -33,6 +35,7 @@ export function DocumentsPage() {
   const [editDoc, setEditDoc]       = useState(null);
   const [previewDoc, setPreviewDoc] = useState(null);
   const [logsDocId, setLogsDocId]   = useState(null);
+  const [shareDoc, setShareDoc]     = useState(null);
 
   const fetchDocs = useCallback(async () => {
     setLoading(true);
@@ -41,6 +44,7 @@ export function DocumentsPage() {
         search,
         dept_id:   filterDept,
         status:    filterStatus,
+        folder:    filterFolder,
         from_date: fromDate,
         to_date:   toDate,
         page,
@@ -51,11 +55,12 @@ export function DocumentsPage() {
     } finally {
       setLoading(false);
     }
-  }, [search, filterDept, filterStatus, fromDate, toDate, page]);
+  }, [search, filterDept, filterStatus, filterFolder, fromDate, toDate, page]);
 
   useEffect(() => {
     Departments.list().then((r) => setDepartments(r.data));
     PersonsAPI.list().then((r) => setPersons(r.data));
+    Auth.shareUsers().then((r) => setShareUsers(r.data));
   }, []);
 
   useEffect(() => { fetchDocs(); }, [fetchDocs]);
@@ -101,12 +106,21 @@ export function DocumentsPage() {
           <option value="draft">Draft</option>
           <option value="final">Final</option>
         </select>
+        <select
+          value={filterFolder}
+          onChange={(e) => { setFilterFolder(e.target.value); setPage(1); }}
+          className="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-slate-300 text-sm focus:outline-none focus:border-cyan-500"
+        >
+          <option value="">{user?.role === "admin" ? "All Folder Views" : "My Folder (Own + Shared)"}</option>
+          <option value="my">Uploaded By Me</option>
+          <option value="shared">Shared</option>
+        </select>
         <input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)}
           className="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-slate-300 text-sm focus:outline-none focus:border-cyan-500" />
         <input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)}
           className="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-slate-300 text-sm focus:outline-none focus:border-cyan-500" />
         <button
-          onClick={() => { setSearch(""); setFilterDept(""); setFilterStatus(""); setFromDate(""); setToDate(""); setPage(1); }}
+          onClick={() => { setSearch(""); setFilterDept(""); setFilterStatus(""); setFilterFolder(""); setFromDate(""); setToDate(""); setPage(1); }}
           className="text-slate-400 hover:text-white p-2.5 rounded-xl border border-slate-700 hover:border-slate-500 transition-colors"
           title="Clear filters"
         >
@@ -150,6 +164,9 @@ export function DocumentsPage() {
                       <div>
                         <p className="text-white font-medium leading-tight">{doc.doc_name}</p>
                         <p className="text-slate-500 text-xs">{doc.file_name}</p>
+                        {doc.shared_with_me ? (
+                          <p className="text-cyan-400 text-[11px]">Shared with you</p>
+                        ) : null}
                       </div>
                     </div>
                   </td>
@@ -172,6 +189,11 @@ export function DocumentsPage() {
                       <button onClick={() => setLogsDocId(doc.id)} className="p-1.5 text-slate-500 hover:text-violet-400 rounded-lg hover:bg-violet-500/10 transition-all" title="View history">
                         <ScrollText className="w-4 h-4" />
                       </button>
+                      {(user?.role === "admin" || doc.uploader_id === user?.id) && (
+                        <button onClick={() => setShareDoc(doc)} className="p-1.5 text-slate-500 hover:text-cyan-400 rounded-lg hover:bg-cyan-500/10 transition-all" title="Share">
+                          <Send className="w-4 h-4" />
+                        </button>
+                      )}
                       {(user?.role === "admin" || doc.uploader_id === user?.id) && (
                         <button onClick={() => handleDelete(doc.id)} className="p-1.5 text-slate-500 hover:text-red-400 rounded-lg hover:bg-red-500/10 transition-all" title="Delete">
                           <Trash2 className="w-4 h-4" />
@@ -208,6 +230,13 @@ export function DocumentsPage() {
       <EditModal open={!!editDoc} onClose={() => setEditDoc(null)} onSuccess={fetchDocs} doc={editDoc} departments={departments} persons={persons} />
       <PreviewModal open={!!previewDoc} onClose={() => setPreviewDoc(null)} doc={previewDoc} />
       <DocLogsModal open={!!logsDocId} onClose={() => setLogsDocId(null)} docId={logsDocId} />
+      <ShareModal
+        open={!!shareDoc}
+        onClose={() => setShareDoc(null)}
+        onSuccess={fetchDocs}
+        doc={shareDoc}
+        users={shareUsers}
+      />
     </div>
   );
 }

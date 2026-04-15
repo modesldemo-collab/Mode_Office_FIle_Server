@@ -6,10 +6,12 @@ import {
   Users,
   Building2,
   UserCheck,
+  KeyRound,
   LogOut,
   ShieldCheck,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import { Modal } from "../components/Modal";
 
 export const NavCtx = createContext(null);
 
@@ -26,8 +28,54 @@ export const ADMIN_NAV = [
 ];
 
 export function Sidebar({ open, onClose }) {
-  const { user, logout } = useAuth();
+  const { user, logout, changePassword } = useAuth();
   const { page, setPage } = React.useContext(NavCtx);
+  const [pwdOpen, setPwdOpen] = React.useState(false);
+  const [currentPwd, setCurrentPwd] = React.useState("");
+  const [newPwd, setNewPwd] = React.useState("");
+  const [confirmPwd, setConfirmPwd] = React.useState("");
+  const [pwdLoading, setPwdLoading] = React.useState(false);
+  const [pwdError, setPwdError] = React.useState("");
+  const [pwdSuccess, setPwdSuccess] = React.useState("");
+
+  const resetPwdForm = () => {
+    setCurrentPwd("");
+    setNewPwd("");
+    setConfirmPwd("");
+    setPwdError("");
+    setPwdSuccess("");
+  };
+
+  const handleChangePassword = async () => {
+    setPwdError("");
+    setPwdSuccess("");
+
+    if (!currentPwd || !newPwd) {
+      setPwdError("Current and new password are required");
+      return;
+    }
+    if (newPwd.length < 6) {
+      setPwdError("New password must be at least 6 characters");
+      return;
+    }
+    if (newPwd !== confirmPwd) {
+      setPwdError("Passwords do not match");
+      return;
+    }
+
+    setPwdLoading(true);
+    try {
+      await changePassword(currentPwd, newPwd);
+      setPwdSuccess("Password changed successfully");
+      setCurrentPwd("");
+      setNewPwd("");
+      setConfirmPwd("");
+    } catch (err) {
+      setPwdError(err?.response?.data?.error || "Failed to change password");
+    } finally {
+      setPwdLoading(false);
+    }
+  };
 
   const NavBtn = ({ item }) => (
     <button
@@ -96,7 +144,57 @@ export function Sidebar({ open, onClose }) {
             <LogOut className="w-4 h-4" />
           </button>
         </div>
+        <button
+          onClick={() => {
+            resetPwdForm();
+            setPwdOpen(true);
+          }}
+          className="mt-2 w-full flex items-center justify-center gap-2 text-xs text-slate-400 hover:text-cyan-400 border border-slate-700 hover:border-cyan-500/40 rounded-lg py-2 transition-colors"
+        >
+          <KeyRound className="w-3.5 h-3.5" /> Change Password
+        </button>
       </div>
+
+      <Modal open={pwdOpen} onClose={() => setPwdOpen(false)} title="Change Password">
+        <div className="space-y-4">
+          <div>
+            <label className="block text-xs font-medium text-slate-400 mb-1.5 uppercase tracking-wider">Current Password</label>
+            <input
+              type="password"
+              value={currentPwd}
+              onChange={(e) => setCurrentPwd(e.target.value)}
+              className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-cyan-500"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-slate-400 mb-1.5 uppercase tracking-wider">New Password</label>
+            <input
+              type="password"
+              value={newPwd}
+              onChange={(e) => setNewPwd(e.target.value)}
+              className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-cyan-500"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-slate-400 mb-1.5 uppercase tracking-wider">Confirm New Password</label>
+            <input
+              type="password"
+              value={confirmPwd}
+              onChange={(e) => setConfirmPwd(e.target.value)}
+              className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-cyan-500"
+            />
+          </div>
+          {pwdError && <p className="text-red-400 text-sm">{pwdError}</p>}
+          {pwdSuccess && <p className="text-emerald-400 text-sm">{pwdSuccess}</p>}
+          <button
+            onClick={handleChangePassword}
+            disabled={pwdLoading}
+            className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold py-3 rounded-lg disabled:opacity-50"
+          >
+            {pwdLoading ? "Updating..." : "Update Password"}
+          </button>
+        </div>
+      </Modal>
     </aside>
   );
 }

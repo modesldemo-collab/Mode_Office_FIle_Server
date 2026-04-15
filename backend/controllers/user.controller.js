@@ -38,4 +38,20 @@ const update = async (req, res) => {
   res.json({ message: "Updated" });
 };
 
-module.exports = { getAll, create, update };
+const changePassword = async (req, res) => {
+  const { new_password } = req.body;
+  if (!new_password || new_password.length < 6) {
+    return res.status(400).json({ error: "New password must be at least 6 characters" });
+  }
+
+  const [rows] = await db.query("SELECT id FROM users WHERE id = ? LIMIT 1", [req.params.id]);
+  if (!rows.length) {
+    return res.status(404).json({ error: "User not found" });
+  }
+
+  const hash = await bcrypt.hash(new_password, 10);
+  await db.query("UPDATE users SET password_hash = ? WHERE id = ?", [hash, req.params.id]);
+  res.json({ message: "Password updated" });
+};
+
+module.exports = { getAll, create, update, changePassword };

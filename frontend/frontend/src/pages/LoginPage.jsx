@@ -3,8 +3,9 @@ import { AlertCircle, ShieldCheck } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
 export function LoginPage() {
-  const { login } = useAuth();
-  const [email, setEmail]       = useState("");
+  const { login, signup } = useAuth();
+  const [mode, setMode]         = useState("login");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError]       = useState("");
   const [loading, setLoading]   = useState(false);
@@ -14,9 +15,13 @@ export function LoginPage() {
     setError("");
     setLoading(true);
     try {
-      await login(email, password);
+      if (mode === "signup") {
+        await signup(identifier, password);
+      } else {
+        await login(identifier, password);
+      }
     } catch (err) {
-      setError(err?.response?.data?.error || "Login failed");
+      setError(err?.response?.data?.error || (mode === "signup" ? "Signup failed" : "Login failed"));
     } finally {
       setLoading(false);
     }
@@ -49,19 +54,19 @@ export function LoginPage() {
 
         <div className="bg-slate-900/80 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-8 shadow-2xl">
           <h2 className="text-lg font-semibold text-white mb-6">
-            Sign in to your account
+            {mode === "signup" ? "Create your account" : "Sign in to your account"}
           </h2>
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label className="block text-xs font-medium text-slate-400 mb-2 uppercase tracking-wider">
-                Email Address
+                Username or Email
               </label>
               <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                type="text"
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
                 className="w-full bg-slate-800 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition-colors"
-                placeholder="you@mde.gov.lk"
+                placeholder="username or you@mde.gov.lk"
                 required
               />
             </div>
@@ -89,7 +94,22 @@ export function LoginPage() {
               disabled={loading}
               className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold py-3 rounded-lg transition-all duration-200 disabled:opacity-50 shadow-lg shadow-cyan-500/20"
             >
-              {loading ? "Signing in…" : "Sign In"}
+              {loading
+                ? mode === "signup" ? "Creating account..." : "Signing in..."
+                : mode === "signup" ? "Sign Up" : "Sign In"}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setMode((m) => (m === "login" ? "signup" : "login"));
+                setError("");
+              }}
+              className="w-full text-sm text-cyan-400 hover:text-cyan-300"
+            >
+              {mode === "signup"
+                ? "Already have an account? Sign in"
+                : "No account? Sign up"}
             </button>
           </form>
         </div>
