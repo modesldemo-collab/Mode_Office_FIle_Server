@@ -3,8 +3,7 @@ import { AlertCircle, ShieldCheck } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
 export function LoginPage() {
-  const { login, signup } = useAuth();
-  const [mode, setMode]         = useState("login");
+  const { login } = useAuth();
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError]       = useState("");
@@ -15,13 +14,9 @@ export function LoginPage() {
     setError("");
     setLoading(true);
     try {
-      if (mode === "signup") {
-        await signup(identifier, password);
-      } else {
-        await login(identifier, password);
-      }
+      await login(identifier, password);
     } catch (err) {
-      setError(err?.response?.data?.error || (mode === "signup" ? "Signup failed" : "Login failed"));
+      setError(err?.response?.data?.error || "Login failed");
     } finally {
       setLoading(false);
     }
@@ -54,7 +49,7 @@ export function LoginPage() {
 
         <div className="bg-slate-900/80 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-8 shadow-2xl">
           <h2 className="text-lg font-semibold text-white mb-6">
-            {mode === "signup" ? "Create your account" : "Sign in to your account"}
+            Sign in to your account
           </h2>
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
@@ -94,22 +89,15 @@ export function LoginPage() {
               disabled={loading}
               className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold py-3 rounded-lg transition-all duration-200 disabled:opacity-50 shadow-lg shadow-cyan-500/20"
             >
-              {loading
-                ? mode === "signup" ? "Creating account..." : "Signing in..."
-                : mode === "signup" ? "Sign Up" : "Sign In"}
+              {loading ? "Signing in..." : "Sign In"}
             </button>
 
             <button
               type="button"
-              onClick={() => {
-                setMode((m) => (m === "login" ? "signup" : "login"));
-                setError("");
-              }}
+              onClick={() => setError("If you want to use this system, please contact the IT Director and get your credentials.")}
               className="w-full text-sm text-cyan-400 hover:text-cyan-300"
             >
-              {mode === "signup"
-                ? "Already have an account? Sign in"
-                : "No account? Sign up"}
+              No account? Sign up
             </button>
           </form>
         </div>

@@ -26,11 +26,6 @@ export function AuthProvider({ children }) {
     setUser(r.data.user);
   };
 
-  const signup = async (identifier, password) => {
-    await Auth.register({ identifier, password });
-    await login(identifier, password);
-  };
-
   const changePassword = async (currentPassword, newPassword) => {
     await Auth.changePassword({
       current_password: currentPassword,
@@ -51,7 +46,7 @@ export function AuthProvider({ children }) {
     );
 
   return (
-    <AuthCtx.Provider value={{ user, login, signup, changePassword, logout }}>
+    <AuthCtx.Provider value={{ user, login, changePassword, logout }}>
       {children}
     </AuthCtx.Provider>
   );

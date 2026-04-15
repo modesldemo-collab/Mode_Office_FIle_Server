@@ -5,7 +5,6 @@ import {
   ScrollText,
   Users,
   Building2,
-  UserCheck,
   KeyRound,
   LogOut,
   ShieldCheck,
@@ -24,7 +23,6 @@ export const NAV_ITEMS = [
 export const ADMIN_NAV = [
   { id: "users",       label: "Users",         icon: Users },
   { id: "departments", label: "Departments",    icon: Building2 },
-  { id: "persons",     label: "Resp. Persons",  icon: UserCheck },
 ];
 
 export function Sidebar({ open, onClose }) {
@@ -83,7 +81,7 @@ export function Sidebar({ open, onClose }) {
       className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
         page === item.id
           ? "bg-cyan-500/15 text-cyan-400 border border-cyan-500/30"
-          : "text-slate-400 hover:text-white hover:bg-slate-800"
+          : "text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-soft)]"
       }`}
     >
       <item.icon className="w-4 h-4 flex-shrink-0" />
@@ -93,18 +91,18 @@ export function Sidebar({ open, onClose }) {
 
   return (
     <aside
-      className={`fixed inset-y-0 left-0 z-40 w-64 bg-slate-950 border-r border-slate-800 flex flex-col transition-transform duration-300 ${
+      className={`fixed inset-y-0 left-0 z-40 w-64 bg-[var(--bg-panel)] border-r border-[var(--border-main)] flex flex-col transition-transform duration-300 ${
         open ? "translate-x-0" : "-translate-x-full"
       } lg:translate-x-0`}
     >
-      <div className="p-5 border-b border-slate-800">
+      <div className="p-5 border-b border-[var(--border-main)]">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-md shadow-cyan-500/20">
             <ShieldCheck className="w-5 h-5 text-white" />
           </div>
           <div>
-            <p className="text-white text-sm font-bold leading-tight">MDE·LK</p>
-            <p className="text-slate-500 text-xs">File Management</p>
+            <p className="text-[var(--text-main)] text-sm font-bold leading-tight">MDE·LK</p>
+            <p className="text-[var(--text-soft)] text-xs">File Management</p>
           </div>
         </div>
       </div>
@@ -116,7 +114,7 @@ export function Sidebar({ open, onClose }) {
         {user?.role === "admin" && (
           <>
             <div className="pt-4 pb-1 px-4">
-              <p className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+              <p className="text-xs font-semibold text-[var(--text-soft)] uppercase tracking-wider">
                 Administration
               </p>
             </div>
@@ -127,18 +125,18 @@ export function Sidebar({ open, onClose }) {
         )}
       </nav>
 
-      <div className="p-3 border-t border-slate-800">
+      <div className="p-3 border-t border-[var(--border-main)]">
         <div className="flex items-center gap-3 px-2 py-2 rounded-xl">
           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-600 to-blue-700 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
             {user?.username?.[0]?.toUpperCase()}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-white text-sm font-medium truncate">{user?.username}</p>
-            <p className="text-slate-500 text-xs truncate">{user?.role}</p>
+            <p className="text-[var(--text-main)] text-sm font-medium truncate">{user?.username}</p>
+            <p className="text-[var(--text-soft)] text-xs truncate">{user?.role}</p>
           </div>
           <button
             onClick={logout}
-            className="text-slate-500 hover:text-red-400 transition-colors"
+            className="text-[var(--text-soft)] hover:text-red-500 transition-colors"
             title="Logout"
           >
             <LogOut className="w-4 h-4" />
@@ -149,7 +147,7 @@ export function Sidebar({ open, onClose }) {
             resetPwdForm();
             setPwdOpen(true);
           }}
-          className="mt-2 w-full flex items-center justify-center gap-2 text-xs text-slate-400 hover:text-cyan-400 border border-slate-700 hover:border-cyan-500/40 rounded-lg py-2 transition-colors"
+          className="mt-2 w-full flex items-center justify-center gap-2 text-xs text-[var(--text-muted)] hover:text-cyan-500 border border-[var(--border-main)] hover:border-cyan-500/40 rounded-lg py-2 transition-colors"
         >
           <KeyRound className="w-3.5 h-3.5" /> Change Password
         </button>

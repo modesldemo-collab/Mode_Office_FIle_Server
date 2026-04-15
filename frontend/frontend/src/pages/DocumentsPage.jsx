@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import {
   Search, RefreshCw, Plus, Eye, Download, Pencil, ScrollText, Trash2, Send,
 } from "lucide-react";
-import { Auth, DocsAPI, Departments, PersonsAPI } from "../api";
+import { Auth, DocsAPI, Departments } from "../api";
 import { useAuth } from "../context/AuthContext";
 import { Badge } from "../components/Badge";
 import { FileIcon } from "../components/FileIcon";
@@ -18,8 +18,7 @@ export function DocumentsPage() {
   const [docs, setDocs]               = useState([]);
   const [total, setTotal]             = useState(0);
   const [departments, setDepartments] = useState([]);
-  const [persons, setPersons]         = useState([]);
-  const [shareUsers, setShareUsers]   = useState([]);
+  const [users, setUsers]             = useState([]);
   const [loading, setLoading]         = useState(false);
   const [page, setPage]               = useState(1);
   const limit = 20;
@@ -59,8 +58,7 @@ export function DocumentsPage() {
 
   useEffect(() => {
     Departments.list().then((r) => setDepartments(r.data));
-    PersonsAPI.list().then((r) => setPersons(r.data));
-    Auth.shareUsers().then((r) => setShareUsers(r.data));
+    Auth.shareUsers().then((r) => setUsers(r.data));
   }, []);
 
   useEffect(() => { fetchDocs(); }, [fetchDocs]);
@@ -226,8 +224,8 @@ export function DocumentsPage() {
         )}
       </div>
 
-      <UploadModal open={uploadOpen} onClose={() => setUploadOpen(false)} onSuccess={fetchDocs} departments={departments} persons={persons} />
-      <EditModal open={!!editDoc} onClose={() => setEditDoc(null)} onSuccess={fetchDocs} doc={editDoc} departments={departments} persons={persons} />
+      <UploadModal open={uploadOpen} onClose={() => setUploadOpen(false)} onSuccess={fetchDocs} departments={departments} users={users} />
+      <EditModal open={!!editDoc} onClose={() => setEditDoc(null)} onSuccess={fetchDocs} doc={editDoc} departments={departments} users={users} />
       <PreviewModal open={!!previewDoc} onClose={() => setPreviewDoc(null)} doc={previewDoc} />
       <DocLogsModal open={!!logsDocId} onClose={() => setLogsDocId(null)} docId={logsDocId} />
       <ShareModal
@@ -235,7 +233,7 @@ export function DocumentsPage() {
         onClose={() => setShareDoc(null)}
         onSuccess={fetchDocs}
         doc={shareDoc}
-        users={shareUsers}
+        users={users}
       />
     </div>
   );

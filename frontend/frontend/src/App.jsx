@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { AuthProvider, useAuth } from "./context/AuthContext";
+import { ThemeProvider } from "./context/ThemeContext";
 import { NavCtx } from "./layout/Sidebar";
 import { Shell } from "./layout/Shell";
 import { LoginPage } from "./pages/LoginPage";
@@ -8,7 +9,6 @@ import { DocumentsPage } from "./pages/DocumentsPage";
 import { LogsPage } from "./pages/LogsPage";
 import { UsersPage } from "./pages/admin/UsersPage";
 import { DepartmentsPage } from "./pages/admin/DepartmentsPage";
-import { PersonsPage } from "./pages/admin/PersonsPage";
 
 function AppRouter() {
   const { user } = useAuth();
@@ -22,7 +22,6 @@ function AppRouter() {
     logs:        LogsPage,
     users:       UsersPage,
     departments: DepartmentsPage,
-    persons:     PersonsPage,
   }[page] || DashboardPage;
 
   return (
@@ -36,8 +35,10 @@ function AppRouter() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <AppRouter />
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <AppRouter />
+      </AuthProvider>
+    </ThemeProvider>
   );
 }

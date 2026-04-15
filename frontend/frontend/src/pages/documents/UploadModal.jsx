@@ -6,12 +6,12 @@ import { Modal } from "../../components/Modal";
 import { FileIcon } from "../../components/FileIcon";
 import { formatBytes } from "../../utils";
 
-export function UploadModal({ open, onClose, onSuccess, departments, persons }) {
+export function UploadModal({ open, onClose, onSuccess, departments, users }) {
   const { user } = useAuth();
   const [file, setFile]                       = useState(null);
   const [docName, setDocName]                 = useState("");
   const [deptId, setDeptId]                   = useState(user?.dept_id || "");
-  const [selectedPersons, setSelectedPersons] = useState([]);
+  const [selectedUsers, setSelectedUsers] = useState([]);
   const [status, setStatus]                   = useState("draft");
   const [dragging, setDragging]               = useState(false);
   const [loading, setLoading]                 = useState(false);
@@ -21,7 +21,7 @@ export function UploadModal({ open, onClose, onSuccess, departments, persons }) 
 
   const reset = () => {
     setFile(null); setDocName(""); setDeptId(user?.dept_id || "");
-    setSelectedPersons([]); setStatus("draft"); setProgress(0); setError("");
+    setSelectedUsers([]); setStatus("draft"); setProgress(0); setError("");
   };
 
   const handleClose = () => { reset(); onClose(); };
@@ -37,8 +37,8 @@ export function UploadModal({ open, onClose, onSuccess, departments, persons }) 
     if (f) { setFile(f); if (!docName) setDocName(f.name); }
   };
 
-  const togglePerson = (id) =>
-    setSelectedPersons((prev) =>
+  const toggleUser = (id) =>
+    setSelectedUsers((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
 
@@ -51,7 +51,7 @@ export function UploadModal({ open, onClose, onSuccess, departments, persons }) 
       fd.append("file",                file);
       fd.append("doc_name",            docName);
       fd.append("dept_id",             deptId || "");
-      fd.append("responsible_persons", JSON.stringify(selectedPersons));
+      fd.append("responsible_persons", JSON.stringify(selectedUsers));
       fd.append("status",              status);
 
       await api.post("/api/documents", fd, {
@@ -149,24 +149,24 @@ export function UploadModal({ open, onClose, onSuccess, departments, persons }) 
           </select>
         </div>
 
-        {persons.length > 0 && (
+        {users.length > 0 && (
           <div>
             <label className="block text-xs font-medium text-slate-400 mb-2 uppercase tracking-wider">
-              Responsible Persons (optional)
+              Related Users (optional)
             </label>
             <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto bg-slate-800/50 border border-slate-700 rounded-lg p-3">
-              {persons.map((p) => (
+              {users.map((u) => (
                 <button
-                  key={p.id}
+                  key={u.id}
                   type="button"
-                  onClick={() => togglePerson(p.id)}
+                  onClick={() => toggleUser(u.id)}
                   className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
-                    selectedPersons.includes(p.id)
+                    selectedUsers.includes(u.id)
                       ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/50"
                       : "bg-slate-700 text-slate-400 border border-slate-600 hover:border-slate-500"
                   }`}
                 >
-                  {p.name}
+                  {u.username}
                 </button>
               ))}
             </div>

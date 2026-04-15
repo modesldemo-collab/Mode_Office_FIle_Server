@@ -51,45 +51,8 @@ const login = async (req, res) => {
 
 // POST /api/auth/register
 const register = async (req, res) => {
-  const { identifier, username, email, password, dept_id } = req.body;
-
-  const rawIdentifier = (identifier || "").trim();
-  const hasAt = rawIdentifier.includes("@");
-
-  const resolvedUsername = (username || (!hasAt ? rawIdentifier : rawIdentifier.split("@")[0]) || "").trim();
-  const resolvedEmail = (email || (hasAt ? rawIdentifier : "") || "").trim();
-
-  if (!resolvedUsername || !password) {
-    return res.status(400).json({ error: "Username (or email) and password required" });
-  }
-
-  if (password.length < 6) {
-    return res.status(400).json({ error: "Password must be at least 6 characters" });
-  }
-
-  const [exists] = await db.query(
-    `SELECT id FROM users
-     WHERE username = ? OR (? <> '' AND email = ?)
-     LIMIT 1`,
-    [resolvedUsername, resolvedEmail, resolvedEmail]
-  );
-
-  if (exists.length) {
-    return res.status(409).json({ error: "Username or email already exists" });
-  }
-
-  const hash = await bcrypt.hash(password, 10);
-  const [result] = await db.query(
-    `INSERT INTO users (username, email, password_hash, dept_id, role, is_active)
-     VALUES (?,?,?,?, 'user', 1)`,
-    [resolvedUsername, resolvedEmail || null, hash, dept_id || null]
-  );
-
-  res.status(201).json({
-    id: result.insertId,
-    username: resolvedUsername,
-    email: resolvedEmail || null,
-    message: "Account created successfully",
+  return res.status(403).json({
+    error: "If you want to use this system, please contact the IT Director and get your credentials.",
   });
 };
 

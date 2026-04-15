@@ -26,14 +26,21 @@ export function ActionBadge({ action }) {
     UPDATE_METADATA: "bg-purple-900/40 text-purple-400 border-purple-800/50",
     STATUS_CHANGE:   "bg-amber-900/40 text-amber-400 border-amber-800/50",
     DELETE:          "bg-red-900/40 text-red-400 border-red-800/50",
+    SHARE:           "bg-cyan-900/40 text-cyan-400 border-cyan-800/50",
+    UNSHARE:         "bg-orange-900/40 text-orange-400 border-orange-800/50",
   };
+
+  const labelMap = {
+    UPDATE_METADATA: "UPDATE",
+  };
+
   return (
     <span
       className={`inline-block px-2 py-0.5 rounded text-xs font-medium border ${
         map[action] || "bg-slate-800 text-slate-400 border-slate-700"
       }`}
     >
-      {action}
+      {labelMap[action] || action}
     </span>
   );
 }

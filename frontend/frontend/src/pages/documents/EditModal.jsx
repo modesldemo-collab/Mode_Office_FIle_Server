@@ -2,10 +2,10 @@ import React, { useState, useEffect } from "react";
 import { DocsAPI } from "../../api";
 import { Modal } from "../../components/Modal";
 
-export function EditModal({ open, onClose, onSuccess, doc, departments, persons }) {
+export function EditModal({ open, onClose, onSuccess, doc, departments, users }) {
   const [docName, setDocName]                 = useState("");
   const [deptId, setDeptId]                   = useState("");
-  const [selectedPersons, setSelectedPersons] = useState([]);
+  const [selectedUsers, setSelectedUsers] = useState([]);
   const [status, setStatus]                   = useState("draft");
   const [loading, setLoading]                 = useState(false);
   const [error, setError]                     = useState("");
@@ -20,15 +20,15 @@ export function EditModal({ open, onClose, onSuccess, doc, departments, persons 
           typeof doc.responsible_persons === "string"
             ? JSON.parse(doc.responsible_persons)
             : doc.responsible_persons || [];
-        setSelectedPersons(rp);
+        setSelectedUsers(rp);
       } catch {
-        setSelectedPersons([]);
+        setSelectedUsers([]);
       }
     }
   }, [doc]);
 
-  const togglePerson = (id) =>
-    setSelectedPersons((prev) =>
+  const toggleUser = (id) =>
+    setSelectedUsers((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
 
@@ -39,7 +39,7 @@ export function EditModal({ open, onClose, onSuccess, doc, departments, persons 
       await DocsAPI.update(doc.id, {
         doc_name:            docName,
         dept_id:             deptId || null,
-        responsible_persons: JSON.stringify(selectedPersons),
+        responsible_persons: JSON.stringify(selectedUsers),
         status,
       });
       onSuccess();
@@ -76,22 +76,22 @@ export function EditModal({ open, onClose, onSuccess, doc, departments, persons 
             ))}
           </select>
         </div>
-        {persons.length > 0 && (
+        {users.length > 0 && (
           <div>
-            <label className="block text-xs font-medium text-slate-400 mb-2 uppercase tracking-wider">Responsible Persons</label>
+            <label className="block text-xs font-medium text-slate-400 mb-2 uppercase tracking-wider">Related Users</label>
             <div className="flex flex-wrap gap-2 max-h-28 overflow-y-auto bg-slate-800/50 border border-slate-700 rounded-lg p-3">
-              {persons.map((p) => (
+              {users.map((u) => (
                 <button
-                  key={p.id}
+                  key={u.id}
                   type="button"
-                  onClick={() => togglePerson(p.id)}
+                  onClick={() => toggleUser(u.id)}
                   className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
-                    selectedPersons.includes(p.id)
+                    selectedUsers.includes(u.id)
                       ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/50"
                       : "bg-slate-700 text-slate-400 border border-slate-600"
                   }`}
                 >
-                  {p.name}
+                  {u.username}
                 </button>
               ))}
             </div>

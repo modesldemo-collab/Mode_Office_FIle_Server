@@ -3,4 +3,31 @@
 @tailwind utilities;
 
 * { box-sizing: border-box; }
-body { margin: 0; background: #020617; }
+
+:root,
+.theme-dark {
+	--bg-main: #020617;
+	--bg-panel: #0f172a;
+	--bg-soft: #1e293b;
+	--text-main: #e2e8f0;
+	--text-muted: #94a3b8;
+	--text-soft: #64748b;
+	--border-main: #1e293b;
+}
+
+.theme-light {
+	--bg-main: #f8fafc;
+	--bg-panel: #ffffff;
+	--bg-soft: #f1f5f9;
+	--text-main: #0f172a;
+	--text-muted: #334155;
+	--text-soft: #64748b;
+	--border-main: #cbd5e1;
+}
+
+body {
+	margin: 0;
+	background: var(--bg-main);
+	color: var(--text-main);
+	transition: background-color 0.3s ease, color 0.3s ease;
+}
