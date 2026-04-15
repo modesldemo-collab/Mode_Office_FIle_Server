@@ -85,20 +85,6 @@ async function initDB() {
       )
     `);
 
-    await conn.query(`
-      CREATE TABLE IF NOT EXISTS document_shares (
-        id            INT AUTO_INCREMENT PRIMARY KEY,
-        doc_id         INT NOT NULL,
-        shared_by      INT,
-        shared_with    INT NOT NULL,
-        created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        UNIQUE KEY uniq_doc_user (doc_id, shared_with),
-        FOREIGN KEY (doc_id)      REFERENCES documents(id) ON DELETE CASCADE,
-        FOREIGN KEY (shared_by)   REFERENCES users(id)     ON DELETE SET NULL,
-        FOREIGN KEY (shared_with) REFERENCES users(id)     ON DELETE CASCADE
-      )
-    `);
-
     // Seed default admin if none exists
     const [admins] = await conn.query(
       "SELECT id FROM users WHERE role = 'admin' LIMIT 1"

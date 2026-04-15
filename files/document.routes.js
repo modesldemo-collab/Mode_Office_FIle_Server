@@ -13,15 +13,9 @@ const {
   softDelete,
   preview,
   download,
-  listShares,
-  share,
-  unshare,
 } = require("../controllers/document.controller");
 
 router.get("/",              authenticate, getAll);
-router.get("/:id/shares",    authenticate, listShares);
-router.post("/:id/share",    authenticate, share);
-router.delete("/:id/share/:userId", authenticate, unshare);
 router.get("/:id",           authenticate, getOne);
 router.post("/",             authenticate, upload.single("file"), uploadDoc);
 router.put("/:id",           authenticate, updateMetadata);
