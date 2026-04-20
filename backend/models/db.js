@@ -99,6 +99,21 @@ async function initDB() {
       )
     `);
 
+    await conn.query(`
+      CREATE TABLE IF NOT EXISTS tasks (
+        id           INT AUTO_INCREMENT PRIMARY KEY,
+        task_name    VARCHAR(255) NOT NULL,
+        assigned_by  INT,
+        assigned_to  INT,
+        status       VARCHAR(20)  DEFAULT 'pending',
+        created_at   TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
+        updated_at   TIMESTAMP    DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (assigned_by) REFERENCES users(id) ON DELETE SET NULL,
+        FOREIGN KEY (assigned_to) REFERENCES users(id) ON DELETE SET NULL,
+        CHECK (status IN ('pending','completed'))
+      )
+    `);
+
     // Seed default admin if none exists
     const [admins] = await conn.query(
       "SELECT id FROM users WHERE role = 'admin' LIMIT 1"

@@ -256,8 +256,15 @@ const preview = async (req, res) => {
   if (!fs.existsSync(file_path))
     return res.status(404).json({ error: "File not found on disk" });
 
-  res.setHeader("Content-Disposition", `inline; filename="${file_name}"`);
-  fs.createReadStream(file_path).pipe(res);
+  res.sendFile(path.resolve(file_path), {
+    headers: {
+      "Content-Disposition": `inline; filename="${file_name}"`,
+    },
+  }, (err) => {
+    if (err && !res.headersSent) {
+      return res.status(500).json({ error: "Failed to preview file" });
+    }
+  });
 };
 
 // GET /api/documents/:id/download

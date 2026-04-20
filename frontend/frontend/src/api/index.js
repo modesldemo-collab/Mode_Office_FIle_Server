@@ -51,9 +51,9 @@ export const DocsAPI = {
   share: (id, data) => api.post(`/api/documents/${id}/share`, data),
   unshare: (id, userId) => api.delete(`/api/documents/${id}/share/${userId}`),
   previewUrl:  (id) =>
-    `${BASE_URL}/api/documents/${id}/preview?token=${localStorage.getItem("mde_token")}`,
+    `${BASE_URL}/api/documents/${id}/preview?token=${encodeURIComponent(localStorage.getItem("mde_token") || "")}`,
   downloadUrl: (id) =>
-    `${BASE_URL}/api/documents/${id}/download?token=${localStorage.getItem("mde_token")}`,
+    `${BASE_URL}/api/documents/${id}/download?token=${encodeURIComponent(localStorage.getItem("mde_token") || "")}`,
 };
 
 export const LogsAPI = {
@@ -71,6 +71,15 @@ export const LogsAPI = {
 
 export const StatsAPI = {
   get: () => api.get("/api/stats"),
+};
+
+export const TasksAPI = {
+  list: () => api.get("/api/tasks"),
+  create: (data) => api.post("/api/tasks", data),
+  assign: (id, data) => api.patch(`/api/tasks/${id}/assign`, data),
+  selfAssign: (id) => api.patch(`/api/tasks/${id}/self-assign`),
+  updateStatus: (id, data) => api.patch(`/api/tasks/${id}/status`, data),
+  delete: (id) => api.delete(`/api/tasks/${id}`),
 };
 
 export default api;

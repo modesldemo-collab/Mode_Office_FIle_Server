@@ -2,6 +2,7 @@ import React, { createContext } from "react";
 import {
   LayoutDashboard,
   FileText,
+  ListChecks,
   CheckCheck,
   ScrollText,
   Users,
@@ -18,8 +19,8 @@ export const NavCtx = createContext(null);
 export const NAV_ITEMS = [
   { id: "dashboard", label: "Dashboard",  icon: LayoutDashboard },
   { id: "documents", label: "Documents",  icon: FileText },
+  { id: "tasks",     label: "Tasks",      icon: ListChecks },
   { id: "completed", label: "Completed",  icon: CheckCheck },
-  { id: "logs",      label: "Audit Logs", icon: ScrollText },
 ];
 
 export const ADMIN_NAV = [
@@ -115,6 +116,7 @@ export function Sidebar({ open, onClose }) {
         ))}
         {user?.role === "admin" && (
           <>
+            <NavBtn item={{ id: "logs", label: "Audit Logs", icon: ScrollText }} />
             <div className="pt-4 pb-1 px-4">
               <p className="text-xs font-semibold text-[var(--text-soft)] uppercase tracking-wider">
                 Administration

@@ -18,6 +18,7 @@ const documentRoutes   = require("./routes/document.routes");
 const logRoutes        = require("./routes/log.routes");
 const exportRoutes     = require("./routes/export.routes");
 const statsRoutes      = require("./routes/stats.routes");
+const taskRoutes       = require("./routes/task.routes");
 
 const app = express();
 
@@ -35,6 +36,7 @@ app.use("/api/documents",   documentRoutes);
 app.use("/api/logs",        logRoutes);
 app.use("/api/export",      exportRoutes);
 app.use("/api/stats",       statsRoutes);
+app.use("/api/tasks",       taskRoutes);
 
 // ── 404 fallback ─────────────────────────────────────────────
 app.use((req, res) => res.status(404).json({ error: "Route not found" }));

@@ -11,6 +11,7 @@ export function Shell({ children }) {
   const labels = {
     dashboard:   "Dashboard",
     documents:   "Documents",
+    tasks:       "Task Management",
     completed:   "Completed Documents",
     logs:        "Audit Logs",
     users:       "User Management",
