@@ -7,7 +7,7 @@ const { db } = require("../models/db");
 
 const getAll = async (req, res) => {
   const [rows] = await db.query(
-    `SELECT u.id, u.username, u.email, u.role, u.is_active, u.created_at,
+    `SELECT u.id, u.username, u.email, u.dept_id, u.role, u.is_active, u.created_at,
             d.dept_name
      FROM users u
      LEFT JOIN departments d ON u.dept_id = d.id
@@ -54,4 +54,36 @@ const changePassword = async (req, res) => {
   res.json({ message: "Password updated" });
 };
 
-module.exports = { getAll, create, update, changePassword };
+const remove = async (req, res) => {
+  const userId = Number(req.params.id);
+  if (!userId) {
+    return res.status(400).json({ error: "Invalid user id" });
+  }
+
+  if (userId === req.user.id) {
+    return res.status(400).json({ error: "You cannot delete your own account" });
+  }
+
+  const [rows] = await db.query(
+    "SELECT id, role FROM users WHERE id = ? LIMIT 1",
+    [userId]
+  );
+  if (!rows.length) {
+    return res.status(404).json({ error: "User not found" });
+  }
+
+  const target = rows[0];
+  if (target.role === "admin") {
+    const [[{ adminCount }]] = await db.query(
+      "SELECT COUNT(*) AS adminCount FROM users WHERE role = 'admin' AND is_active = 1"
+    );
+    if (Number(adminCount) <= 1) {
+      return res.status(400).json({ error: "Cannot delete the last active admin" });
+    }
+  }
+
+  await db.query("DELETE FROM users WHERE id = ?", [userId]);
+  res.json({ message: "User deleted" });
+};
+
+module.exports = { getAll, create, update, changePassword, remove };

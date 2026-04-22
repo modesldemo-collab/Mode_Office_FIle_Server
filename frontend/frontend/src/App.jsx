@@ -6,7 +6,8 @@ import { Shell } from "./layout/Shell";
 import { LoginPage } from "./pages/LoginPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { DocumentsPage } from "./pages/DocumentsPage";
-import { CompletedPage } from "./pages/CompletedPage";
+import { CompletedDocumentsPage } from "./pages/CompletedPage";
+import { CompletedTasksPage } from "./pages/CompletedTasksPage";
 import { TasksPage } from "./pages/TasksPage";
 import { LogsPage } from "./pages/LogsPage";
 import { UsersPage } from "./pages/admin/UsersPage";
@@ -25,13 +26,14 @@ function AppRouter() {
   if (!user) return <LoginPage />;
 
   const PageContent = {
-    dashboard:   DashboardPage,
-    documents:   DocumentsPage,
-    completed:   CompletedPage,
-    tasks:       TasksPage,
-    logs:        LogsPage,
-    users:       UsersPage,
-    departments: DepartmentsPage,
+    dashboard:            DashboardPage,
+    documents:            DocumentsPage,
+    tasks:                TasksPage,
+    completedTasks:       CompletedTasksPage,
+    completedDocuments:   CompletedDocumentsPage,
+    logs:                 LogsPage,
+    users:                UsersPage,
+    departments:          DepartmentsPage,
   }[page] || DashboardPage;
 
   return (

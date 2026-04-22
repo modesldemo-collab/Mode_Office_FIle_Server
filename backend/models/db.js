@@ -14,6 +14,14 @@ const db = mysql.createPool({
   connectionLimit:  10,
 });
 
+async function columnExists(conn, tableName, columnName) {
+  const [rows] = await conn.query(
+    "SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ? LIMIT 1",
+    [tableName, columnName]
+  );
+  return rows.length > 0;
+}
+
 // ── Schema bootstrap ─────────────────────────────────────────
 async function initDB() {
   const conn = await db.getConnection();
@@ -105,6 +113,7 @@ async function initDB() {
         task_name    VARCHAR(255) NOT NULL,
         assigned_by  INT,
         assigned_to  INT,
+        deadline     DATE NULL,
         status       VARCHAR(20)  DEFAULT 'pending',
         created_at   TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
         updated_at   TIMESTAMP    DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -113,6 +122,52 @@ async function initDB() {
         CHECK (status IN ('pending','completed'))
       )
     `);
+
+    if (!(await columnExists(conn, "tasks", "deadline"))) {
+      await conn.query("ALTER TABLE tasks ADD COLUMN deadline DATE NULL AFTER assigned_to");
+    }
+
+    await conn.query(`
+      CREATE TABLE IF NOT EXISTS task_assignments (
+        id            INT AUTO_INCREMENT PRIMARY KEY,
+        task_id       INT NOT NULL,
+        user_id       INT NOT NULL,
+        is_completed  TINYINT(1) DEFAULT 0,
+        completed_at  TIMESTAMP NULL DEFAULT NULL,
+        created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE KEY uniq_task_user (task_id, user_id),
+        FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE CASCADE,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+      )
+    `);
+
+    await conn.query(`
+      CREATE TABLE IF NOT EXISTS notifications (
+        id               INT AUTO_INCREMENT PRIMARY KEY,
+        user_id          INT NOT NULL,
+        notification_key VARCHAR(191) NOT NULL,
+        type             VARCHAR(50) NOT NULL,
+        title            VARCHAR(255) NOT NULL,
+        body             TEXT,
+        link             VARCHAR(255),
+        is_read          TINYINT(1) DEFAULT 0,
+        read_at          TIMESTAMP NULL DEFAULT NULL,
+        created_at       TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE KEY uniq_notification_key (user_id, notification_key),
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+      )
+    `);
+
+    // Backfill old single-assignee tasks into task_assignments once.
+    await conn.query(
+      `INSERT IGNORE INTO task_assignments (task_id, user_id, is_completed, completed_at)
+       SELECT t.id,
+              t.assigned_to,
+              CASE WHEN t.status = 'completed' THEN 1 ELSE 0 END,
+              CASE WHEN t.status = 'completed' THEN t.updated_at ELSE NULL END
+       FROM tasks t
+       WHERE t.assigned_to IS NOT NULL`
+    );
 
     // Seed default admin if none exists
     const [admins] = await conn.query(

@@ -20,7 +20,8 @@ export const NAV_ITEMS = [
   { id: "dashboard", label: "Dashboard",  icon: LayoutDashboard },
   { id: "documents", label: "Documents",  icon: FileText },
   { id: "tasks",     label: "Tasks",      icon: ListChecks },
-  { id: "completed", label: "Completed",  icon: CheckCheck },
+  { id: "completedTasks", label: "Completed Tasks", icon: CheckCheck },
+  { id: "completedDocuments", label: "Completed Documents", icon: CheckCheck },
 ];
 
 export const ADMIN_NAV = [

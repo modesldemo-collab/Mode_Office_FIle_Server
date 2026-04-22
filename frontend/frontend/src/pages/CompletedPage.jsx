@@ -6,7 +6,7 @@ import { FileIcon } from "../components/FileIcon";
 import { formatBytes, formatDate } from "../utils";
 import { PreviewModal } from "./documents/PreviewModal";
 
-export function CompletedPage() {
+export function CompletedDocumentsPage() {
   const [docs, setDocs] = useState([]);
   const [loading, setLoading] = useState(false);
   const [previewDoc, setPreviewDoc] = useState(null);

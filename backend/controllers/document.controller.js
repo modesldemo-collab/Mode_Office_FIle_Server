@@ -6,6 +6,7 @@ const fs   = require("fs");
 const path = require("path");
 const { db } = require("../models/db");
 const { writeLog } = require("../utils/auditLog");
+const { createNotifications } = require("../utils/notify");
 
 const isAdminUser = (user) => user?.role === "admin";
 
@@ -344,6 +345,24 @@ const share = async (req, res) => {
     `INSERT IGNORE INTO document_shares (doc_id, shared_by, shared_with) VALUES ${valueClause}`,
     valueParams
   );
+
+  const [docRows] = await db.query(
+    "SELECT doc_name FROM documents WHERE id = ? AND is_deleted = 0",
+    [docId]
+  );
+  const docName = docRows[0]?.doc_name || "Document";
+
+  await createNotifications({
+    userIds: validUserIds,
+    notificationKey: (userId) => `doc-shared:${docId}:${userId}`,
+    type: "document_shared",
+    title: "New document shared",
+    body: `${docName} was shared with you`,
+    link: "documents",
+    sendMail: true,
+    mailSubject: `Document shared: ${docName}`,
+    mailText: (user) => `Hello ${user.username}, ${docName} was shared with you.`,
+  });
 
   await writeLog(docId, req.user.id, "SHARE", null, {
     shared_with_ids: validUserIds,
