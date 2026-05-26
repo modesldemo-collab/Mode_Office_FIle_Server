@@ -101,8 +101,8 @@ export function Sidebar({ open, onClose }) {
     >
       <div className="p-5 border-b border-[var(--border-main)]">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-md shadow-cyan-500/20">
-            <ShieldCheck className="w-5 h-5 text-white" />
+          <div className="w-10 h-10 flex items-center justify-center">
+            <img src="/emblem.svg" alt="Sri Lanka National Emblem" className="w-full h-full object-contain drop-shadow-md" />
           </div>
           <div>
             <p className="text-[var(--text-main)] text-sm font-bold leading-tight">MDE·LK</p>
