@@ -6,6 +6,7 @@
  * ============================================================
  */
 
+require("dotenv").config();
 const app    = require("./app");
 const { initDB } = require("./models/db");
 

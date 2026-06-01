@@ -158,6 +158,26 @@ async function initDB() {
       )
     `);
 
+    await conn.query(`
+      CREATE TABLE IF NOT EXISTS govscribe_drafts (
+        user_id                     INT PRIMARY KEY,
+        ref_no                      VARCHAR(255),
+        your_no                     VARCHAR(255),
+        date                        VARCHAR(255),
+        recipient_designation       VARCHAR(255),
+        recipient_company           VARCHAR(255),
+        subject                     TEXT,
+        body_content                TEXT,
+        signatory_left_name         VARCHAR(255),
+        signatory_left_designation  VARCHAR(255),
+        signatory_right_name        VARCHAR(255),
+        signatory_right_designation VARCHAR(255),
+        selected_theme              VARCHAR(50),
+        updated_at                  TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+      )
+    `);
+
     // Backfill old single-assignee tasks into task_assignments once.
     await conn.query(
       `INSERT IGNORE INTO task_assignments (task_id, user_id, is_completed, completed_at)

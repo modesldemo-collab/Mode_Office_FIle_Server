@@ -90,4 +90,14 @@ export const NotificationsAPI = {
   readAll: () => api.patch("/api/notifications/read-all"),
 };
 
+export const GovScribeAPI = {
+  generate: (data) => api.post("/api/govscribe/generate", data),
+  improve: (data) => api.post("/api/govscribe/improve", data),
+  audit: (data) => api.post("/api/govscribe/audit", data),
+  getDraft: () => api.get("/api/govscribe/draft"),
+  saveDraft: (data) => api.post("/api/govscribe/draft", data),
+  exportPDF: (data) => api.post("/api/govscribe/export-pdf", data, { responseType: "blob" }),
+};
+
 export default api;
+

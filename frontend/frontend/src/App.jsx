@@ -12,6 +12,7 @@ import { TasksPage } from "./pages/TasksPage";
 import { LogsPage } from "./pages/LogsPage";
 import { UsersPage } from "./pages/admin/UsersPage";
 import { DepartmentsPage } from "./pages/admin/DepartmentsPage";
+import { GovScribePage } from "./pages/GovScribePage";
 
 function AppRouter() {
   const { user } = useAuth();
@@ -31,6 +32,7 @@ function AppRouter() {
     tasks:                TasksPage,
     completedTasks:       CompletedTasksPage,
     completedDocuments:   CompletedDocumentsPage,
+    govscribe:            GovScribePage,
     logs:                 LogsPage,
     users:                UsersPage,
     departments:          DepartmentsPage,

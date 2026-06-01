@@ -18,6 +18,7 @@ export function Shell({ children }) {
     tasks:              "Task Management",
     completedTasks:     "Completed Tasks",
     completedDocuments: "Completed Documents",
+    govscribe:          "GovScribe Hub",
     logs:               "Audit Logs",
     users:              "User Management",
     departments:        "Departments",
@@ -62,7 +63,7 @@ export function Shell({ children }) {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--bg-main)] lg:pl-64 transition-colors duration-300">
+    <div className="print:pl-0 min-h-screen bg-[var(--bg-main)] lg:pl-64 transition-colors duration-300">
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       {sidebarOpen && (
         <div
@@ -71,7 +72,7 @@ export function Shell({ children }) {
         />
       )}
       <div className="flex flex-col min-h-screen">
-        <header className="sticky top-0 z-20 bg-[var(--bg-main)]/90 backdrop-blur border-b border-[var(--border-main)] px-4 py-3 flex items-center gap-4 transition-colors duration-300">
+        <header className="print:hidden sticky top-0 z-20 bg-[var(--bg-main)]/90 backdrop-blur border-b border-[var(--border-main)] px-4 py-3 flex items-center gap-4 transition-colors duration-300">
           <button
             onClick={() => setSidebarOpen(true)}
             className="lg:hidden text-[var(--text-muted)] hover:text-[var(--text-main)]"
@@ -158,7 +159,7 @@ export function Shell({ children }) {
             {theme === "dark" ? "Light" : "Dark"}
           </button>
         </header>
-        <main className="flex-1 p-4 lg:p-6">{children}</main>
+        <main className="print:p-0 flex-1 p-4 lg:p-6">{children}</main>
       </div>
     </div>
   );

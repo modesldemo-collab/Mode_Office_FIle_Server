@@ -20,6 +20,7 @@ const exportRoutes     = require("./routes/export.routes");
 const statsRoutes      = require("./routes/stats.routes");
 const taskRoutes       = require("./routes/task.routes");
 const notificationRoutes = require("./routes/notification.routes");
+const govscribeRoutes   = require("./routes/govscribe.routes");
 
 const app = express();
 
@@ -39,6 +40,7 @@ app.use("/api/export",      exportRoutes);
 app.use("/api/stats",       statsRoutes);
 app.use("/api/tasks",       taskRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/govscribe",   govscribeRoutes);
 
 // ── 404 fallback ─────────────────────────────────────────────
 app.use((req, res) => res.status(404).json({ error: "Route not found" }));

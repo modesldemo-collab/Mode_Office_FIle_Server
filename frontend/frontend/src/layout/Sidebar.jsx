@@ -10,6 +10,7 @@ import {
   KeyRound,
   LogOut,
   ShieldCheck,
+  Sparkles,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { Modal } from "../components/Modal";
@@ -22,6 +23,7 @@ export const NAV_ITEMS = [
   { id: "tasks",     label: "Tasks",      icon: ListChecks },
   { id: "completedTasks", label: "Completed Tasks", icon: CheckCheck },
   { id: "completedDocuments", label: "Completed Documents", icon: CheckCheck },
+  { id: "govscribe", label: "GovScribe",   icon: Sparkles },
 ];
 
 export const ADMIN_NAV = [
@@ -95,7 +97,7 @@ export function Sidebar({ open, onClose }) {
 
   return (
     <aside
-      className={`fixed inset-y-0 left-0 z-40 w-64 bg-[var(--bg-panel)] border-r border-[var(--border-main)] flex flex-col transition-transform duration-300 ${
+      className={`print:hidden fixed inset-y-0 left-0 z-40 w-64 bg-[var(--bg-panel)] border-r border-[var(--border-main)] flex flex-col transition-transform duration-300 ${
         open ? "translate-x-0" : "-translate-x-full"
       } lg:translate-x-0`}
     >

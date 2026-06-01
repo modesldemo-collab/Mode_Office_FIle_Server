@@ -31,3 +31,34 @@ body {
 	color: var(--text-main);
 	transition: background-color 0.3s ease, color 0.3s ease;
 }
+
+/* ── Print Overrides for GovScribe PDF Export ───────────────── */
+@media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+  
+  html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .official-letter-print-container {
+    transform: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+  }
+
+  /* Ensure container backgrounds are printed exactly */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
