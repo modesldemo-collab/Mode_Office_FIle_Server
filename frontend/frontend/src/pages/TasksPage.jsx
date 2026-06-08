@@ -3,9 +3,11 @@ import { CheckCircle2, Plus, RefreshCw, Save, Trash2, Users } from "lucide-react
 import { Auth, TasksAPI } from "../api";
 import { useAuth } from "../context/AuthContext";
 import { formatDate } from "../utils";
+import { NavCtx } from "../layout/Sidebar";
 
 export function TasksPage() {
   const { user } = useAuth();
+  const { setPage: setAppPage } = React.useContext(NavCtx);
   const [tasks, setTasks] = useState([]);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -151,11 +153,19 @@ export function TasksPage() {
 
   return (
     <div className="space-y-5">
-      <div className="rounded-2xl border border-[var(--border-main)] bg-[var(--bg-panel)] p-5">
-        <h2 className="text-[var(--text-main)] text-lg font-semibold">Task Assignment Board</h2>
-        <p className="text-[var(--text-soft)] text-sm mt-1">
-          Add multiple members by division, track each person, and let assignees tick completion.
-        </p>
+      <div className="rounded-2xl border border-[var(--border-main)] bg-[var(--bg-panel)] p-5 flex flex-wrap justify-between items-start gap-4">
+        <div>
+          <h2 className="text-[var(--text-main)] text-lg font-semibold">Task Assignment Board</h2>
+          <p className="text-[var(--text-soft)] text-sm mt-1">
+            Add multiple members by division, track each person, and let assignees tick completion.
+          </p>
+        </div>
+        <button
+          onClick={() => setAppPage("completedTasks")}
+          className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-white text-sm font-semibold px-4 py-2.5 rounded-xl border border-slate-700 hover:border-cyan-500/40 transition-all whitespace-nowrap"
+        >
+          <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Completed Tasks
+        </button>
       </div>
 
       <div className="rounded-2xl border border-[var(--border-main)] bg-[var(--bg-panel)] p-4">

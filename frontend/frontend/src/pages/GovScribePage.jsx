@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   FileText,
   Users,
@@ -10,7 +10,6 @@ import {
   CheckCircle2,
   Eye,
   Building,
-  BookOpen,
   ArrowLeft,
   LayoutTemplate,
   Wand2,
@@ -21,6 +20,7 @@ import {
 import { useTheme } from "../context/ThemeContext";
 import { GovScribeAPI } from "../api";
 import OfficialLetter from "../components/OfficialLetter";
+import { RichTextToolbar, FloatingSelectionToolbar } from "../components/RichTextToolbar";
 
 // Accent theme presets for the premium official letter preview
 const THEMES = [
@@ -108,6 +108,11 @@ export function GovScribePage() {
   const [errorMsg, setErrorMsg] = useState(null);
   const [successMsg, setSuccessMsg] = useState(null);
 
+  // Rich text editor ref (points to contenteditable in OfficialLetter)
+  const editorRef = useRef(null);
+  // Preview container ref for floating toolbar scope
+  const previewContainerRef = useRef(null);
+
   // --- LIFECYCLE: LOAD DRAFT ---
   useEffect(() => {
     const loadDraft = async () => {
@@ -121,6 +126,7 @@ export function GovScribePage() {
           setRecipientDesignation(draft.recipient_designation || "");
           setRecipientCompany(draft.recipient_company || "");
           setSubject(draft.subject || "");
+          // body_content may be plain text (legacy) or HTML
           setBodyContent(draft.body_content || "");
           setLeftSigName(draft.signatory_left_name || "");
           setLeftSigDesignation(draft.signatory_left_designation || "");
@@ -210,14 +216,17 @@ export function GovScribePage() {
         recipientCompany,
       });
 
-      setBodyContent(response.data.content || "");
+      // Convert plain-text paragraphs → HTML paragraphs
+      const raw = response.data.content || "";
+      const html = raw.split("\n\n").map(p => `<p>${p.trim().replace(/\n/g, "<br/>")}</p>`).join("");
+      setBodyContent(html);
       showSuccess("Content generated successfully!");
     } catch (err) {
       console.error("Generation failed:", err);
       const errMsg = err?.response?.data?.error || err.message || "Failed to auto-generate content.";
       setErrorMsg(errMsg);
-      // Fallback
-      setBodyContent(`This is an auto-generated fallback response for: ${subject}\n\nPlease verify your API key.`);
+      const fallbackHtml = `<p>This is an auto-generated fallback response for: ${subject}</p><p>Please verify your API key.</p>`;
+      setBodyContent(fallbackHtml);
     } finally {
       setIsGenerating(false);
     }
@@ -235,8 +244,12 @@ export function GovScribePage() {
     setAuditResults(null);
 
     try {
-      const response = await GovScribeAPI.improve({ content: bodyContent });
-      setBodyContent(response.data.content || "");
+      // Strip HTML to get plain text for the API, then convert result back to HTML
+      const plainText = editorRef.current ? editorRef.current.innerText : bodyContent.replace(/<[^>]+>/g, " ");
+      const response = await GovScribeAPI.improve({ content: plainText });
+      const raw = response.data.content || "";
+      const html = raw.split("\n\n").map(p => `<p>${p.trim().replace(/\n/g, "<br/>")}</p>`).join("");
+      setBodyContent(html);
       showSuccess("Content improved with AI!");
     } catch (err) {
       console.error("Improvement failed:", err);
@@ -259,7 +272,8 @@ export function GovScribePage() {
     setAuditResults(null);
 
     try {
-      const response = await GovScribeAPI.audit({ content: bodyContent });
+      const plainText = editorRef.current ? editorRef.current.innerText : bodyContent.replace(/<[^>]+>/g, " ");
+      const response = await GovScribeAPI.audit({ content: plainText });
       setAuditResults(response.data.errors || []);
       if (response.data.errors && response.data.errors.length === 0) {
         showSuccess("Audit complete: No issues found!");
@@ -292,16 +306,21 @@ export function GovScribePage() {
   const getPreviewData = () => {
     return {
       subject: subject ? subject.toUpperCase() : "UNTITLED DOCUMENT",
-      body_paragraphs: bodyContent
-        ? bodyContent.split("\n\n").map(p => p.trim()).filter(Boolean)
-        : []
+      bodyHtml: bodyContent,
     };
+  };
+
+  // Called by OfficialLetter contenteditable onInput
+  const handleEditorContentChange = (html) => {
+    setBodyContent(html);
   };
 
   const handleExportPDF = async () => {
     setIsExporting(true);
     setErrorMsg(null);
     try {
+      // Send plain text to PDF export
+      const plainText = editorRef.current ? editorRef.current.innerText : bodyContent.replace(/<[^>]+>/g, " ");
       const response = await GovScribeAPI.exportPDF({
         refNo: refNumber,
         yourNo,
@@ -309,7 +328,7 @@ export function GovScribePage() {
         recipientDesignation,
         recipientCompany,
         subject,
-        bodyContent,
+        bodyContent: plainText,
         signatoryLeftName: leftSigName,
         signatoryLeftDesignation: leftSigDesignation,
         signatoryRightName: rightSigName,
@@ -548,15 +567,29 @@ export function GovScribePage() {
               <div>
                 <label className="block text-[10px] font-semibold text-[var(--text-soft)] mb-1 uppercase flex justify-between">
                   <span>Body Content</span>
-                  <span className="text-[var(--text-muted)] normal-case">{bodyContent.length} chars</span>
+                  <span className="text-[var(--text-muted)] normal-case">
+                    {bodyContent.replace(/<[^>]+>/g,"").length} chars
+                  </span>
                 </label>
                 <textarea
-                  value={bodyContent}
-                  onChange={(e) => setBodyContent(e.target.value)}
-                  rows={6}
-                  className="w-full rounded-lg border border-[var(--border-main)] bg-[var(--bg-main)] px-3 py-1.5 text-xs leading-5 text-[var(--text-main)] focus:border-cyan-500 focus:outline-none transition-all resize-y font-sans"
-                  placeholder="Type letter body here, or use the AI tools below..."
+                  value={bodyContent.replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ")}
+                  onChange={(e) => {
+                    // Convert plain text lines → HTML paragraphs and sync to preview
+                    const lines = e.target.value.split("\n\n");
+                    const html = lines.map(p => `<p>${p.replace(/\n/g, "<br/>")}</p>`).join("");
+                    setBodyContent(html);
+                  }}
+                  rows={7}
+                  className="w-full rounded-lg border border-[var(--border-main)] bg-[var(--bg-main)] px-3 py-2 text-xs leading-5 text-[var(--text-main)] focus:border-cyan-500 focus:outline-none transition-all resize-y font-sans"
+                  placeholder="Type letter body here, or use the AI tools below. You can also click and type directly inside the document preview →"
                 />
+                {/* Hint about preview toolbar */}
+                <p className="text-[9px] text-cyan-500/70 mt-1 flex items-center gap-1">
+                  <svg className="w-3 h-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20A10 10 0 0012 2z"/>
+                  </svg>
+                  For <strong className="font-bold">Bold / Italic / Underline</strong> — click inside the preview &amp; use the toolbar, or select text in the preview.
+                </p>
               </div>
 
               {/* AI action buttons */}
@@ -697,56 +730,68 @@ export function GovScribePage() {
       {/* RIGHT PANEL: Live Preview Canvas */}
       <main className="print:border-none print:shadow-none print:bg-white flex-1 flex flex-col bg-[var(--bg-panel)] border border-[var(--border-main)] rounded-2xl overflow-hidden shadow-lg h-full relative">
         
-        {/* Canvas Toolbar Header */}
-        <header className="print:hidden px-5 py-3 border-b border-[var(--border-main)] bg-[var(--bg-soft)]/20 flex items-center justify-between shrink-0">
-          <div className="flex items-center gap-2">
-            <Eye className="w-4 h-4 text-cyan-500 animate-pulse" />
-            <h2 className="text-xs font-bold tracking-wider text-[var(--text-soft)] uppercase">
-              Live Preview Document
-            </h2>
-            <span className="hidden sm:inline text-[10px] text-[var(--text-muted)]">
-              (Auto-updating)
-            </span>
+        {/* Canvas Toolbar Header: top row */}
+        <header className="print:hidden border-b border-[var(--border-main)] shrink-0">
+          {/* Top bar: title + zoom + export */}
+          <div className="px-5 py-2 bg-[var(--bg-soft)]/20 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Eye className="w-4 h-4 text-cyan-500 animate-pulse" />
+              <h2 className="text-xs font-bold tracking-wider text-[var(--text-soft)] uppercase">
+                Live Preview
+              </h2>
+              <span className="hidden sm:inline text-[9px] text-[var(--text-muted)] bg-cyan-500/10 text-cyan-400 px-1.5 py-0.5 rounded font-semibold">
+                Click in document to edit
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => handleZoom("out")}
+                disabled={zoomScale <= 0.4}
+                className="p-1 rounded bg-[var(--bg-main)] border border-[var(--border-main)] hover:bg-[var(--bg-soft)] text-[var(--text-main)] disabled:opacity-40 cursor-pointer"
+                title="Zoom Out"
+              >
+                <ZoomOut className="w-3.5 h-3.5" />
+              </button>
+              
+              <span className="text-[10px] font-mono font-bold w-10 text-center text-[var(--text-soft)] select-none">
+                {Math.round(zoomScale * 100)}%
+              </span>
+
+              <button
+                onClick={() => handleZoom("in")}
+                disabled={zoomScale >= 1.25}
+                className="p-1 rounded bg-[var(--bg-main)] border border-[var(--border-main)] hover:bg-[var(--bg-soft)] text-[var(--text-main)] disabled:opacity-40 cursor-pointer"
+                title="Zoom In"
+              >
+                <ZoomIn className="w-3.5 h-3.5" />
+              </button>
+
+              <span className="h-4 w-[1px] bg-[var(--border-main)] mx-1" />
+
+              <button
+                onClick={handleExportPDF}
+                disabled={isExporting}
+                className="flex items-center gap-1 py-1 px-2.5 rounded bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-[11px] font-bold transition-all cursor-pointer shadow-sm disabled:opacity-50"
+              >
+                {isExporting ? <RefreshCw className="w-3 h-3 animate-spin" /> : <Printer className="w-3 h-3" />}
+                <span>{isExporting ? "Exporting..." : "Export A4 PDF"}</span>
+              </button>
+            </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => handleZoom("out")}
-              disabled={zoomScale <= 0.4}
-              className="p-1 rounded bg-[var(--bg-main)] border border-[var(--border-main)] hover:bg-[var(--bg-soft)] text-[var(--text-main)] disabled:opacity-40 cursor-pointer"
-              title="Zoom Out"
-            >
-              <ZoomOut className="w-3.5 h-3.5" />
-            </button>
-            
-            <span className="text-[10px] font-mono font-bold w-10 text-center text-[var(--text-soft)] select-none">
-              {Math.round(zoomScale * 100)}%
-            </span>
-
-            <button
-              onClick={() => handleZoom("in")}
-              disabled={zoomScale >= 1.25}
-              className="p-1 rounded bg-[var(--bg-main)] border border-[var(--border-main)] hover:bg-[var(--bg-soft)] text-[var(--text-main)] disabled:opacity-40 cursor-pointer"
-              title="Zoom In"
-            >
-              <ZoomIn className="w-3.5 h-3.5" />
-            </button>
-
-            <span className="h-4 w-[1px] bg-[var(--border-main)] mx-1" />
-
-            <button
-              onClick={handleExportPDF}
-              disabled={isExporting}
-              className="flex items-center gap-1 py-1 px-2.5 rounded bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-[11px] font-bold transition-all cursor-pointer shadow-sm disabled:opacity-50"
-            >
-              {isExporting ? <RefreshCw className="w-3 h-3 animate-spin" /> : <Printer className="w-3 h-3" />}
-              <span>{isExporting ? "Exporting..." : "Export A4 PDF"}</span>
-            </button>
-          </div>
+          {/* Word-like Formatting Toolbar */}
+          <RichTextToolbar
+            editorRef={editorRef}
+            disabled={isGenerating || isImproving || isAuditing}
+          />
         </header>
 
+        {/* Floating selection toolbar rendered at document level */}
+        <FloatingSelectionToolbar containerRef={previewContainerRef} />
+
         {/* Centered Document Canvas Viewport */}
-        <div className="print:p-0 print:bg-white flex-1 overflow-auto flex items-start justify-center p-6 relative bg-[var(--bg-main)]">
+        <div ref={previewContainerRef} className="print:p-0 print:bg-white flex-1 overflow-auto flex items-start justify-center p-6 relative bg-[var(--bg-main)]">
           
           {/* Live Alerts */}
           {successMsg && (
@@ -782,6 +827,8 @@ export function GovScribePage() {
                 signatoryRightDesignation: rightSigDesignation,
               }}
               aiData={getPreviewData()}
+              editorRef={editorRef}
+              onContentChange={handleEditorContentChange}
             />
           </div>
 

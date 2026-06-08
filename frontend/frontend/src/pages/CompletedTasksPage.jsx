@@ -2,8 +2,10 @@ import React, { useCallback, useEffect, useState } from "react";
 import { CheckCircle2, RefreshCw, RotateCcw, Trash2 } from "lucide-react";
 import { TasksAPI } from "../api";
 import { formatDate } from "../utils";
+import { NavCtx } from "../layout/Sidebar";
 
 export function CompletedTasksPage() {
+  const { setPage } = React.useContext(NavCtx);
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -43,13 +45,21 @@ export function CompletedTasksPage() {
             Tasks that are fully completed by all assigned members.
           </p>
         </div>
-        <button
-          onClick={fetchCompletedTasks}
-          className="text-[var(--text-soft)] hover:text-[var(--text-main)] p-2.5 rounded-xl border border-[var(--border-main)] hover:border-cyan-500/40 transition-colors"
-          title="Refresh"
-        >
-          <RefreshCw className="w-4 h-4" />
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setPage("tasks")}
+            className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-white text-sm font-semibold px-4 py-2.5 rounded-xl border border-slate-700 hover:border-cyan-500/40 transition-all whitespace-nowrap"
+          >
+            Back to Tasks
+          </button>
+          <button
+            onClick={fetchCompletedTasks}
+            className="text-[var(--text-soft)] hover:text-[var(--text-main)] p-2.5 rounded-xl border border-[var(--border-main)] hover:border-cyan-500/40 transition-colors"
+            title="Refresh"
+          >
+            <RefreshCw className="w-4 h-4" />
+          </button>
+        </div>
       </div>
 
       <div className="bg-[var(--bg-panel)] border border-[var(--border-main)] rounded-2xl overflow-hidden">

@@ -5,8 +5,10 @@ import { Badge } from "../components/Badge";
 import { FileIcon } from "../components/FileIcon";
 import { formatBytes, formatDate } from "../utils";
 import { PreviewModal } from "./documents/PreviewModal";
+import { NavCtx } from "../layout/Sidebar";
 
 export function CompletedDocumentsPage() {
+  const { setPage } = React.useContext(NavCtx);
   const [docs, setDocs] = useState([]);
   const [loading, setLoading] = useState(false);
   const [previewDoc, setPreviewDoc] = useState(null);
@@ -33,11 +35,19 @@ export function CompletedDocumentsPage() {
 
   return (
     <div className="space-y-5">
-      <div className="rounded-2xl border border-[var(--border-main)] bg-[var(--bg-panel)] p-5">
-        <h2 className="text-[var(--text-main)] text-lg font-semibold">Completed Documents</h2>
-        <p className="text-[var(--text-soft)] text-sm mt-1">
-          Documents marked as completed are shown here. You can move them back to Documents.
-        </p>
+      <div className="rounded-2xl border border-[var(--border-main)] bg-[var(--bg-panel)] p-5 flex items-start justify-between gap-3">
+        <div>
+          <h2 className="text-[var(--text-main)] text-lg font-semibold">Completed Documents</h2>
+          <p className="text-[var(--text-soft)] text-sm mt-1">
+            Documents marked as completed are shown here. You can move them back to Documents.
+          </p>
+        </div>
+        <button
+          onClick={() => setPage("documents")}
+          className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-white text-sm font-semibold px-4 py-2.5 rounded-xl border border-slate-700 hover:border-cyan-500/40 transition-all whitespace-nowrap"
+        >
+          Back to Documents
+        </button>
       </div>
 
       <div className="bg-[var(--bg-panel)] border border-[var(--border-main)] rounded-2xl overflow-hidden transition-colors duration-300">
