@@ -2,12 +2,15 @@ import React, { createContext } from "react";
 import {
   LayoutDashboard,
   FileText,
+  ListChecks,
+  CheckCheck,
   ScrollText,
   Users,
   Building2,
   KeyRound,
   LogOut,
   ShieldCheck,
+  Sparkles,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { Modal } from "../components/Modal";
@@ -17,7 +20,8 @@ export const NavCtx = createContext(null);
 export const NAV_ITEMS = [
   { id: "dashboard", label: "Dashboard",  icon: LayoutDashboard },
   { id: "documents", label: "Documents",  icon: FileText },
-  { id: "logs",      label: "Audit Logs", icon: ScrollText },
+  { id: "tasks",     label: "Tasks",      icon: ListChecks },
+  { id: "govscribe", label: "GovScribe",   icon: Sparkles },
 ];
 
 export const ADMIN_NAV = [
@@ -91,14 +95,14 @@ export function Sidebar({ open, onClose }) {
 
   return (
     <aside
-      className={`fixed inset-y-0 left-0 z-40 w-64 bg-[var(--bg-panel)] border-r border-[var(--border-main)] flex flex-col transition-transform duration-300 ${
+      className={`print:hidden fixed inset-y-0 left-0 z-40 w-64 bg-[var(--bg-panel)] border-r border-[var(--border-main)] flex flex-col transition-transform duration-300 ${
         open ? "translate-x-0" : "-translate-x-full"
       } lg:translate-x-0`}
     >
       <div className="p-5 border-b border-[var(--border-main)]">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-md shadow-cyan-500/20">
-            <ShieldCheck className="w-5 h-5 text-white" />
+          <div className="w-10 h-10 flex items-center justify-center">
+            <img src="/emblem.svg" alt="Sri Lanka National Emblem" className="w-full h-full object-contain drop-shadow-md" />
           </div>
           <div>
             <p className="text-[var(--text-main)] text-sm font-bold leading-tight">MDE·LK</p>
@@ -113,6 +117,7 @@ export function Sidebar({ open, onClose }) {
         ))}
         {user?.role === "admin" && (
           <>
+            <NavBtn item={{ id: "logs", label: "Audit Logs", icon: ScrollText }} />
             <div className="pt-4 pb-1 px-4">
               <p className="text-xs font-semibold text-[var(--text-soft)] uppercase tracking-wider">
                 Administration

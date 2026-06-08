@@ -36,8 +36,8 @@ export function LoginPage() {
 
       <div className="relative z-10 w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600 shadow-lg shadow-cyan-500/30 mb-4">
-            <ShieldCheck className="w-10 h-10 text-white" />
+          <div className="inline-flex items-center justify-center w-24 h-24 mb-4">
+            <img src="/emblem.svg" alt="Sri Lanka National Emblem" className="w-full h-full object-contain drop-shadow-2xl" />
           </div>
           <h1 className="text-2xl font-bold text-white tracking-tight">
             Ministry of Digital Economy

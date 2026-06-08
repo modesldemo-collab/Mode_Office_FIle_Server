@@ -30,6 +30,7 @@ export const UsersAPI = {
   create: (data)     => api.post("/api/users", data),
   update: (id, data) => api.put(`/api/users/${id}`, data),
   changePassword: (id, data) => api.put(`/api/users/${id}/password`, data),
+  delete: (id) => api.delete(`/api/users/${id}`),
 };
 
 export const PersonsAPI = {
@@ -51,9 +52,9 @@ export const DocsAPI = {
   share: (id, data) => api.post(`/api/documents/${id}/share`, data),
   unshare: (id, userId) => api.delete(`/api/documents/${id}/share/${userId}`),
   previewUrl:  (id) =>
-    `${BASE_URL}/api/documents/${id}/preview?token=${localStorage.getItem("mde_token")}`,
+    `${BASE_URL}/api/documents/${id}/preview?token=${encodeURIComponent(localStorage.getItem("mde_token") || "")}`,
   downloadUrl: (id) =>
-    `${BASE_URL}/api/documents/${id}/download?token=${localStorage.getItem("mde_token")}`,
+    `${BASE_URL}/api/documents/${id}/download?token=${encodeURIComponent(localStorage.getItem("mde_token") || "")}`,
 };
 
 export const LogsAPI = {
@@ -73,4 +74,30 @@ export const StatsAPI = {
   get: () => api.get("/api/stats"),
 };
 
+export const TasksAPI = {
+  list: () => api.get("/api/tasks"),
+  create: (data) => api.post("/api/tasks", data),
+  assign: (id, data) => api.patch(`/api/tasks/${id}/assign`, data),
+  selfAssign: (id) => api.patch(`/api/tasks/${id}/self-assign`),
+  updateStatus: (id, data) => api.patch(`/api/tasks/${id}/status`, data),
+  restore: (id) => api.patch(`/api/tasks/${id}/restore`),
+  delete: (id) => api.delete(`/api/tasks/${id}`),
+};
+
+export const NotificationsAPI = {
+  list: () => api.get("/api/notifications"),
+  read: (id) => api.patch(`/api/notifications/${id}/read`),
+  readAll: () => api.patch("/api/notifications/read-all"),
+};
+
+export const GovScribeAPI = {
+  generate: (data) => api.post("/api/govscribe/generate", data),
+  improve: (data) => api.post("/api/govscribe/improve", data),
+  audit: (data) => api.post("/api/govscribe/audit", data),
+  getDraft: () => api.get("/api/govscribe/draft"),
+  saveDraft: (data) => api.post("/api/govscribe/draft", data),
+  exportPDF: (data) => api.post("/api/govscribe/export-pdf", data, { responseType: "blob" }),
+};
+
 export default api;
+

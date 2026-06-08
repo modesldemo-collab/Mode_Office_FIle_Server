@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import {
-  Search, RefreshCw, Plus, Eye, Download, Pencil, ScrollText, Trash2, Send,
+  Search, RefreshCw, Plus, Eye, Download, Pencil, ScrollText, Trash2, Send, CheckCircle2,
 } from "lucide-react";
 import { Auth, DocsAPI, Departments } from "../api";
 import { useAuth } from "../context/AuthContext";
@@ -12,9 +12,11 @@ import { EditModal } from "./documents/EditModal";
 import { PreviewModal } from "./documents/PreviewModal";
 import { DocLogsModal } from "./documents/DocLogsModal";
 import { ShareModal } from "./documents/ShareModal";
+import { NavCtx } from "../layout/Sidebar";
 
 export function DocumentsPage() {
   const { user } = useAuth();
+  const { setPage: setAppPage } = React.useContext(NavCtx);
   const [docs, setDocs]               = useState([]);
   const [total, setTotal]             = useState(0);
   const [departments, setDepartments] = useState([]);
@@ -25,7 +27,7 @@ export function DocumentsPage() {
 
   const [search, setSearch]             = useState("");
   const [filterDept, setFilterDept]     = useState("");
-  const [filterStatus, setFilterStatus] = useState("");
+  const [filterStatus, setFilterStatus] = useState("draft");
   const [filterFolder, setFilterFolder] = useState("");
   const [fromDate, setFromDate]         = useState("");
   const [toDate, setToDate]             = useState("");
@@ -66,6 +68,12 @@ export function DocumentsPage() {
   const handleDelete = async (id) => {
     if (!confirm("Delete this document? This action is logged.")) return;
     await DocsAPI.delete(id);
+    fetchDocs();
+  };
+
+  const handleComplete = async (doc) => {
+    if (!confirm("Mark this document as completed?")) return;
+    await DocsAPI.update(doc.id, { status: "final" });
     fetchDocs();
   };
 
@@ -123,6 +131,12 @@ export function DocumentsPage() {
           title="Clear filters"
         >
           <RefreshCw className="w-4 h-4" />
+        </button>
+        <button
+          onClick={() => setAppPage("completedDocuments")}
+          className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-white font-semibold px-4 py-2.5 rounded-xl border border-slate-700 hover:border-cyan-500/40 transition-all"
+        >
+          <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Completed Documents
         </button>
         <button
           onClick={() => setUploadOpen(true)}
@@ -187,6 +201,11 @@ export function DocumentsPage() {
                       <button onClick={() => setLogsDocId(doc.id)} className="p-1.5 text-slate-500 hover:text-violet-400 rounded-lg hover:bg-violet-500/10 transition-all" title="View history">
                         <ScrollText className="w-4 h-4" />
                       </button>
+                      {(user?.role === "admin" || doc.uploader_id === user?.id) && doc.status !== "final" && (
+                        <button onClick={() => handleComplete(doc)} className="p-1.5 text-slate-500 hover:text-emerald-400 rounded-lg hover:bg-emerald-500/10 transition-all" title="Mark completed">
+                          <CheckCircle2 className="w-4 h-4" />
+                        </button>
+                      )}
                       {(user?.role === "admin" || doc.uploader_id === user?.id) && (
                         <button onClick={() => setShareDoc(doc)} className="p-1.5 text-slate-500 hover:text-cyan-400 rounded-lg hover:bg-cyan-500/10 transition-all" title="Share">
                           <Send className="w-4 h-4" />

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Plus, Pencil } from "lucide-react";
+import { Plus, Pencil, Trash2 } from "lucide-react";
 import { UsersAPI, Departments } from "../../api";
 import { Modal } from "../../components/Modal";
 
@@ -83,6 +83,16 @@ export function UsersPage() {
     }
   };
 
+  const handleDeleteUser = async (u) => {
+    if (!confirm(`Delete user account for ${u.username}?`)) return;
+    try {
+      await UsersAPI.delete(u.id);
+      fetchAll();
+    } catch (err) {
+      alert(err?.response?.data?.error || "Failed to delete user");
+    }
+  };
+
   return (
     <div className="space-y-5">
       <div className="flex justify-end">
@@ -124,6 +134,9 @@ export function UsersPage() {
                     </button>
                     <button onClick={() => openPasswordModal(u)} className="text-slate-500 hover:text-cyan-400 p-1.5 rounded-lg hover:bg-cyan-500/10" title="Change password">
                       PW
+                    </button>
+                    <button onClick={() => handleDeleteUser(u)} className="text-slate-500 hover:text-red-400 p-1.5 rounded-lg hover:bg-red-500/10" title="Delete user">
+                      <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
                 </td>
