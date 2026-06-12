@@ -108,8 +108,23 @@ async function initDB() {
     `);
 
     await conn.query(`
+      CREATE TABLE IF NOT EXISTS projects (
+        id            INT AUTO_INCREMENT PRIMARY KEY,
+        project_name  VARCHAR(255) NOT NULL,
+        description   TEXT NULL,
+        created_by    INT NULL,
+        deadline      DATE NULL,
+        status        VARCHAR(20) DEFAULT 'active',
+        created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
+      )
+    `);
+
+    await conn.query(`
       CREATE TABLE IF NOT EXISTS tasks (
         id           INT AUTO_INCREMENT PRIMARY KEY,
+        project_id   INT NULL,
         task_name    VARCHAR(255) NOT NULL,
         assigned_by  INT,
         assigned_to  INT,
@@ -119,9 +134,15 @@ async function initDB() {
         updated_at   TIMESTAMP    DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         FOREIGN KEY (assigned_by) REFERENCES users(id) ON DELETE SET NULL,
         FOREIGN KEY (assigned_to) REFERENCES users(id) ON DELETE SET NULL,
+        FOREIGN KEY (project_id)  REFERENCES projects(id) ON DELETE CASCADE,
         CHECK (status IN ('pending','completed'))
       )
     `);
+
+    if (!(await columnExists(conn, "tasks", "project_id"))) {
+      await conn.query("ALTER TABLE tasks ADD COLUMN project_id INT NULL AFTER id");
+      await conn.query("ALTER TABLE tasks ADD CONSTRAINT fk_tasks_project_id FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE");
+    }
 
     if (!(await columnExists(conn, "tasks", "deadline"))) {
       await conn.query("ALTER TABLE tasks ADD COLUMN deadline DATE NULL AFTER assigned_to");

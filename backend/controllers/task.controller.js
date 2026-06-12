@@ -159,7 +159,7 @@ const list = async (req, res) => {
 
 // POST /api/tasks
 const create = async (req, res) => {
-  const { task_name, deadline } = req.body;
+  const { task_name, deadline, project_id } = req.body;
   if (!task_name || !task_name.trim()) {
     return res.status(400).json({ error: "task_name is required" });
   }
@@ -183,8 +183,8 @@ const create = async (req, res) => {
   try {
     await conn.beginTransaction();
     const [result] = await conn.query(
-      "INSERT INTO tasks (task_name, assigned_by, assigned_to, deadline, status) VALUES (?,?,?,?,?)",
-      [task_name.trim(), req.user.id, primaryAssignee, deadline || null, "pending"]
+      "INSERT INTO tasks (project_id, task_name, assigned_by, assigned_to, deadline, status) VALUES (?,?,?,?,?,?)",
+      [project_id || null, task_name.trim(), req.user.id, primaryAssignee, deadline || null, "pending"]
     );
 
     await replaceTaskAssignees(conn, result.insertId, activeIds, false);
@@ -356,6 +356,46 @@ const restore = async (req, res) => {
   res.json({ message: "Task restored" });
 };
 
+// PATCH /api/tasks/:id
+const updateTaskDetails = async (req, res) => {
+  const taskId = Number(req.params.id);
+  const { task_name, deadline } = req.body;
+
+  try {
+    const task = await getTaskById(taskId);
+    if (!task) return res.status(404).json({ error: "Task not found" });
+
+    const canUpdate = isAdminUser(req.user) || task.assigned_by === req.user.id;
+    if (!canUpdate) return res.status(403).json({ error: "Only task creator or admin can update details" });
+
+    const updates = [];
+    const params = [];
+
+    if (task_name !== undefined) {
+      updates.push("task_name = ?");
+      params.push(task_name.trim());
+    }
+    if (deadline !== undefined) {
+      if (deadline && Number.isNaN(Date.parse(deadline))) {
+        return res.status(400).json({ error: "deadline must be a valid date" });
+      }
+      updates.push("deadline = ?");
+      params.push(deadline || null);
+    }
+
+    if (updates.length === 0) {
+      return res.status(400).json({ error: "No fields to update" });
+    }
+
+    params.push(taskId);
+    await db.query(`UPDATE tasks SET ${updates.join(", ")}, updated_at = NOW() WHERE id = ?`, params);
+
+    res.json({ message: "Task updated successfully" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 // DELETE /api/tasks/:id
 const remove = async (req, res) => {
   const taskId = Number(req.params.id);
@@ -372,6 +412,7 @@ const remove = async (req, res) => {
 module.exports = {
   list,
   create,
+  updateTaskDetails,
   assignToUser,
   selfAssign,
   updateStatus,

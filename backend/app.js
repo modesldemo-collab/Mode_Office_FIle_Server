@@ -19,6 +19,7 @@ const logRoutes        = require("./routes/log.routes");
 const exportRoutes     = require("./routes/export.routes");
 const statsRoutes      = require("./routes/stats.routes");
 const taskRoutes       = require("./routes/task.routes");
+const projectRoutes    = require("./routes/project.routes");
 const notificationRoutes = require("./routes/notification.routes");
 const govscribeRoutes   = require("./routes/govscribe.routes");
 
@@ -39,6 +40,7 @@ app.use("/api/logs",        logRoutes);
 app.use("/api/export",      exportRoutes);
 app.use("/api/stats",       statsRoutes);
 app.use("/api/tasks",       taskRoutes);
+app.use("/api/projects",    projectRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/govscribe",   govscribeRoutes);
 

@@ -77,11 +77,20 @@ export const StatsAPI = {
 export const TasksAPI = {
   list: () => api.get("/api/tasks"),
   create: (data) => api.post("/api/tasks", data),
+  update: (id, data) => api.patch(`/api/tasks/${id}/assign`, data),
   assign: (id, data) => api.patch(`/api/tasks/${id}/assign`, data),
+  updateDetails: (id, data) => api.patch(`/api/tasks/${id}`, data),
   selfAssign: (id) => api.patch(`/api/tasks/${id}/self-assign`),
   updateStatus: (id, data) => api.patch(`/api/tasks/${id}/status`, data),
   restore: (id) => api.patch(`/api/tasks/${id}/restore`),
   delete: (id) => api.delete(`/api/tasks/${id}`),
+};
+
+export const ProjectsAPI = {
+  list: () => api.get("/api/projects"),
+  create: (data) => api.post("/api/projects", data),
+  update: (id, data) => api.patch(`/api/projects/${id}`, data),
+  delete: (id) => api.delete(`/api/projects/${id}`),
 };
 
 export const NotificationsAPI = {

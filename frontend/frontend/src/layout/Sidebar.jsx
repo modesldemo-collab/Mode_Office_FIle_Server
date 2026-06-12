@@ -20,7 +20,7 @@ export const NavCtx = createContext(null);
 export const NAV_ITEMS = [
   { id: "dashboard", label: "Dashboard",  icon: LayoutDashboard },
   { id: "documents", label: "Documents",  icon: FileText },
-  { id: "tasks",     label: "Tasks",      icon: ListChecks },
+  { id: "tasks",     label: "Projects",   icon: ListChecks },
   { id: "govscribe", label: "GovScribe",   icon: Sparkles },
 ];
 

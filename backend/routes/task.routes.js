@@ -7,6 +7,7 @@ const { authenticate } = require("../middleware/auth.middleware");
 const {
   list,
   create,
+  updateTaskDetails,
   assignToUser,
   selfAssign,
   updateStatus,
@@ -16,6 +17,7 @@ const {
 
 router.get("/", authenticate, list);
 router.post("/", authenticate, create);
+router.patch("/:id", authenticate, updateTaskDetails);
 router.patch("/:id/assign", authenticate, assignToUser);
 router.patch("/:id/self-assign", authenticate, selfAssign);
 router.patch("/:id/status", authenticate, updateStatus);
