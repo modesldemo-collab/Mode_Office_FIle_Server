@@ -45,7 +45,7 @@ export function DepartmentsPage() {
           onChange={(e) => setName(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleCreate()}
           placeholder="New department name"
-          className="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-cyan-500"
+          className="flex-1 bg-[var(--bg-panel)] border border-[var(--border-main)] rounded-xl px-4 py-2.5 text-[var(--text-main)] text-sm focus:outline-none focus:border-cyan-500"
         />
         <button onClick={handleCreate} disabled={loading}
           className="flex items-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold px-4 py-2.5 rounded-xl">
@@ -53,33 +53,33 @@ export function DepartmentsPage() {
         </button>
       </div>
 
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
+      <div className="bg-[var(--bg-panel)] border border-[var(--border-main)] rounded-2xl overflow-hidden">
         {depts.length === 0 && (
-          <p className="text-center text-slate-500 text-sm py-10">No departments yet</p>
+          <p className="text-center text-[var(--text-soft)] text-sm py-10">No departments yet</p>
         )}
         {depts.map((d) => (
-          <div key={d.id} className="flex items-center gap-3 px-4 py-3 border-b border-slate-800/50 last:border-0">
-            <Building2 className="w-4 h-4 text-slate-500 flex-shrink-0" />
+          <div key={d.id} className="flex items-center gap-3 px-4 py-3 border-b border-[var(--border-main)] last:border-0">
+            <Building2 className="w-4 h-4 text-[var(--text-soft)] flex-shrink-0" />
             {editId === d.id ? (
               <>
                 <input
                   type="text"
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
-                  className="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-white text-sm focus:outline-none focus:border-cyan-500"
+                  className="flex-1 bg-[var(--bg-soft)] border border-[var(--border-main)] rounded-lg px-3 py-1.5 text-[var(--text-main)] text-sm focus:outline-none focus:border-cyan-500"
                 />
-                <button onClick={() => handleUpdate(d.id)} className="text-cyan-400 text-sm font-medium">Save</button>
-                <button onClick={() => setEditId(null)} className="text-slate-500 text-sm">Cancel</button>
+                <button onClick={() => handleUpdate(d.id)} className="text-cyan-600 dark:text-cyan-400 text-sm font-medium">Save</button>
+                <button onClick={() => setEditId(null)} className="text-[var(--text-soft)] text-sm">Cancel</button>
               </>
             ) : (
               <>
-                <span className="flex-1 text-white">{d.dept_name}</span>
+                <span className="flex-1 text-[var(--text-main)]">{d.dept_name}</span>
                 <button onClick={() => { setEditId(d.id); setEditName(d.dept_name); }}
-                  className="text-slate-500 hover:text-amber-400 p-1.5 rounded-lg hover:bg-amber-500/10">
+                  className="text-[var(--text-soft)] hover:text-amber-400 p-1.5 rounded-lg hover:bg-amber-500/10">
                   <Pencil className="w-4 h-4" />
                 </button>
                 <button onClick={() => handleDelete(d.id)}
-                  className="text-slate-500 hover:text-red-400 p-1.5 rounded-lg hover:bg-red-500/10">
+                  className="text-[var(--text-soft)] hover:text-red-400 p-1.5 rounded-lg hover:bg-red-500/10">
                   <Trash2 className="w-4 h-4" />
                 </button>
               </>

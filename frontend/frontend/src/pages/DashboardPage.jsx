@@ -50,7 +50,7 @@ function CalendarPanel() {
     <section className="rounded-2xl border border-[var(--border-main)] bg-[var(--bg-panel)] p-5">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <CalendarDays className="w-4 h-4 text-cyan-500" />
+          <CalendarDays className="w-4 h-4 text-cyan-600 dark:text-cyan-500" />
           <h3 className="text-[var(--text-main)] font-semibold">Calendar</h3>
         </div>
         <span className="text-xs text-[var(--text-muted)]">{monthLabel}</span>
@@ -73,7 +73,7 @@ function CalendarPanel() {
               className={`h-9 rounded-lg border text-xs flex items-center justify-center ${
                 day
                   ? isToday
-                    ? "border-cyan-500/60 bg-cyan-500/15 text-cyan-300 font-semibold"
+                    ? "border-cyan-600/60 bg-cyan-600/15 text-cyan-700 dark:border-cyan-500/60 dark:bg-cyan-500/15 dark:text-cyan-300 font-semibold"
                     : "border-[var(--border-main)] text-[var(--text-main)]"
                   : "border-transparent"
               }`}
@@ -99,7 +99,7 @@ function TrendBars({ trend }) {
   return (
     <section className="rounded-2xl border border-[var(--border-main)] bg-[var(--bg-panel)] p-5">
       <div className="flex items-center gap-2 mb-4">
-        <Activity className="w-4 h-4 text-cyan-500" />
+        <Activity className="w-4 h-4 text-cyan-600 dark:text-cyan-500" />
         <h3 className="text-[var(--text-main)] font-semibold">7-Day Activity</h3>
       </div>
 
@@ -126,8 +126,8 @@ function TrendBars({ trend }) {
       </div>
 
       <div className="flex items-center gap-4 mt-3 text-xs text-[var(--text-muted)]">
-        <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-cyan-500" /> Logs</div>
-        <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500" /> Documents</div>
+        <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-cyan-600 dark:bg-cyan-500" /> Logs</div>
+        <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-emerald-600 dark:bg-emerald-500" /> Documents</div>
       </div>
     </section>
   );
@@ -137,7 +137,7 @@ function UsersPanel({ users }) {
   return (
     <section className="rounded-2xl border border-[var(--border-main)] bg-[var(--bg-panel)] p-5">
       <div className="flex items-center gap-2 mb-4">
-        <Users className="w-4 h-4 text-cyan-500" />
+        <Users className="w-4 h-4 text-cyan-600 dark:text-cyan-500" />
         <h3 className="text-[var(--text-main)] font-semibold">User Details</h3>
       </div>
 
@@ -154,7 +154,7 @@ function UsersPanel({ users }) {
               </div>
             </div>
             <div className="text-right">
-              <p className="text-xs text-cyan-400 capitalize">{u.role}</p>
+              <p className="text-xs text-cyan-700 dark:text-cyan-400 capitalize">{u.role}</p>
               <p className="text-[11px] text-[var(--text-muted)]">{u.dept_name || "No Dept"}</p>
             </div>
           </div>
@@ -169,7 +169,7 @@ function TasksPanel({ tasks }) {
   return (
     <section className="rounded-2xl border border-[var(--border-main)] bg-[var(--bg-panel)] p-5">
       <div className="flex items-center gap-2 mb-4">
-        <ClipboardList className="w-4 h-4 text-cyan-500" />
+        <ClipboardList className="w-4 h-4 text-cyan-600 dark:text-cyan-500" />
         <h3 className="text-[var(--text-main)] font-semibold">Task Details</h3>
       </div>
 
@@ -186,8 +186,8 @@ function TasksPanel({ tasks }) {
               <span
                 className={`text-[10px] uppercase tracking-wide px-2 py-1 rounded-full border ${
                   t.status === "completed"
-                    ? "text-emerald-400 border-emerald-500/30 bg-emerald-500/10"
-                    : "text-amber-400 border-amber-500/30 bg-amber-500/10"
+                    ? "text-emerald-700 border-emerald-600/30 bg-emerald-600/10 dark:text-emerald-400 dark:border-emerald-500/30 dark:bg-emerald-500/10"
+                    : "text-amber-700 border-amber-600/30 bg-amber-600/10 dark:text-amber-400 dark:border-amber-500/30 dark:bg-amber-500/10"
                 }`}
               >
                 {t.status}
@@ -220,17 +220,17 @@ export function DashboardPage() {
       <section className="rounded-3xl border border-cyan-500/20 bg-[radial-gradient(circle_at_10%_10%,rgba(34,211,238,0.28),transparent_45%),radial-gradient(circle_at_90%_0%,rgba(16,185,129,0.16),transparent_42%),var(--bg-panel)] p-6 lg:p-7">
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
-            <p className="text-cyan-400 text-xs uppercase tracking-[0.22em] font-semibold">Insight Workspace</p>
+            <p className="text-cyan-600 dark:text-cyan-400 text-xs uppercase tracking-[0.22em] font-semibold">Insight Workspace</p>
             <h2 className="text-2xl lg:text-3xl font-bold text-[var(--text-main)] mt-2">Analytics Dashboard</h2>
             <p className="text-sm text-[var(--text-muted)] mt-3 max-w-3xl">
               Overview of documents, people, and tasks with real-time operational signals.
             </p>
           </div>
-          <div className="rounded-2xl border border-cyan-500/30 bg-cyan-500/10 px-4 py-3 flex items-center gap-3">
-            <Sparkles className="w-4 h-4 text-cyan-300" />
+          <div className="rounded-2xl border border-cyan-600/30 bg-cyan-600/10 dark:border-cyan-500/30 dark:bg-cyan-500/10 px-4 py-3 flex items-center gap-3">
+            <Sparkles className="w-4 h-4 text-cyan-600 dark:text-cyan-300" />
             <div>
-              <p className="text-xs text-cyan-300">Today Actions</p>
-              <p className="text-xl font-bold text-cyan-200">{stats?.logsToday ?? 0}</p>
+              <p className="text-xs text-cyan-600 dark:text-cyan-300">Today Actions</p>
+              <p className="text-xl font-bold text-cyan-700 dark:text-cyan-200">{stats?.logsToday ?? 0}</p>
             </div>
           </div>
         </div>
@@ -257,7 +257,7 @@ export function DashboardPage() {
 
       <section className="rounded-2xl border border-[var(--border-main)] bg-[var(--bg-panel)] p-5">
         <div className="flex items-center gap-2 mb-4">
-          <Clock3 className="w-4 h-4 text-cyan-500" />
+          <Clock3 className="w-4 h-4 text-cyan-600 dark:text-cyan-500" />
           <h3 className="text-[var(--text-main)] font-semibold">Recent Activity</h3>
         </div>
 
@@ -267,7 +267,7 @@ export function DashboardPage() {
               <div>
                 <p className="text-sm text-[var(--text-main)]">
                   <span className="font-semibold">{a.username}</span>
-                  <span className="mx-1 text-cyan-400">{a.action_type}</span>
+                  <span className="mx-1 text-cyan-700 dark:text-cyan-400">{a.action_type}</span>
                   <span className="text-[var(--text-muted)]">{a.document_name}</span>
                 </p>
                 <p className="text-xs text-[var(--text-soft)] mt-1">

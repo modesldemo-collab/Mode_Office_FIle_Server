@@ -42,20 +42,20 @@ export function PersonsPage() {
         </button>
       </div>
 
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
+      <div className="bg-[var(--bg-panel)] border border-[var(--border-main)] rounded-2xl overflow-hidden">
         {persons.length === 0 && (
-          <p className="text-center text-slate-500 text-sm py-10">No persons added yet</p>
+          <p className="text-center text-[var(--text-soft)] text-sm py-10">No persons added yet</p>
         )}
         {persons.map((p) => (
-          <div key={p.id} className="flex items-center gap-3 px-4 py-3 border-b border-slate-800/50 last:border-0">
-            <UserCheck className="w-4 h-4 text-slate-500 flex-shrink-0" />
+          <div key={p.id} className="flex items-center gap-3 px-4 py-3 border-b border-[var(--border-main)] last:border-0">
+            <UserCheck className="w-4 h-4 text-[var(--text-soft)] flex-shrink-0" />
             <div className="flex-1">
-              <p className="text-white text-sm font-medium">{p.name}</p>
-              {p.email && <p className="text-slate-500 text-xs">{p.email}</p>}
+              <p className="text-[var(--text-main)] text-sm font-medium">{p.name}</p>
+              {p.email && <p className="text-[var(--text-soft)] text-xs">{p.email}</p>}
             </div>
-            <span className="text-slate-500 text-xs">{p.dept_name || "—"}</span>
+            <span className="text-[var(--text-soft)] text-xs">{p.dept_name || "—"}</span>
             <button onClick={() => handleDelete(p.id)}
-              className="text-slate-500 hover:text-red-400 p-1.5 rounded-lg hover:bg-red-500/10">
+              className="text-[var(--text-soft)] hover:text-red-400 p-1.5 rounded-lg hover:bg-red-500/10">
               <Trash2 className="w-4 h-4" />
             </button>
           </div>
@@ -65,19 +65,19 @@ export function PersonsPage() {
       <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="Add Responsible Person">
         <div className="space-y-4">
           <div>
-            <label className="block text-xs font-medium text-slate-400 mb-1.5 uppercase tracking-wider">Full Name *</label>
+            <label className="block text-xs font-medium text-[var(--text-muted)] mb-1.5 uppercase tracking-wider">Full Name *</label>
             <input type="text" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
-              className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-cyan-500" />
+              className="w-full bg-[var(--bg-soft)] border border-[var(--border-main)] rounded-lg px-4 py-2.5 text-[var(--text-main)] text-sm focus:outline-none focus:border-cyan-500" />
           </div>
           <div>
-            <label className="block text-xs font-medium text-slate-400 mb-1.5 uppercase tracking-wider">Email</label>
+            <label className="block text-xs font-medium text-[var(--text-muted)] mb-1.5 uppercase tracking-wider">Email</label>
             <input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })}
-              className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-cyan-500" />
+              className="w-full bg-[var(--bg-soft)] border border-[var(--border-main)] rounded-lg px-4 py-2.5 text-[var(--text-main)] text-sm focus:outline-none focus:border-cyan-500" />
           </div>
           <div>
-            <label className="block text-xs font-medium text-slate-400 mb-1.5 uppercase tracking-wider">Department</label>
+            <label className="block text-xs font-medium text-[var(--text-muted)] mb-1.5 uppercase tracking-wider">Department</label>
             <select value={form.dept_id} onChange={(e) => setForm({ ...form, dept_id: e.target.value })}
-              className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-cyan-500">
+              className="w-full bg-[var(--bg-soft)] border border-[var(--border-main)] rounded-lg px-4 py-2.5 text-[var(--text-main)] text-sm focus:outline-none focus:border-cyan-500">
               <option value="">None</option>
               {departments.map((d) => <option key={d.id} value={d.id}>{d.dept_name}</option>)}
             </select>

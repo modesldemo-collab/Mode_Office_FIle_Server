@@ -162,9 +162,9 @@ export function TasksPage() {
         </div>
         <button
           onClick={() => setAppPage("completedTasks")}
-          className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-white text-sm font-semibold px-4 py-2.5 rounded-xl border border-slate-700 hover:border-cyan-500/40 transition-all whitespace-nowrap"
+          className="flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-white text-sm font-semibold px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-cyan-500/40 transition-all whitespace-nowrap"
         >
-          <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Completed Tasks
+          <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-500" /> Completed Tasks
         </button>
       </div>
 
@@ -210,7 +210,7 @@ export function TasksPage() {
                 onClick={() => setCreateDeptFilter(dept)}
                 className={`px-2.5 py-1 rounded-full text-xs border transition-colors ${
                   createDeptFilter === dept
-                    ? "border-cyan-500/40 bg-cyan-500/20 text-cyan-300"
+                    ? "border-cyan-500/40 bg-cyan-100 text-cyan-800 dark:bg-cyan-500/20 dark:text-cyan-300"
                     : "border-[var(--border-main)] text-[var(--text-soft)] hover:text-[var(--text-main)]"
                 }`}
               >
@@ -280,8 +280,8 @@ export function TasksPage() {
                 <div className="flex items-center gap-2">
                   <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${
                     task.status === "completed"
-                      ? "text-emerald-500 border-emerald-500/30 bg-emerald-500/10"
-                      : "text-amber-500 border-amber-500/30 bg-amber-500/10"
+                      ? "text-emerald-800 bg-emerald-100 border-emerald-200 dark:text-emerald-500 dark:border-emerald-500/30 dark:bg-emerald-500/10"
+                      : "text-amber-800 bg-amber-100 border-amber-200 dark:text-amber-500 dark:border-amber-500/30 dark:bg-amber-500/10"
                   }`}>
                     <CheckCircle2 className="w-3.5 h-3.5" />
                     {task.completed_members || 0}/{task.total_members || 0} done
@@ -319,8 +319,8 @@ export function TasksPage() {
                           <span className="text-sm text-[var(--text-main)]">{m.username}</span>
                           <span className={`text-xs px-2 py-0.5 rounded-full border ${
                             m.is_completed
-                              ? "text-emerald-400 border-emerald-500/30 bg-emerald-500/10"
-                              : "text-amber-400 border-amber-500/30 bg-amber-500/10"
+                              ? "text-emerald-800 bg-emerald-100 border-emerald-200 dark:text-emerald-400 dark:border-emerald-500/30 dark:bg-emerald-500/10"
+                              : "text-amber-800 bg-amber-100 border-amber-200 dark:text-amber-400 dark:border-amber-500/30 dark:bg-amber-500/10"
                           }`}>
                             {m.is_completed ? "Done" : "Pending"}
                           </span>
@@ -343,7 +343,7 @@ export function TasksPage() {
                             onClick={() => setEditDeptFilter(dept)}
                             className={`px-2.5 py-1 rounded-full text-xs border transition-colors ${
                               editDeptFilter === dept
-                                ? "border-cyan-500/40 bg-cyan-500/20 text-cyan-300"
+                                ? "border-cyan-500/40 bg-cyan-100 text-cyan-800 dark:bg-cyan-500/20 dark:text-cyan-300"
                                 : "border-[var(--border-main)] text-[var(--text-soft)] hover:text-[var(--text-main)]"
                             }`}
                           >
