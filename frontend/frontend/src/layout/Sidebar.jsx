@@ -18,15 +18,15 @@ import { Modal } from "../components/Modal";
 export const NavCtx = createContext(null);
 
 export const NAV_ITEMS = [
-  { id: "dashboard", label: "Dashboard",  icon: LayoutDashboard },
-  { id: "documents", label: "Documents",  icon: FileText },
-  { id: "tasks",     label: "Projects",   icon: ListChecks },
-  { id: "govscribe", label: "GovScribe",   icon: Sparkles },
+  { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { id: "documents", label: "Documents", icon: FileText },
+  { id: "tasks", label: "Projects", icon: ListChecks },
+  { id: "govscribe", label: "GovScribe", icon: Sparkles },
 ];
 
 export const ADMIN_NAV = [
-  { id: "users",       label: "Users",         icon: Users },
-  { id: "departments", label: "Departments",    icon: Building2 },
+  { id: "users", label: "Users", icon: Users },
+  { id: "departments", label: "Departments", icon: Building2 },
 ];
 
 export function Sidebar({ open, onClose }) {
@@ -82,11 +82,10 @@ export function Sidebar({ open, onClose }) {
   const NavBtn = ({ item }) => (
     <button
       onClick={() => { setPage(item.id); onClose?.(); }}
-      className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
-        page === item.id
+      className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${page === item.id
           ? "bg-cyan-500/15 text-cyan-400 border border-cyan-500/30"
           : "text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-soft)]"
-      }`}
+        }`}
     >
       <item.icon className="w-4 h-4 flex-shrink-0" />
       {item.label}
@@ -95,9 +94,8 @@ export function Sidebar({ open, onClose }) {
 
   return (
     <aside
-      className={`print:hidden fixed inset-y-0 left-0 z-40 w-64 bg-[var(--bg-panel)] border-r border-[var(--border-main)] flex flex-col transition-transform duration-300 ${
-        open ? "translate-x-0" : "-translate-x-full"
-      } lg:translate-x-0`}
+      className={`print:hidden fixed inset-y-0 left-0 z-40 w-64 bg-[var(--bg-panel)] border-r border-[var(--border-main)] flex flex-col transition-transform duration-300 ${open ? "translate-x-0" : "-translate-x-full"
+        } lg:translate-x-0`}
     >
       <div className="p-5 border-b border-[var(--border-main)]">
         <div className="flex items-center gap-3">
@@ -105,7 +103,7 @@ export function Sidebar({ open, onClose }) {
             <img src="/emblem.svg" alt="Sri Lanka National Emblem" className="w-full h-full object-contain drop-shadow-md" />
           </div>
           <div>
-            <p className="text-[var(--text-main)] text-sm font-bold leading-tight">MDE·LK</p>
+            <p className="text-[var(--text-main)] text-[12px] font-bold leading-tight whitespace-nowrap">Ministry of Digital Economy</p>
             <p className="text-[var(--text-soft)] text-xs">File Management</p>
           </div>
         </div>

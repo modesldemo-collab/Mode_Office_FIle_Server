@@ -285,11 +285,10 @@ function LoginPage() {
 function Badge({ status }) {
   return (
     <span
-      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
-        status === "final"
+      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${status === "final"
           ? "bg-emerald-900/40 text-emerald-400 border border-emerald-800/50"
           : "bg-amber-900/40 text-amber-400 border border-amber-800/50"
-      }`}
+        }`}
     >
       {status === "final" ? (
         <CheckCircle2 className="w-3 h-3" />
@@ -306,9 +305,8 @@ function Modal({ open, onClose, title, children, wide = false }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
       <div
-        className={`bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl w-full ${
-          wide ? "max-w-4xl" : "max-w-lg"
-        } max-h-[90vh] flex flex-col`}
+        className={`bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl w-full ${wide ? "max-w-4xl" : "max-w-lg"
+          } max-h-[90vh] flex flex-col`}
       >
         <div className="flex items-center justify-between p-5 border-b border-slate-700">
           <h3 className="text-lg font-semibold text-white">{title}</h3>
@@ -361,9 +359,8 @@ function ActionBadge({ action }) {
   };
   return (
     <span
-      className={`inline-block px-2 py-0.5 rounded text-xs font-medium border ${
-        map[action] || "bg-slate-800 text-slate-400 border-slate-700"
-      }`}
+      className={`inline-block px-2 py-0.5 rounded text-xs font-medium border ${map[action] || "bg-slate-800 text-slate-400 border-slate-700"
+        }`}
     >
       {action}
     </span>
@@ -393,11 +390,10 @@ function Sidebar({ open, onClose }) {
   const NavBtn = ({ item }) => (
     <button
       onClick={() => { setPage(item.id); onClose?.(); }}
-      className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
-        page === item.id
+      className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${page === item.id
           ? "bg-cyan-500/15 text-cyan-400 border border-cyan-500/30"
           : "text-slate-400 hover:text-white hover:bg-slate-800"
-      }`}
+        }`}
     >
       <item.icon className="w-4 h-4 flex-shrink-0" />
       {item.label}
@@ -406,9 +402,8 @@ function Sidebar({ open, onClose }) {
 
   return (
     <aside
-      className={`fixed inset-y-0 left-0 z-40 w-64 bg-slate-950 border-r border-slate-800 flex flex-col transition-transform duration-300 ${
-        open ? "translate-x-0" : "-translate-x-full"
-      } lg:translate-x-0`}
+      className={`fixed inset-y-0 left-0 z-40 w-64 bg-slate-950 border-r border-slate-800 flex flex-col transition-transform duration-300 ${open ? "translate-x-0" : "-translate-x-full"
+        } lg:translate-x-0`}
     >
       {/* Logo */}
       <div className="p-5 border-b border-slate-800">
@@ -417,7 +412,7 @@ function Sidebar({ open, onClose }) {
             <ShieldCheck className="w-5 h-5 text-white" />
           </div>
           <div>
-            <p className="text-white text-sm font-bold leading-tight">MDE·LK</p>
+            <p className="text-white text-sm font-bold leading-tight">Ministry of Digital Economy</p>
             <p className="text-slate-500 text-xs">File Management</p>
           </div>
         </div>
@@ -661,11 +656,10 @@ function UploadModal({ open, onClose, onSuccess, departments, persons }) {
           onDragLeave={() => setDragging(false)}
           onDrop={handleDrop}
           onClick={() => fileRef.current?.click()}
-          className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all ${
-            dragging
+          className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all ${dragging
               ? "border-cyan-500 bg-cyan-500/10"
               : "border-slate-700 hover:border-slate-500 bg-slate-800/40"
-          }`}
+            }`}
         >
           <input ref={fileRef} type="file" className="hidden" onChange={handleFileChange} />
           {file ? (
@@ -748,11 +742,10 @@ function UploadModal({ open, onClose, onSuccess, departments, persons }) {
                   key={p.id}
                   type="button"
                   onClick={() => togglePerson(p.id)}
-                  className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
-                    selectedPersons.includes(p.id)
+                  className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${selectedPersons.includes(p.id)
                       ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/50"
                       : "bg-slate-700 text-slate-400 border border-slate-600 hover:border-slate-500"
-                  }`}
+                    }`}
                 >
                   {p.name}
                 </button>
@@ -772,13 +765,12 @@ function UploadModal({ open, onClose, onSuccess, departments, persons }) {
                 key={s}
                 type="button"
                 onClick={() => setStatus(s)}
-                className={`flex-1 py-2.5 rounded-lg text-sm font-medium border transition-all ${
-                  status === s
+                className={`flex-1 py-2.5 rounded-lg text-sm font-medium border transition-all ${status === s
                     ? s === "final"
                       ? "bg-emerald-900/40 text-emerald-400 border-emerald-800/50"
                       : "bg-amber-900/40 text-amber-400 border-amber-800/50"
                     : "bg-slate-800 text-slate-400 border-slate-700 hover:border-slate-500"
-                }`}
+                  }`}
               >
                 {s === "final" ? "✓ Final" : "✎ Draft"}
               </button>
@@ -885,11 +877,10 @@ function EditModal({ open, onClose, onSuccess, doc, departments, persons }) {
                   key={p.id}
                   type="button"
                   onClick={() => togglePerson(p.id)}
-                  className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
-                    selectedPersons.includes(p.id)
+                  className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${selectedPersons.includes(p.id)
                       ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/50"
                       : "bg-slate-700 text-slate-400 border border-slate-600"
-                  }`}
+                    }`}
                 >
                   {p.name}
                 </button>
@@ -905,13 +896,12 @@ function EditModal({ open, onClose, onSuccess, doc, departments, persons }) {
                 key={s}
                 type="button"
                 onClick={() => setStatus(s)}
-                className={`flex-1 py-2.5 rounded-lg text-sm font-medium border transition-all ${
-                  status === s
+                className={`flex-1 py-2.5 rounded-lg text-sm font-medium border transition-all ${status === s
                     ? s === "final"
                       ? "bg-emerald-900/40 text-emerald-400 border-emerald-800/50"
                       : "bg-amber-900/40 text-amber-400 border-amber-800/50"
                     : "bg-slate-800 text-slate-400 border-slate-700"
-                }`}
+                  }`}
               >
                 {s === "final" ? "✓ Final" : "✎ Draft"}
               </button>
@@ -1526,11 +1516,10 @@ function UsersPage() {
                 <td className="px-4 py-3 text-slate-400">{u.email}</td>
                 <td className="px-4 py-3 text-slate-400">{u.dept_name || "—"}</td>
                 <td className="px-4 py-3">
-                  <span className={`px-2 py-0.5 rounded text-xs font-medium border ${
-                    u.role === "admin"
+                  <span className={`px-2 py-0.5 rounded text-xs font-medium border ${u.role === "admin"
                       ? "bg-violet-900/40 text-violet-400 border-violet-800/50"
                       : "bg-slate-800 text-slate-400 border-slate-700"
-                  }`}>{u.role}</span>
+                    }`}>{u.role}</span>
                 </td>
                 <td className="px-4 py-3">
                   <span className={`w-2 h-2 rounded-full inline-block ${u.is_active ? "bg-emerald-400" : "bg-slate-600"}`} />
