@@ -84,6 +84,19 @@ export const TasksAPI = {
   updateStatus: (id, data) => api.patch(`/api/tasks/${id}/status`, data),
   restore: (id) => api.patch(`/api/tasks/${id}/restore`),
   delete: (id) => api.delete(`/api/tasks/${id}`),
+  // New attachments & review endpoints
+  uploadAttachment: (id, formData) =>
+    api.post(`/api/tasks/${id}/attachments`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    }),
+  getAttachments: (id) => api.get(`/api/tasks/${id}/attachments`),
+  deleteAttachment: (attachmentId) => api.delete(`/api/tasks/attachments/${attachmentId}`),
+  submitForReview: (id, data) => api.patch(`/api/tasks/${id}/submit`, data),
+  reviewTask: (id, data) => api.patch(`/api/tasks/${id}/review`, data),
+  downloadAttachmentUrl: (attachmentId) =>
+    `${BASE_URL}/api/tasks/attachments/${attachmentId}/download?token=${encodeURIComponent(localStorage.getItem("mde_token") || "")}`,
+  previewAttachmentUrl: (attachmentId) =>
+    `${BASE_URL}/api/tasks/attachments/${attachmentId}/preview?token=${encodeURIComponent(localStorage.getItem("mde_token") || "")}`,
 };
 
 export const ProjectsAPI = {
@@ -91,6 +104,7 @@ export const ProjectsAPI = {
   create: (data) => api.post("/api/projects", data),
   update: (id, data) => api.patch(`/api/projects/${id}`, data),
   delete: (id) => api.delete(`/api/projects/${id}`),
+  getAttachments: (id) => api.get(`/api/projects/${id}/attachments`),
 };
 
 export const NotificationsAPI = {

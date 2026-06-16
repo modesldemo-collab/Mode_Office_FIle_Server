@@ -162,6 +162,37 @@ async function initDB() {
       )
     `);
 
+    if (!(await columnExists(conn, "task_assignments", "approval_status"))) {
+      await conn.query("ALTER TABLE task_assignments ADD COLUMN approval_status VARCHAR(20) DEFAULT 'pending' AFTER completed_at");
+    }
+
+    if (!(await columnExists(conn, "task_assignments", "feedback"))) {
+      await conn.query("ALTER TABLE task_assignments ADD COLUMN feedback TEXT NULL AFTER approval_status");
+    }
+
+    if (!(await columnExists(conn, "task_assignments", "submitted_at"))) {
+      await conn.query("ALTER TABLE task_assignments ADD COLUMN submitted_at TIMESTAMP NULL DEFAULT NULL AFTER feedback");
+    }
+
+    if (!(await columnExists(conn, "task_assignments", "submission_text"))) {
+      await conn.query("ALTER TABLE task_assignments ADD COLUMN submission_text TEXT NULL AFTER submitted_at");
+    }
+
+    await conn.query(`
+      CREATE TABLE IF NOT EXISTS task_attachments (
+        id           INT AUTO_INCREMENT PRIMARY KEY,
+        task_id      INT NOT NULL,
+        uploader_id  INT NULL,
+        file_name    VARCHAR(255) NOT NULL,
+        file_path    VARCHAR(255) NOT NULL,
+        file_size    BIGINT DEFAULT 0,
+        file_type    VARCHAR(100),
+        created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE CASCADE,
+        FOREIGN KEY (uploader_id) REFERENCES users(id) ON DELETE SET NULL
+      )
+    `);
+
     await conn.query(`
       CREATE TABLE IF NOT EXISTS notifications (
         id               INT AUTO_INCREMENT PRIMARY KEY,

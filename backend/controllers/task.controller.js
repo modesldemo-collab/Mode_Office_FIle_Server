@@ -2,6 +2,8 @@
  * controllers/task.controller.js
  */
 
+const fs   = require("fs");
+const path = require("path");
 const { db } = require("../models/db");
 const { createNotifications } = require("../utils/notify");
 
@@ -60,6 +62,7 @@ const loadTaskAssignees = async (taskIds) => {
   if (!taskIds.length) return new Map();
   const [rows] = await db.query(
     `SELECT ta.task_id, ta.user_id, ta.is_completed, ta.completed_at,
+            ta.approval_status, ta.feedback, ta.submitted_at, ta.submission_text,
             u.username, u.dept_id, d.dept_name
      FROM task_assignments ta
      LEFT JOIN users u ON u.id = ta.user_id
@@ -79,6 +82,10 @@ const loadTaskAssignees = async (taskIds) => {
       dept_name: row.dept_name,
       is_completed: Number(row.is_completed) === 1,
       completed_at: row.completed_at,
+      approval_status: row.approval_status,
+      feedback: row.feedback,
+      submitted_at: row.submitted_at,
+      submission_text: row.submission_text,
     });
   });
   return grouped;
@@ -87,7 +94,7 @@ const loadTaskAssignees = async (taskIds) => {
 const syncTaskOverallStatus = async (taskId) => {
   const [[agg]] = await db.query(
     `SELECT COUNT(*) AS total,
-            SUM(CASE WHEN is_completed = 1 THEN 1 ELSE 0 END) AS done
+            SUM(CASE WHEN is_completed = 1 OR approval_status = 'approved' THEN 1 ELSE 0 END) AS done
      FROM task_assignments
      WHERE task_id = ?`,
     [taskId]
@@ -409,6 +416,336 @@ const remove = async (req, res) => {
   res.json({ message: "Task deleted" });
 };
 
+// POST /api/tasks/:id/attachments
+const uploadAttachment = async (req, res) => {
+  const taskId = Number(req.params.id);
+  if (!req.file) {
+    return res.status(400).json({ error: "File is required" });
+  }
+
+  try {
+    const task = await getTaskById(taskId);
+    if (!task) {
+      return res.status(404).json({ error: "Task not found" });
+    }
+
+    const isAdmin = isAdminUser(req.user);
+    const isCreator = task.assigned_by === req.user.id;
+    
+    const [assignment] = await db.query(
+      "SELECT 1 FROM task_assignments WHERE task_id = ? AND user_id = ? LIMIT 1",
+      [taskId, req.user.id]
+    );
+    const isAssigned = assignment.length > 0 || task.assigned_to === req.user.id;
+
+    if (!isAdmin && !isCreator && !isAssigned) {
+      return res.status(403).json({ error: "Access denied" });
+    }
+
+    const fileType = path.extname(req.file.originalname).replace(".", "").toLowerCase();
+
+    const [result] = await db.query(
+      `INSERT INTO task_attachments (task_id, uploader_id, file_name, file_path, file_size, file_type)
+       VALUES (?,?,?,?,?,?)`,
+      [
+        taskId,
+        req.user.id,
+        req.file.originalname,
+        req.file.path,
+        req.file.size,
+        fileType
+      ]
+    );
+
+    res.status(201).json({
+      id: result.insertId,
+      message: "Attachment uploaded successfully",
+      attachment: {
+        id: result.insertId,
+        file_name: req.file.originalname,
+        file_size: req.file.size,
+        file_type: fileType,
+        created_at: new Date(),
+        uploader_id: req.user.id,
+        uploader_name: req.user.username
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// GET /api/tasks/:id/attachments
+const getAttachments = async (req, res) => {
+  const taskId = Number(req.params.id);
+  try {
+    const task = await getTaskById(taskId);
+    if (!task) {
+      return res.status(404).json({ error: "Task not found" });
+    }
+
+    const isAdmin = isAdminUser(req.user);
+    const isCreator = task.assigned_by === req.user.id;
+    const [assignment] = await db.query(
+      "SELECT 1 FROM task_assignments WHERE task_id = ? AND user_id = ? LIMIT 1",
+      [taskId, req.user.id]
+    );
+    const isAssigned = assignment.length > 0 || task.assigned_to === req.user.id;
+
+    if (!isAdmin && !isCreator && !isAssigned) {
+      return res.status(403).json({ error: "Access denied" });
+    }
+
+    const [rows] = await db.query(
+      `SELECT ta.*, u.username AS uploader_name
+       FROM task_attachments ta
+       LEFT JOIN users u ON u.id = ta.uploader_id
+       WHERE ta.task_id = ?
+       ORDER BY ta.created_at DESC`,
+      [taskId]
+    );
+
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// DELETE /api/tasks/attachments/:attachmentId
+const deleteAttachment = async (req, res) => {
+  const attachmentId = Number(req.params.attachmentId);
+  try {
+    const [rows] = await db.query(
+      "SELECT ta.*, t.assigned_by FROM task_attachments ta JOIN tasks t ON t.id = ta.task_id WHERE ta.id = ?",
+      [attachmentId]
+    );
+    if (!rows.length) {
+      return res.status(404).json({ error: "Attachment not found" });
+    }
+
+    const attachment = rows[0];
+
+    const isAdmin = isAdminUser(req.user);
+    const isCreator = attachment.assigned_by === req.user.id;
+    const isUploader = attachment.uploader_id === req.user.id;
+
+    if (!isAdmin && !isCreator && !isUploader) {
+      return res.status(403).json({ error: "Access denied to delete this attachment" });
+    }
+
+    if (fs.existsSync(attachment.file_path)) {
+      try {
+        fs.unlinkSync(attachment.file_path);
+      } catch (err) {
+        console.error("Failed to delete file from disk:", err);
+      }
+    }
+
+    await db.query("DELETE FROM task_attachments WHERE id = ?", [attachmentId]);
+    res.json({ message: "Attachment deleted" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// GET /api/tasks/attachments/:attachmentId/download
+const downloadAttachment = async (req, res) => {
+  const attachmentId = Number(req.params.attachmentId);
+  try {
+    const [rows] = await db.query(
+      "SELECT ta.*, t.assigned_by FROM task_attachments ta JOIN tasks t ON t.id = ta.task_id WHERE ta.id = ?",
+      [attachmentId]
+    );
+    if (!rows.length) {
+      return res.status(404).json({ error: "Attachment not found" });
+    }
+
+    const attachment = rows[0];
+
+    const isAdmin = isAdminUser(req.user);
+    const isCreator = attachment.assigned_by === req.user.id;
+    const [assignment] = await db.query(
+      "SELECT 1 FROM task_assignments WHERE task_id = ? AND user_id = ? LIMIT 1",
+      [attachment.task_id, req.user.id]
+    );
+    const isAssigned = assignment.length > 0 || attachment.uploader_id === req.user.id;
+
+    if (!isAdmin && !isCreator && !isAssigned) {
+      return res.status(403).json({ error: "Access denied" });
+    }
+
+    if (!fs.existsSync(attachment.file_path)) {
+      return res.status(404).json({ error: "File not found on disk" });
+    }
+
+    res.download(attachment.file_path, attachment.file_name);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// GET /api/tasks/attachments/:attachmentId/preview
+const previewAttachment = async (req, res) => {
+  const attachmentId = Number(req.params.attachmentId);
+  try {
+    const [rows] = await db.query(
+      "SELECT ta.*, t.assigned_by FROM task_attachments ta JOIN tasks t ON t.id = ta.task_id WHERE ta.id = ?",
+      [attachmentId]
+    );
+    if (!rows.length) {
+      return res.status(404).json({ error: "Attachment not found" });
+    }
+
+    const attachment = rows[0];
+
+    const isAdmin = isAdminUser(req.user);
+    const isCreator = attachment.assigned_by === req.user.id;
+    const [assignment] = await db.query(
+      "SELECT 1 FROM task_assignments WHERE task_id = ? AND user_id = ? LIMIT 1",
+      [attachment.task_id, req.user.id]
+    );
+    const isAssigned = assignment.length > 0 || attachment.uploader_id === req.user.id;
+
+    if (!isAdmin && !isCreator && !isAssigned) {
+      return res.status(403).json({ error: "Access denied" });
+    }
+
+    if (!fs.existsSync(attachment.file_path)) {
+      return res.status(404).json({ error: "File not found on disk" });
+    }
+
+    res.sendFile(path.resolve(attachment.file_path), {
+      headers: {
+        "Content-Disposition": `inline; filename="${attachment.file_name}"`,
+      },
+    }, (err) => {
+      if (err && !res.headersSent) {
+        res.status(500).json({ error: "Failed to preview file" });
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// GET /api/projects/:id/attachments
+const getProjectAttachments = async (req, res) => {
+  const projectId = Number(req.params.id);
+  try {
+    const [rows] = await db.query(
+      `SELECT ta.*, t.task_name, u.username AS uploader_name
+       FROM task_attachments ta
+       JOIN tasks t ON t.id = ta.task_id
+       LEFT JOIN users u ON u.id = ta.uploader_id
+       WHERE t.project_id = ?
+       ORDER BY ta.created_at DESC`,
+      [projectId]
+    );
+
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// PATCH /api/tasks/:id/submit
+const submitForReview = async (req, res) => {
+  const taskId = Number(req.params.id);
+  const { submission_text } = req.body;
+  try {
+    const task = await getTaskById(taskId);
+    if (!task) return res.status(404).json({ error: "Task not found" });
+
+    const [assignment] = await db.query(
+      "SELECT 1 FROM task_assignments WHERE task_id = ? AND user_id = ? LIMIT 1",
+      [taskId, req.user.id]
+    );
+    if (!assignment.length && task.assigned_to !== req.user.id) {
+      return res.status(403).json({ error: "You are not assigned to this task" });
+    }
+
+    await db.query(
+      `INSERT INTO task_assignments (task_id, user_id, is_completed, approval_status, submitted_at, feedback, submission_text)
+       VALUES (?, ?, 0, 'submitted', NOW(), NULL, ?)
+       ON DUPLICATE KEY UPDATE approval_status = 'submitted', submitted_at = NOW(), feedback = NULL, submission_text = ?`,
+      [taskId, req.user.id, submission_text || null, submission_text || null]
+    );
+
+    if (task.assigned_by) {
+      await createNotifications({
+        userIds: [task.assigned_by],
+        notificationKey: (userId) => `task-submitted:${taskId}:${req.user.id}:${userId}`,
+        type: "task_submitted",
+        title: "Task submitted for approval",
+        body: `${req.user.username} submitted task "${task.task_name}" for review`,
+        link: "tasks",
+        sendMail: true,
+        mailSubject: `Task review requested: ${task.task_name}`,
+        mailText: (userObj) => `Hello ${userObj.username}, ${req.user.username} has submitted the task "${task.task_name}" for your review. Please check the attachment.`,
+      });
+    }
+
+    res.json({ message: "Task submitted for review" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// PATCH /api/tasks/:id/review
+const reviewTask = async (req, res) => {
+  const taskId = Number(req.params.id);
+  const { user_id, status, feedback } = req.body;
+
+  if (!["approved", "needs_changes"].includes(status)) {
+    return res.status(400).json({ error: "Status must be 'approved' or 'needs_changes'" });
+  }
+
+  try {
+    const task = await getTaskById(taskId);
+    if (!task) return res.status(404).json({ error: "Task not found" });
+
+    const canReview = isAdminUser(req.user) || task.assigned_by === req.user.id;
+    if (!canReview) {
+      return res.status(403).json({ error: "Only the task assigner or admin can review this task" });
+    }
+
+    const isCompleted = status === "approved" ? 1 : 0;
+    const completedAt = status === "approved" ? new Date() : null;
+
+    await db.query(
+      `UPDATE task_assignments
+       SET approval_status = ?,
+           feedback = ?,
+           is_completed = ?,
+           completed_at = ?
+       WHERE task_id = ? AND user_id = ?`,
+      [status, feedback || null, isCompleted, completedAt, taskId, user_id]
+    );
+
+    await syncTaskOverallStatus(taskId);
+
+    await createNotifications({
+      userIds: [user_id],
+      notificationKey: (uid) => `task-reviewed:${taskId}:${status}:${uid}`,
+      type: "task_reviewed",
+      title: status === "approved" ? "Task approved!" : "Task needs changes",
+      body: status === "approved"
+        ? `Your submission for "${task.task_name}" was approved.`
+        : `Your submission for "${task.task_name}" needs changes. Feedback: ${feedback || "No details provided."}`,
+      link: "tasks",
+      sendMail: true,
+      mailSubject: status === "approved" ? `Task Approved: ${task.task_name}` : `Task Needs Changes: ${task.task_name}`,
+      mailText: (userObj) => `Hello ${userObj.username},\n\n` + (status === "approved"
+        ? `Your submission for the task "${task.task_name}" has been approved by the reviewer.`
+        : `Your submission for the task "${task.task_name}" requires adjustments.\nFeedback: ${feedback || "None"}`),
+    });
+
+    res.json({ message: `Task review updated to: ${status}` });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 module.exports = {
   list,
   create,
@@ -418,4 +755,12 @@ module.exports = {
   updateStatus,
   restore,
   remove,
+  uploadAttachment,
+  getAttachments,
+  deleteAttachment,
+  downloadAttachment,
+  previewAttachment,
+  getProjectAttachments,
+  submitForReview,
+  reviewTask,
 };

@@ -99,7 +99,7 @@ export function GovScribePage() {
   // Layout & UI states
   const [zoomScale, setZoomScale] = useState(0.8);
   const [selectedTheme, setSelectedTheme] = useState(THEMES[0]);
-  
+
   const [isGenerating, setIsGenerating] = useState(false);
   const [isImproving, setIsImproving] = useState(false);
   const [isAuditing, setIsAuditing] = useState(false);
@@ -132,7 +132,7 @@ export function GovScribePage() {
           setLeftSigDesignation(draft.signatory_left_designation || "");
           setRightSigName(draft.signatory_right_name || "");
           setRightSigDesignation(draft.signatory_right_designation || "");
-          
+
           const savedTheme = THEMES.find(t => t.id === draft.selected_theme) || THEMES[0];
           setSelectedTheme(savedTheme);
           setSelectedTemplateId("official-letter");
@@ -204,7 +204,7 @@ export function GovScribePage() {
       setErrorMsg("Please enter a Subject first to auto-generate content.");
       return;
     }
-    
+
     setIsGenerating(true);
     setErrorMsg(null);
     setAuditResults(null);
@@ -334,7 +334,7 @@ export function GovScribePage() {
         signatoryRightName: rightSigName,
         signatoryRightDesignation: rightSigDesignation
       });
-      
+
       const blob = new Blob([response.data], { type: "application/pdf" });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
@@ -368,7 +368,7 @@ export function GovScribePage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* Template Card: Official Letter */}
-          <div 
+          <div
             onClick={() => handleTemplateSelect('official-letter')}
             className="group cursor-pointer bg-[var(--bg-panel)] border border-[var(--border-main)] rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:border-cyan-500 transition-all duration-300 transform hover:-translate-y-1"
           >
@@ -409,20 +409,20 @@ export function GovScribePage() {
   // --- RENDER EDITOR ---
   return (
     <div className="flex flex-col lg:flex-row gap-6 w-full h-[calc(100vh-8.5rem)] min-h-[500px]">
-      
+
       {/* LEFT PANEL: Form Inputs */}
       <aside className="print:hidden w-full lg:w-[40%] xl:w-[35%] flex flex-col bg-[var(--bg-panel)] border border-[var(--border-main)] rounded-2xl overflow-hidden shadow-lg h-full">
-        
+
         {/* Header */}
         <div className="px-5 py-4 border-b border-[var(--border-main)] flex items-center justify-between bg-[var(--bg-soft)]/20">
-          <button 
+          <button
             onClick={() => setCurrentStep("template-selection")}
             className="flex items-center gap-1.5 text-xs font-semibold text-[var(--text-soft)] hover:text-[var(--text-main)] transition-colors cursor-pointer"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Back to Templates</span>
           </button>
-          
+
           <div className="flex items-center gap-2">
             {saveStatus === "saving" && (
               <span className="text-[10px] text-cyan-400 font-semibold flex items-center gap-1">
@@ -451,7 +451,7 @@ export function GovScribePage() {
 
         {/* Scrollable Form Content */}
         <div className="flex-1 overflow-y-auto p-5 space-y-5">
-          
+
           {/* Metadata */}
           <div className="bg-[var(--bg-soft)]/30 p-4 rounded-xl border border-[var(--border-main)] space-y-3.5">
             <div className="flex items-center gap-2 border-b border-[var(--border-main)] pb-2">
@@ -460,7 +460,7 @@ export function GovScribePage() {
                 Letter Metadata
               </h3>
             </div>
-            
+
             <div className="grid grid-cols-3 gap-2.5">
               <div>
                 <label className="block text-[10px] font-semibold text-[var(--text-soft)] mb-1 uppercase">
@@ -474,7 +474,7 @@ export function GovScribePage() {
                   placeholder="GS-2026-0001"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-[10px] font-semibold text-[var(--text-soft)] mb-1 uppercase">
                   Your Ref No.
@@ -487,7 +487,7 @@ export function GovScribePage() {
                   placeholder="MTHPA/AV/Pro"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-[10px] font-semibold text-[var(--text-soft)] mb-1 uppercase">
                   Effective Date
@@ -511,7 +511,7 @@ export function GovScribePage() {
                 Recipient Address Block
               </h3>
             </div>
-            
+
             <div className="space-y-3">
               <div>
                 <label className="block text-[10px] font-semibold text-[var(--text-soft)] mb-1 uppercase">
@@ -549,7 +549,7 @@ export function GovScribePage() {
                 Document Content Builder
               </h3>
             </div>
-            
+
             <div className="space-y-3">
               <div>
                 <label className="block text-[10px] font-semibold text-[var(--text-soft)] mb-1 uppercase">
@@ -563,12 +563,12 @@ export function GovScribePage() {
                   placeholder="Enter the official subject of the letter..."
                 />
               </div>
-              
+
               <div>
                 <label className="block text-[10px] font-semibold text-[var(--text-soft)] mb-1 uppercase flex justify-between">
                   <span>Body Content</span>
                   <span className="text-[var(--text-muted)] normal-case">
-                    {bodyContent.replace(/<[^>]+>/g,"").length} chars
+                    {bodyContent.replace(/<[^>]+>/g, "").length} chars
                   </span>
                 </label>
                 <textarea
@@ -586,7 +586,7 @@ export function GovScribePage() {
                 {/* Hint about preview toolbar */}
                 <p className="text-[9px] text-cyan-500/70 mt-1 flex items-center gap-1">
                   <svg className="w-3 h-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20A10 10 0 0012 2z"/>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20A10 10 0 0012 2z" />
                   </svg>
                   For <strong className="font-bold">Bold / Italic / Underline</strong> — click inside the preview &amp; use the toolbar, or select text in the preview.
                 </p>
@@ -672,7 +672,7 @@ export function GovScribePage() {
                 Official Signatories
               </h3>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="space-y-2 p-2.5 bg-[var(--bg-main)] border border-[var(--border-main)] rounded-lg">
                 <span className="text-[9px] font-bold text-cyan-400 tracking-wider uppercase block">
@@ -729,7 +729,7 @@ export function GovScribePage() {
 
       {/* RIGHT PANEL: Live Preview Canvas */}
       <main className="print:border-none print:shadow-none print:bg-white flex-1 flex flex-col bg-[var(--bg-panel)] border border-[var(--border-main)] rounded-2xl overflow-hidden shadow-lg h-full relative">
-        
+
         {/* Canvas Toolbar Header: top row */}
         <header className="print:hidden border-b border-[var(--border-main)] shrink-0">
           {/* Top bar: title + zoom + export */}
@@ -753,7 +753,7 @@ export function GovScribePage() {
               >
                 <ZoomOut className="w-3.5 h-3.5" />
               </button>
-              
+
               <span className="text-[10px] font-mono font-bold w-10 text-center text-[var(--text-soft)] select-none">
                 {Math.round(zoomScale * 100)}%
               </span>
@@ -792,7 +792,7 @@ export function GovScribePage() {
 
         {/* Centered Document Canvas Viewport */}
         <div ref={previewContainerRef} className="print:p-0 print:bg-white flex-1 overflow-auto flex items-start justify-center p-6 relative bg-[var(--bg-main)]">
-          
+
           {/* Live Alerts */}
           {successMsg && (
             <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-emerald-600 text-white font-bold text-xs py-1.5 px-3 rounded-lg shadow-lg flex items-center gap-1.5 animate-bounce z-20">
@@ -808,13 +808,12 @@ export function GovScribePage() {
           )}
 
           {/* A4 Paper Component Wrapper with dynamic scaling */}
-          <div 
+          <div
             style={{ transform: `scale(${zoomScale})` }}
-            className={`official-letter-print-container transition-all duration-350 origin-top flex items-center justify-center ${
-              (isGenerating || isImproving || isAuditing) ? "animate-pulse ring-4 ring-cyan-500/30 rounded-sm shadow-2xl" : ""
-            }`}
+            className={`official-letter-print-container transition-all duration-350 origin-top flex items-center justify-center ${(isGenerating || isImproving || isAuditing) ? "animate-pulse ring-4 ring-cyan-500/30 rounded-sm shadow-2xl" : ""
+              }`}
           >
-            <OfficialLetter 
+            <OfficialLetter
               formData={{
                 refNo: refNumber,
                 yourNo: yourNo,

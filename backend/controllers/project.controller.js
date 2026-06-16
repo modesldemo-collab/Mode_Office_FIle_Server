@@ -69,6 +69,7 @@ const list = async (req, res) => {
     if (taskIds.length > 0) {
       const [taRows] = await db.query(
         `SELECT ta.task_id, ta.user_id, ta.is_completed, ta.completed_at,
+                ta.approval_status, ta.feedback, ta.submitted_at,
                 u.username, u.dept_id, d.dept_name
          FROM task_assignments ta
          LEFT JOIN users u ON u.id = ta.user_id
@@ -87,6 +88,9 @@ const list = async (req, res) => {
           dept_name: row.dept_name,
           is_completed: Number(row.is_completed) === 1,
           completed_at: row.completed_at,
+          approval_status: row.approval_status,
+          feedback: row.feedback,
+          submitted_at: row.submitted_at,
         });
       });
     }
