@@ -83,28 +83,28 @@ export function Sidebar({ open, onClose }) {
     <button
       onClick={() => { setPage(item.id); onClose?.(); }}
       className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${page === item.id
-          ? "bg-cyan-500/15 text-cyan-400 border border-cyan-500/30"
-          : "text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-soft)]"
+          ? "bg-blue-600 text-white font-semibold shadow-lg shadow-blue-600/10"
+          : "text-slate-400 hover:text-white hover:bg-white/5"
         }`}
     >
-      <item.icon className="w-4 h-4 flex-shrink-0" />
+      <item.icon className={`w-4 h-4 flex-shrink-0 ${page === item.id ? "text-white" : "text-slate-400"}`} />
       {item.label}
     </button>
   );
 
   return (
     <aside
-      className={`print:hidden fixed inset-y-0 left-0 z-40 w-64 bg-[var(--bg-panel)] border-r border-[var(--border-main)] flex flex-col transition-transform duration-300 ${open ? "translate-x-0" : "-translate-x-full"
+      className={`print:hidden fixed inset-y-0 left-0 z-40 w-64 bg-[#090d16] border-r border-slate-800/40 flex flex-col transition-transform duration-300 ${open ? "translate-x-0" : "-translate-x-full"
         } lg:translate-x-0`}
     >
-      <div className="p-5 border-b border-[var(--border-main)]">
+      <div className="p-5 border-b border-slate-800/40">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 flex items-center justify-center">
-            <img src="/emblem.svg" alt="Sri Lanka National Emblem" className="w-full h-full object-contain drop-shadow-md" />
+          <div className="w-10 h-10 flex items-center justify-center p-1 bg-white/5 rounded-xl border border-white/10">
+            <img src="/emblem.svg" alt="Sri Lanka National Emblem" className="w-full h-full object-contain" />
           </div>
           <div>
-            <p className="text-[var(--text-main)] text-[12px] font-bold leading-tight whitespace-nowrap">Ministry of Digital Economy</p>
-            <p className="text-[var(--text-soft)] text-xs">File Management</p>
+            <p className="text-white text-[12px] font-bold leading-tight whitespace-nowrap">Ministry of Digital Economy</p>
+            <p className="text-slate-400 text-xs uppercase tracking-wider font-semibold" style={{ fontSize: '9px' }}>File Management</p>
           </div>
         </div>
       </div>
@@ -117,7 +117,7 @@ export function Sidebar({ open, onClose }) {
           <>
             <NavBtn item={{ id: "logs", label: "Audit Logs", icon: ScrollText }} />
             <div className="pt-4 pb-1 px-4">
-              <p className="text-xs font-semibold text-[var(--text-soft)] uppercase tracking-wider">
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
                 Administration
               </p>
             </div>
@@ -128,18 +128,18 @@ export function Sidebar({ open, onClose }) {
         )}
       </nav>
 
-      <div className="p-3 border-t border-[var(--border-main)]">
+      <div className="p-3 border-t border-slate-800/40">
         <div className="flex items-center gap-3 px-2 py-2 rounded-xl">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-600 to-blue-700 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
             {user?.username?.[0]?.toUpperCase()}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-[var(--text-main)] text-sm font-medium truncate">{user?.username}</p>
-            <p className="text-[var(--text-soft)] text-xs truncate">{user?.role}</p>
+            <p className="text-white text-sm font-semibold truncate">{user?.username}</p>
+            <p className="text-slate-400 text-xs truncate capitalize">{user?.role}</p>
           </div>
           <button
             onClick={logout}
-            className="text-[var(--text-soft)] hover:text-red-500 transition-colors"
+            className="text-slate-400 hover:text-red-400 transition-colors p-1 hover:bg-white/5 rounded-lg"
             title="Logout"
           >
             <LogOut className="w-4 h-4" />
@@ -150,9 +150,9 @@ export function Sidebar({ open, onClose }) {
             resetPwdForm();
             setPwdOpen(true);
           }}
-          className="mt-2 w-full flex items-center justify-center gap-2 text-xs text-[var(--text-muted)] hover:text-cyan-500 border border-[var(--border-main)] hover:border-cyan-500/40 rounded-lg py-2 transition-colors"
+          className="mt-2 w-full flex items-center justify-center gap-2 text-xs text-slate-300 hover:text-white border border-slate-800 hover:bg-white/5 rounded-lg py-2 transition-all"
         >
-          <KeyRound className="w-3.5 h-3.5" /> Change Password
+          <KeyRound className="w-3.5 h-3.5 text-blue-400" /> Change Password
         </button>
       </div>
 

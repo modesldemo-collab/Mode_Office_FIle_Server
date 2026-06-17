@@ -63,6 +63,7 @@ const loadTaskAssignees = async (taskIds) => {
   const [rows] = await db.query(
     `SELECT ta.task_id, ta.user_id, ta.is_completed, ta.completed_at,
             ta.approval_status, ta.feedback, ta.submitted_at, ta.submission_text,
+            ta.file_name, ta.file_path,
             u.username, u.dept_id, d.dept_name
      FROM task_assignments ta
      LEFT JOIN users u ON u.id = ta.user_id
@@ -86,6 +87,8 @@ const loadTaskAssignees = async (taskIds) => {
       feedback: row.feedback,
       submitted_at: row.submitted_at,
       submission_text: row.submission_text,
+      file_name: row.file_name,
+      file_path: row.file_path,
     });
   });
   return grouped;
@@ -123,7 +126,7 @@ const list = async (req, res) => {
   }
 
   const [rows] = await db.query(
-    `SELECT t.id, t.task_name, t.assigned_by, t.assigned_to, t.deadline, t.status, t.created_at, t.updated_at,
+    `SELECT t.id, t.project_id, t.task_name, t.assigned_by, t.assigned_to, t.deadline, t.status, t.created_at, t.updated_at,
             ub.username AS assigned_by_name,
             ut.username AS assigned_to_name
      FROM tasks t
@@ -652,6 +655,20 @@ const getProjectAttachments = async (req, res) => {
 const submitForReview = async (req, res) => {
   const taskId = Number(req.params.id);
   const { submission_text } = req.body;
+  const file = req.file;
+
+  let file_name = null;
+  let file_path = null;
+  let file_size = null;
+  let file_type = null;
+
+  if (file) {
+    file_name = file.originalname;
+    file_path = file.path;
+    file_size = file.size;
+    file_type = file.mimetype;
+  }
+
   try {
     const task = await getTaskById(taskId);
     if (!task) return res.status(404).json({ error: "Task not found" });
@@ -665,10 +682,31 @@ const submitForReview = async (req, res) => {
     }
 
     await db.query(
-      `INSERT INTO task_assignments (task_id, user_id, is_completed, approval_status, submitted_at, feedback, submission_text)
-       VALUES (?, ?, 0, 'submitted', NOW(), NULL, ?)
-       ON DUPLICATE KEY UPDATE approval_status = 'submitted', submitted_at = NOW(), feedback = NULL, submission_text = ?`,
-      [taskId, req.user.id, submission_text || null, submission_text || null]
+      `INSERT INTO task_assignments (task_id, user_id, is_completed, approval_status, submitted_at, feedback, submission_text, file_name, file_path, file_size, file_type)
+       VALUES (?, ?, 0, 'submitted', NOW(), NULL, ?, ?, ?, ?, ?)
+       ON DUPLICATE KEY UPDATE 
+         approval_status = 'submitted', 
+         submitted_at = NOW(), 
+         feedback = NULL, 
+         submission_text = ?, 
+         file_name = COALESCE(?, file_name), 
+         file_path = COALESCE(?, file_path), 
+         file_size = COALESCE(?, file_size), 
+         file_type = COALESCE(?, file_type)`,
+      [
+        taskId,
+        req.user.id,
+        submission_text || null,
+        file_name,
+        file_path,
+        file_size,
+        file_type,
+        submission_text || null,
+        file_name,
+        file_path,
+        file_size,
+        file_type
+      ]
     );
 
     if (task.assigned_by) {
@@ -686,6 +724,44 @@ const submitForReview = async (req, res) => {
     }
 
     res.json({ message: "Task submitted for review" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// GET /api/tasks/:id/assignments/:userId/download
+const downloadAssignmentAttachment = async (req, res) => {
+  const taskId = Number(req.params.id);
+  const targetUserId = Number(req.params.userId);
+  try {
+    const [rows] = await db.query(
+      `SELECT ta.*, t.assigned_by FROM task_assignments ta 
+       JOIN tasks t ON t.id = ta.task_id 
+       WHERE ta.task_id = ? AND ta.user_id = ?`,
+      [taskId, targetUserId]
+    );
+    if (!rows.length) {
+      return res.status(404).json({ error: "Assignment not found" });
+    }
+
+    const assignment = rows[0];
+    if (!assignment.file_path || !assignment.file_name) {
+      return res.status(404).json({ error: "No attachment found for this progress submission" });
+    }
+
+    const isAdmin = isAdminUser(req.user);
+    const isCreator = assignment.assigned_by === req.user.id;
+    const isSelf = assignment.user_id === req.user.id;
+
+    if (!isAdmin && !isCreator && !isSelf) {
+      return res.status(403).json({ error: "Access denied" });
+    }
+
+    if (!fs.existsSync(assignment.file_path)) {
+      return res.status(404).json({ error: "File not found on disk" });
+    }
+
+    res.download(assignment.file_path, assignment.file_name);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -763,4 +839,5 @@ module.exports = {
   getProjectAttachments,
   submitForReview,
   reviewTask,
+  downloadAssignmentAttachment,
 };

@@ -178,6 +178,22 @@ async function initDB() {
       await conn.query("ALTER TABLE task_assignments ADD COLUMN submission_text TEXT NULL AFTER submitted_at");
     }
 
+    if (!(await columnExists(conn, "task_assignments", "file_name"))) {
+      await conn.query("ALTER TABLE task_assignments ADD COLUMN file_name VARCHAR(255) NULL AFTER submission_text");
+    }
+
+    if (!(await columnExists(conn, "task_assignments", "file_path"))) {
+      await conn.query("ALTER TABLE task_assignments ADD COLUMN file_path VARCHAR(255) NULL AFTER file_name");
+    }
+
+    if (!(await columnExists(conn, "task_assignments", "file_size"))) {
+      await conn.query("ALTER TABLE task_assignments ADD COLUMN file_size BIGINT NULL AFTER file_path");
+    }
+
+    if (!(await columnExists(conn, "task_assignments", "file_type"))) {
+      await conn.query("ALTER TABLE task_assignments ADD COLUMN file_type VARCHAR(100) NULL AFTER file_size");
+    }
+
     await conn.query(`
       CREATE TABLE IF NOT EXISTS task_attachments (
         id           INT AUTO_INCREMENT PRIMARY KEY,

@@ -198,6 +198,13 @@ export function GovScribePage() {
     setTimeout(() => setSuccessMsg(null), 4000);
   };
 
+  const getPlainText = () => {
+    if (!bodyContent) return "";
+    const tempDiv = document.createElement("div");
+    tempDiv.innerHTML = bodyContent;
+    return tempDiv.innerText || "";
+  };
+
   // 1. Auto-generate from Subject
   const handleAutoGenerate = async () => {
     if (!subject) {
@@ -245,7 +252,7 @@ export function GovScribePage() {
 
     try {
       // Strip HTML to get plain text for the API, then convert result back to HTML
-      const plainText = editorRef.current ? editorRef.current.innerText : bodyContent.replace(/<[^>]+>/g, " ");
+      const plainText = getPlainText();
       const response = await GovScribeAPI.improve({ content: plainText });
       const raw = response.data.content || "";
       const html = raw.split("\n\n").map(p => `<p>${p.trim().replace(/\n/g, "<br/>")}</p>`).join("");
@@ -272,7 +279,7 @@ export function GovScribePage() {
     setAuditResults(null);
 
     try {
-      const plainText = editorRef.current ? editorRef.current.innerText : bodyContent.replace(/<[^>]+>/g, " ");
+      const plainText = getPlainText();
       const response = await GovScribeAPI.audit({ content: plainText });
       setAuditResults(response.data.errors || []);
       if (response.data.errors && response.data.errors.length === 0) {
@@ -320,7 +327,7 @@ export function GovScribePage() {
     setErrorMsg(null);
     try {
       // Send plain text to PDF export
-      const plainText = editorRef.current ? editorRef.current.innerText : bodyContent.replace(/<[^>]+>/g, " ");
+      const plainText = getPlainText();
       const response = await GovScribeAPI.exportPDF({
         refNo: refNumber,
         yourNo,

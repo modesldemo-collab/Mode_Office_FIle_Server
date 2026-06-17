@@ -91,12 +91,21 @@ export const TasksAPI = {
     }),
   getAttachments: (id) => api.get(`/api/tasks/${id}/attachments`),
   deleteAttachment: (attachmentId) => api.delete(`/api/tasks/attachments/${attachmentId}`),
-  submitForReview: (id, data) => api.patch(`/api/tasks/${id}/submit`, data),
+  submitForReview: (id, data) => {
+    if (data instanceof FormData) {
+      return api.patch(`/api/tasks/${id}/submit`, data, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+    }
+    return api.patch(`/api/tasks/${id}/submit`, data);
+  },
   reviewTask: (id, data) => api.patch(`/api/tasks/${id}/review`, data),
   downloadAttachmentUrl: (attachmentId) =>
     `${BASE_URL}/api/tasks/attachments/${attachmentId}/download?token=${encodeURIComponent(localStorage.getItem("mde_token") || "")}`,
   previewAttachmentUrl: (attachmentId) =>
     `${BASE_URL}/api/tasks/attachments/${attachmentId}/preview?token=${encodeURIComponent(localStorage.getItem("mde_token") || "")}`,
+  downloadAssignmentAttachmentUrl: (taskId, userId) =>
+    `${BASE_URL}/api/tasks/${taskId}/assignments/${userId}/download?token=${encodeURIComponent(localStorage.getItem("mde_token") || "")}`,
 };
 
 export const ProjectsAPI = {

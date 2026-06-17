@@ -21,6 +21,7 @@ const {
   previewAttachment,
   submitForReview,
   reviewTask,
+  downloadAssignmentAttachment,
 } = require("../controllers/task.controller");
 
 router.get("/", authenticate, list);
@@ -39,7 +40,8 @@ router.delete("/attachments/:attachmentId", authenticate, deleteAttachment);
 router.get("/attachments/:attachmentId/download", authenticate, downloadAttachment);
 router.get("/attachments/:attachmentId/preview", authenticate, previewAttachment);
 
-router.patch("/:id/submit", authenticate, submitForReview);
+router.patch("/:id/submit", authenticate, upload.single("file"), submitForReview);
+router.get("/:id/assignments/:userId/download", authenticate, downloadAssignmentAttachment);
 router.patch("/:id/review", authenticate, reviewTask);
 
 module.exports = router;
