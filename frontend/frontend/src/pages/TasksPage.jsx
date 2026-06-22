@@ -721,6 +721,45 @@ export function TasksPage() {
                       <p className="text-xs text-[var(--text-soft)] italic">No progress logs submitted yet.</p>
                     )}
 
+                    {/* General task attachments uploaded by this assignee */}
+                    {(() => {
+                      const userAttachments = taskAttachments.filter(
+                        (att) => att.uploader_id === m.user_id
+                      );
+                      if (userAttachments.length === 0) return null;
+                      return (
+                        <div className="p-3 bg-[var(--bg-panel)] border border-[var(--border-main)] rounded-xl text-sm space-y-2">
+                          <p className="text-xs font-bold text-[var(--text-soft)] uppercase mb-1">
+                            Associated Task Attachments:
+                          </p>
+                          <div className="space-y-1.5">
+                            {userAttachments.map((att) => (
+                              <div
+                                key={att.id}
+                                className="flex items-center justify-between p-2.5 bg-[var(--bg-soft)]/40 border border-[var(--border-main)] rounded-lg text-xs"
+                              >
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <FileText className="w-3.5 h-3.5 text-blue-500 flex-shrink-0" />
+                                  <span
+                                    className="font-semibold text-[var(--text-main)] truncate max-w-xs md:max-w-md"
+                                    title={att.file_name}
+                                  >
+                                    {att.file_name}
+                                  </span>
+                                </div>
+                                <a
+                                  href={TasksAPI.downloadAttachmentUrl(att.id)}
+                                  className="text-blue-500 hover:underline font-bold text-xs flex-shrink-0"
+                                >
+                                  Download File
+                                </a>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })()}
+
                     {m.feedback && (
                       <div className="p-3 bg-red-500/5 border border-red-500/10 rounded-xl text-sm text-red-500">
                         <p className="font-bold text-xs uppercase mb-1">Correction Needed / Instructions:</p>

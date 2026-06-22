@@ -12,6 +12,7 @@ import { TasksPage } from "./pages/TasksPage";
 import { LogsPage } from "./pages/LogsPage";
 import { UsersPage } from "./pages/admin/UsersPage";
 import { DepartmentsPage } from "./pages/admin/DepartmentsPage";
+import { PersonsPage } from "./pages/admin/PersonsPage";
 import { GovScribePage } from "./pages/GovScribePage";
 
 function AppRouter() {
@@ -36,6 +37,7 @@ function AppRouter() {
     logs:                 LogsPage,
     users:                UsersPage,
     departments:          DepartmentsPage,
+    persons:              PersonsPage,
   }[page] || DashboardPage;
 
   return (

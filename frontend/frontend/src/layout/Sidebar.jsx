@@ -27,6 +27,8 @@ export const NAV_ITEMS = [
 export const ADMIN_NAV = [
   { id: "users", label: "Users", icon: Users },
   { id: "departments", label: "Departments", icon: Building2 },
+  { id: "persons", label: "Responsible Persons", icon: ShieldCheck },
+  { id: "logs", label: "Audit Logs", icon: ScrollText },
 ];
 
 export function Sidebar({ open, onClose }) {
@@ -110,12 +112,16 @@ export function Sidebar({ open, onClose }) {
       </div>
 
       <nav className="flex-1 overflow-y-auto p-3 space-y-1">
-        {NAV_ITEMS.map((item) => (
+        {NAV_ITEMS.filter((item) => {
+          if (user?.role === "admin") {
+            return item.id !== "tasks" && item.id !== "govscribe";
+          }
+          return true;
+        }).map((item) => (
           <NavBtn key={item.id} item={item} />
         ))}
         {user?.role === "admin" && (
           <>
-            <NavBtn item={{ id: "logs", label: "Audit Logs", icon: ScrollText }} />
             <div className="pt-4 pb-1 px-4">
               <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
                 Administration
