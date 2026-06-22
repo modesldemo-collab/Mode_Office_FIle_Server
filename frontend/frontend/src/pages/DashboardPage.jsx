@@ -320,7 +320,7 @@ export function DashboardPage() {
 
         <div className="space-y-2.5">
           {(stats?.recentActivity || []).map((a) => (
-            <div key={a.id} className="rounded-xl border border-slate-100 p-3 flex items-start justify-between gap-2 hover:bg-slate-50 transition-colors">
+            <div key={a.id} className="rounded-xl border border-[var(--border-main)] p-3 flex items-start justify-between gap-2 hover:bg-[var(--bg-soft)] transition-colors">
               <div>
                 <p className="text-sm text-[var(--text-main)]">
                   <span className="font-bold">{a.username}</span>

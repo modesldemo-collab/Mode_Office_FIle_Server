@@ -65,6 +65,17 @@ export function DocumentsPage() {
 
   useEffect(() => { fetchDocs(); }, [fetchDocs]);
 
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash && hash.startsWith("#view-")) {
+      const targetId = Number(hash.replace("#view-", ""));
+      window.location.hash = "";
+      DocsAPI.get(targetId)
+        .then((r) => setPreviewDoc(r.data))
+        .catch((err) => console.error("Failed to load doc from notification", err));
+    }
+  }, []);
+
   const handleDelete = async (id) => {
     if (!confirm("Delete this document? This action is logged.")) return;
     await DocsAPI.delete(id);

@@ -58,6 +58,12 @@ export function Shell({ children }) {
       }
     } finally {
       setNotificationsOpen(false);
+      if (notification.notification_key) {
+        const parts = notification.notification_key.split(":");
+        if (parts.length > 1) {
+          window.location.hash = `#view-${parts[1]}`;
+        }
+      }
       if (notification.link) {
         setPage(notification.link);
       }
@@ -139,8 +145,8 @@ export function Shell({ children }) {
             </div>
 
             {notificationsOpen && (
-              <div className="fixed left-4 right-4 top-16 max-h-[calc(100vh-5rem)] rounded-2xl border border-white/20 bg-white/70 dark:bg-slate-900/80 backdrop-blur-xl shadow-2xl overflow-hidden z-40 sm:left-auto sm:right-4 sm:w-96 lg:absolute lg:top-full lg:right-0 lg:left-auto lg:mt-2 lg:w-96">
-                <div className="flex items-center justify-between px-4 py-3 border-b border-white/20">
+              <div className="fixed left-4 right-4 top-16 max-h-[calc(100vh-5rem)] rounded-2xl border border-slate-200/60 dark:border-white/20 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md shadow-2xl overflow-hidden z-40 sm:left-auto sm:right-4 sm:w-96 lg:absolute lg:top-full lg:right-0 lg:left-auto lg:mt-2 lg:w-96">
+                <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200/60 dark:border-white/20">
                   <div>
                     <p className="text-[var(--text-main)] font-semibold text-sm">Notifications</p>
                     <p className="text-[var(--text-soft)] text-xs">Unread items are highlighted below.</p>
@@ -170,16 +176,16 @@ export function Shell({ children }) {
                           setNotifications(r.data?.data || []);
                           setUnreadCount(r.data?.unread_count || 0);
                         }}
-                        className={`w-full text-left px-4 py-3 border-b border-white/10 transition-colors ${
-                          notification.is_read ? "bg-transparent hover:bg-white/20" : "bg-indigo-500/10 hover:bg-indigo-500/20"
+                        className={`w-full text-left px-4 py-3 border-b border-slate-100 dark:border-white/10 transition-colors ${
+                          notification.is_read ? "bg-transparent hover:bg-slate-50 dark:hover:bg-white/10" : "bg-indigo-500/10 hover:bg-indigo-500/20"
                         }`}
                       >
-                        <div className="flex items-start gap-3">
-                          <span className={`mt-1.5 w-2 h-2 rounded-full ${notification.is_read ? "bg-slate-300" : "bg-indigo-500"}`} />
+                        <div className="flex items-start gap-3 w-full">
+                          <span className={`mt-1.5 w-2 h-2 flex-shrink-0 rounded-full ${notification.is_read ? "bg-slate-300 dark:bg-slate-600" : "bg-indigo-500"}`} />
                           <div className="min-w-0 flex-1">
-                            <div className="flex items-center justify-between gap-2">
-                              <p className="text-sm font-semibold text-[var(--text-main)] truncate">{notification.title}</p>
-                              <span className="text-[9px] uppercase tracking-wider text-[var(--text-soft)]">
+                            <div className="flex items-center justify-between gap-2 w-full">
+                              <p className="text-sm font-semibold text-[var(--text-main)] truncate flex-1 min-w-0">{notification.title}</p>
+                              <span className="text-[9px] uppercase tracking-wider text-[var(--text-soft)] flex-shrink-0">
                                 {notification.is_read ? "Read" : "Unread"}
                               </span>
                             </div>

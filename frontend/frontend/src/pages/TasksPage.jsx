@@ -147,6 +147,18 @@ export function TasksPage() {
     }
   };
 
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash && hash.startsWith("#view-") && tasks.length > 0) {
+      const targetId = Number(hash.replace("#view-", ""));
+      const t = tasks.find((x) => x.id === targetId);
+      if (t) {
+        handleOpenTaskWorkspace(t);
+        window.location.hash = "";
+      }
+    }
+  }, [tasks, user]);
+
   const activeTask = useMemo(() => {
     if (!selectedTaskId) return null;
     return tasks.find((t) => t.id === selectedTaskId);

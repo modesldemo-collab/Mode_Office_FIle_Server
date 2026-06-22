@@ -5,7 +5,7 @@ const list = async (req, res) => {
   const offset = Math.max(Number(req.query.offset) || 0, 0);
 
   const [rows] = await db.query(
-    `SELECT id, type, title, body, link, is_read, read_at, created_at
+    `SELECT id, type, title, body, link, notification_key, is_read, read_at, created_at
      FROM notifications
      WHERE user_id = ?
      ORDER BY created_at DESC
