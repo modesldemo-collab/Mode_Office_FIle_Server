@@ -84,29 +84,29 @@ export function Sidebar({ open, onClose }) {
   const NavBtn = ({ item }) => (
     <button
       onClick={() => { setPage(item.id); onClose?.(); }}
-      className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${page === item.id
-          ? "bg-blue-600 text-white font-semibold shadow-lg shadow-blue-600/10"
-          : "text-slate-400 hover:text-white hover:bg-white/5"
+      className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-all duration-200 ${page === item.id
+          ? "active-sidebar-tab text-[#6366f1] font-bold"
+          : "text-[#5e578c] dark:text-[#9591af] hover:text-[#2b254a] dark:hover:text-white hover:bg-white/20 dark:hover:bg-white/5 rounded-xl"
         }`}
     >
-      <item.icon className={`w-4 h-4 flex-shrink-0 ${page === item.id ? "text-white" : "text-slate-400"}`} />
+      <item.icon className={`w-4 h-4 flex-shrink-0 transition-colors ${page === item.id ? "text-[#6366f1]" : "text-[#5e578c] dark:text-[#9591af]"}`} />
       {item.label}
     </button>
   );
 
   return (
     <aside
-      className={`print:hidden fixed inset-y-0 left-0 z-40 w-64 bg-[#090d16] border-r border-slate-800/40 flex flex-col transition-transform duration-300 ${open ? "translate-x-0" : "-translate-x-full"
+      className={`print:hidden fixed inset-y-0 left-0 z-40 w-64 bg-white/35 dark:bg-[#0c0919]/35 border-r border-white/25 dark:border-white/5 flex flex-col transition-transform duration-300 backdrop-blur-md ${open ? "translate-x-0" : "-translate-x-full"
         } lg:translate-x-0`}
     >
-      <div className="p-5 border-b border-slate-800/40">
+      <div className="p-5 border-b border-white/20">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 flex items-center justify-center p-1 bg-white/5 rounded-xl border border-white/10">
+          <div className="w-10 h-10 flex items-center justify-center p-1.5 bg-white/40 dark:bg-white/5 rounded-xl border border-white/50 dark:border-white/10 shadow-sm">
             <img src="/emblem.svg" alt="Sri Lanka National Emblem" className="w-full h-full object-contain" />
           </div>
           <div>
-            <p className="text-white text-[12px] font-bold leading-tight whitespace-nowrap">Ministry of Digital Economy</p>
-            <p className="text-slate-400 text-xs uppercase tracking-wider font-semibold" style={{ fontSize: '9px' }}>File Management</p>
+            <p className="text-[#2b254a] dark:text-white text-[12px] font-extrabold leading-tight whitespace-nowrap">Ministry of Digital Economy</p>
+            <p className="text-[#5e578c] dark:text-[#8b85ad] text-[9px] uppercase tracking-wider font-bold">File Management</p>
           </div>
         </div>
       </div>
@@ -123,7 +123,7 @@ export function Sidebar({ open, onClose }) {
         {user?.role === "admin" && (
           <>
             <div className="pt-4 pb-1 px-4">
-              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+              <p className="text-[10px] font-bold text-[#8b85ad] dark:text-purple-300/40 uppercase tracking-widest">
                 Administration
               </p>
             </div>
@@ -132,20 +132,37 @@ export function Sidebar({ open, onClose }) {
             ))}
           </>
         )}
+
+        {/* High-fidelity prompt widget representing the bottom upgrade box in reference design */}
+        <div className="mx-1 my-6 p-4 rounded-2xl bg-white/60 dark:bg-slate-900/30 border border-white/50 dark:border-white/5 shadow-sm relative overflow-hidden flex flex-col gap-2.5">
+          <div className="w-8 h-8 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+            <Sparkles className="w-4 h-4 animate-pulse" />
+          </div>
+          <div>
+            <p className="text-xs font-bold text-[#2b254a] dark:text-white">GovScribe Hub AI</p>
+            <p className="text-[10px] text-[#5e578c] dark:text-[#85819d] mt-0.5 leading-normal">Generate official administrative correspondence with state models.</p>
+          </div>
+          <button
+            onClick={() => setPage("govscribe")}
+            className="w-full text-center text-[10px] font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl py-2 transition-colors shadow-sm shadow-indigo-600/10"
+          >
+            Open GovScribe
+          </button>
+        </div>
       </nav>
 
-      <div className="p-3 border-t border-slate-800/40">
+      <div className="p-3 border-t border-white/20">
         <div className="flex items-center gap-3 px-2 py-2 rounded-xl">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-400 to-[#3b3260] flex items-center justify-center text-white text-sm font-bold flex-shrink-0 border border-white/40 shadow-sm">
             {user?.username?.[0]?.toUpperCase()}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-white text-sm font-semibold truncate">{user?.username}</p>
-            <p className="text-slate-400 text-xs truncate capitalize">{user?.role}</p>
+            <p className="text-[#2b254a] dark:text-white text-sm font-bold truncate">{user?.username}</p>
+            <p className="text-[#5e578c] dark:text-[#8b85ad] text-xs truncate capitalize">{user?.role}</p>
           </div>
           <button
             onClick={logout}
-            className="text-slate-400 hover:text-red-400 transition-colors p-1 hover:bg-white/5 rounded-lg"
+            className="text-[#5e578c] dark:text-[#9591af] hover:text-red-500 transition-colors p-1.5 hover:bg-white/10 dark:hover:bg-white/5 rounded-lg"
             title="Logout"
           >
             <LogOut className="w-4 h-4" />
@@ -156,9 +173,9 @@ export function Sidebar({ open, onClose }) {
             resetPwdForm();
             setPwdOpen(true);
           }}
-          className="mt-2 w-full flex items-center justify-center gap-2 text-xs text-slate-300 hover:text-white border border-slate-800 hover:bg-white/5 rounded-lg py-2 transition-all"
+          className="mt-2 w-full flex items-center justify-center gap-2 text-xs font-bold text-[#5e578c] dark:text-[#9591af] border border-white/40 dark:border-white/10 hover:bg-white/20 dark:hover:bg-white/5 rounded-xl py-2 transition-all"
         >
-          <KeyRound className="w-3.5 h-3.5 text-blue-400" /> Change Password
+          <KeyRound className="w-3.5 h-3.5 text-indigo-500" /> Change Password
         </button>
       </div>
 

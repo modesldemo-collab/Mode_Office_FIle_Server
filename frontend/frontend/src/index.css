@@ -6,23 +6,23 @@
 
 :root,
 .theme-dark {
-	--bg-main: #020617;
-	--bg-panel: #0f172a;
-	--bg-soft: #1e293b;
-	--text-main: #e2e8f0;
-	--text-muted: #94a3b8;
-	--text-soft: #64748b;
-	--border-main: #1e293b;
+	--bg-main: #0b0914;
+	--bg-panel: rgba(20, 16, 32, 0.45);
+	--bg-soft: rgba(35, 30, 60, 0.65);
+	--text-main: #e2e1ec;
+	--text-muted: #b5b2c9;
+	--text-soft: #85819d;
+	--border-main: rgba(255, 255, 255, 0.1);
 }
 
 .theme-light {
-	--bg-main: #f8fafc;
-	--bg-panel: #ffffff;
-	--bg-soft: #f1f5f9;
-	--text-main: #0f172a;
-	--text-muted: #334155;
-	--text-soft: #64748b;
-	--border-main: #cbd5e1;
+	--bg-main: #eaedf6;
+	--bg-panel: rgba(255, 255, 255, 0.45);
+	--bg-soft: rgba(255, 255, 255, 0.65);
+	--text-main: #2b254a;
+	--text-muted: #59537a;
+	--text-soft: #8b85ad;
+	--border-main: rgba(255, 255, 255, 0.4);
 }
 
 body {
@@ -30,6 +30,82 @@ body {
 	background: var(--bg-main);
 	color: var(--text-main);
 	transition: background-color 0.3s ease, color 0.3s ease;
+	font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+/* Glass panel */
+.glass-panel,
+div[class*="bg-[var(--bg-panel)]"],
+section[class*="bg-[var(--bg-panel)]"],
+aside[class*="bg-[var(--bg-panel)]"] {
+	backdrop-filter: blur(24px) !important;
+	-webkit-backdrop-filter: blur(24px) !important;
+	border: 1px solid var(--border-main) !important;
+}
+
+/* Active navigation pill in sidebar */
+.active-sidebar-tab {
+	background: rgba(255, 255, 255, 0.8) !important;
+	color: #6366f1 !important;
+	font-weight: 700 !important;
+	border-radius: 9999px !important;
+	box-shadow: 0 4px 15px rgba(100, 110, 180, 0.08) !important;
+	border: 1px solid rgba(255, 255, 255, 0.6) !important;
+}
+.theme-dark .active-sidebar-tab {
+	background: rgba(255, 255, 255, 0.1) !important;
+	color: #ffffff !important;
+	border: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+/* Premium High-Contrast White Cards */
+.theme-light .white-card {
+	background: #ffffff !important;
+	border: 1px solid rgba(226, 230, 240, 0.8) !important;
+	box-shadow: 0 10px 30px -5px rgba(139, 133, 173, 0.08), 0 4px 12px -4px rgba(139, 133, 173, 0.04) !important;
+}
+.theme-dark .white-card {
+	background: rgba(255, 255, 255, 0.03) !important;
+	border: 1px solid rgba(255, 255, 255, 0.05) !important;
+	box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Glowing background blobs */
+.orb-blob {
+	position: absolute;
+	border-radius: 9999px;
+	filter: blur(130px);
+	opacity: 0.45;
+	pointer-events: none;
+	z-index: 0;
+}
+.theme-dark .orb-blob {
+	opacity: 0.25;
+}
+
+@keyframes float-slow {
+	0% { transform: translateY(0px) scale(1); }
+	50% { transform: translateY(-15px) scale(1.03); }
+	100% { transform: translateY(0px) scale(1); }
+}
+.animate-float {
+	animation: float-slow 15s ease-in-out infinite;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+	width: 6px;
+	height: 6px;
+}
+::-webkit-scrollbar-track {
+	background: transparent;
+}
+::-webkit-scrollbar-thumb {
+	background: rgba(139, 133, 173, 0.25);
+	border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+	background: rgba(139, 133, 173, 0.45);
 }
 
 /* ── Print Overrides for GovScribe PDF Export ───────────────── */
