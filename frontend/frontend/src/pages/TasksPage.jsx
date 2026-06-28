@@ -77,9 +77,9 @@ export function TasksPage() {
   const [submissionText, setSubmissionText] = useState("");
   const [submissionFile, setSubmissionFile] = useState(null);
   
-  // Review feedback
-  const [showFeedbackInputUserId, setShowFeedbackInputUserId] = useState(null);
-  const [reviewFeedbackText, setReviewFeedbackText] = useState("");
+  // Review comments mapping user_id -> comment string
+  const [reviewComments, setReviewComments] = useState({});
+  const [projectUpdates, setProjectUpdates] = useState([]);
 
   const allUsers = useMemo(() => {
     if (!user) return users;
@@ -147,6 +147,24 @@ export function TasksPage() {
     }
   };
 
+  const fetchProjectUpdates = useCallback(async (projectId) => {
+    if (!projectId) return;
+    try {
+      const res = await ProjectsAPI.getUpdates(projectId);
+      setProjectUpdates(res.data || []);
+    } catch (err) {
+      console.error("Error loading project updates:", err);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (selectedProjectId) {
+      fetchProjectUpdates(selectedProjectId);
+    } else {
+      setProjectUpdates([]);
+    }
+  }, [selectedProjectId, fetchProjectUpdates]);
+
   useEffect(() => {
     const hash = window.location.hash;
     if (hash && hash.startsWith("#view-") && tasks.length > 0) {
@@ -176,8 +194,7 @@ export function TasksPage() {
     const myM = (task.assignees || []).find((m) => m.user_id === user?.id);
     setSubmissionText(myM?.submission_text || "");
     setSubmissionFile(null);
-    setShowFeedbackInputUserId(null);
-    setReviewFeedbackText("");
+    setReviewComments({});
   };
 
   // Upload handlers
@@ -190,6 +207,9 @@ export function TasksPage() {
       await TasksAPI.uploadAttachment(selectedTaskId, formData);
       await fetchTaskAttachments(selectedTaskId);
       await fetchData();
+      if (selectedProjectId) {
+        await fetchProjectUpdates(selectedProjectId);
+      }
     } catch (err) {
       console.error(err);
       alert("Failed to upload file");
@@ -227,6 +247,9 @@ export function TasksPage() {
       alert("Your daily log has been submitted successfully!");
       setSubmissionFile(null);
       await fetchData();
+      if (selectedProjectId) {
+        await fetchProjectUpdates(selectedProjectId);
+      }
     } catch (err) {
       alert("Failed to submit progress update");
     } finally {
@@ -244,9 +267,15 @@ export function TasksPage() {
         feedback: feedback.trim() || null,
       });
       alert(`Update marked as ${status === "approved" ? "Approved" : "Revision Requested"}`);
-      setShowFeedbackInputUserId(null);
-      setReviewFeedbackText("");
+      setReviewComments((prev) => {
+        const next = { ...prev };
+        delete next[assigneeUserId];
+        return next;
+      });
       await fetchData();
+      if (selectedProjectId) {
+        await fetchProjectUpdates(selectedProjectId);
+      }
     } catch (err) {
       alert("Failed to save review decision");
     }
@@ -335,6 +364,9 @@ export function TasksPage() {
       });
       setCreateTaskOpen(false);
       await fetchData();
+      if (selectedProjectId) {
+        await fetchProjectUpdates(selectedProjectId);
+      }
     } catch (err) {
       alert("Failed to create task");
     } finally {
@@ -397,6 +429,9 @@ export function TasksPage() {
       await TasksAPI.assign(activeTask.id, { assigned_to_users: editAssignees });
       setEditAssigneesOpen(false);
       await fetchData();
+      if (selectedProjectId) {
+        await fetchProjectUpdates(selectedProjectId);
+      }
     } catch (err) {
       alert("Failed to update task assignees");
     } finally {
@@ -436,7 +471,11 @@ export function TasksPage() {
       }
     });
 
-    return { totalProjects, pendingCount, overdueCount };
+    const totalTasks = tasks.length;
+    const completedTasksCount = tasks.filter((t) => t.status === "completed").length;
+    const completionRate = totalTasks ? Math.round((completedTasksCount / totalTasks) * 100) : 0;
+
+    return { totalProjects, pendingCount, overdueCount, completionRate };
   }, [projects, tasks]);
 
   // Document approval list
@@ -445,7 +484,7 @@ export function TasksPage() {
     tasks.forEach((t) => {
       const projectAssociated = projects.find(p => p.id === t.project_id);
       // Strictly check ownership permission:
-      const isOwner = t.assigned_by === user?.id || projectAssociated?.owner_id === user?.id;
+      const isOwner = t.assigned_by === user?.id || projectAssociated?.created_by === user?.id || user?.role === "admin";
       
       (t.assignees || []).forEach((m) => {
         if (m.approval_status === "submitted") {
@@ -488,12 +527,12 @@ export function TasksPage() {
   // Computed states for views
   const projectAssociated = activeTask ? projects.find(p => p.id === activeTask.project_id) : null;
   const myMember = activeTask ? (activeTask.assignees || []).find((m) => m.user_id === user?.id) : null;
-  const isOwner = activeTask ? (activeTask.assigned_by === user?.id || projectAssociated?.owner_id === user?.id) : false;
+  const isOwner = activeTask ? (activeTask.assigned_by === user?.id || projectAssociated?.created_by === user?.id || user?.role === "admin") : false;
   const canSubmit = activeTask ? (!!myMember && myMember.approval_status !== "approved") : false;
   const deadlineDisplay = activeTask ? (activeTask.deadline ? activeTask.deadline.split("T")[0] : "No target date set") : "";
 
   const projectTasks = activeProject ? tasks.filter((t) => t.project_id === activeProject.id) : [];
-  const isProjectOwner = activeProject ? (activeProject.owner_id === user?.id || user?.role === "admin") : false;
+  const isProjectOwner = activeProject ? (activeProject.created_by === user?.id || user?.role === "admin") : false;
 
   return (
     <div className="space-y-6">
@@ -634,7 +673,7 @@ export function TasksPage() {
                   />
                   <label 
                     htmlFor="simple-file-picker"
-                    className="flex items-center gap-2 px-5 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl text-sm cursor-pointer shadow transition-colors"
+                    className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold rounded-xl text-sm cursor-pointer shadow-lg shadow-purple-500/20 transition-all"
                   >
                     <Upload className="w-4 h-4" /> Select File from Computer
                   </label>
@@ -665,7 +704,7 @@ export function TasksPage() {
                 <button
                   onClick={handleSubmitProgress}
                   disabled={actionLoading}
-                  className="px-6 py-3 bg-black dark:bg-white text-white dark:text-black font-black text-sm rounded-xl shadow hover:opacity-90 transition-opacity"
+                  className="px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-black text-sm rounded-xl shadow-lg shadow-purple-500/20 transition-all disabled:opacity-50"
                 >
                   {actionLoading ? "Submitting..." : "Submit for Approval"}
                 </button>
@@ -707,7 +746,7 @@ export function TasksPage() {
                     </div>
 
                     {m.submission_text ? (
-                      <div className="p-3 bg-[var(--bg-panel)] border border-[var(--border-main)] rounded-xl text-sm space-y-2">
+                      <div className="p-3.5 bg-[var(--bg-soft)] border border-[var(--border-main)] rounded-xl text-sm space-y-2 shadow-sm">
                         <div>
                           <p className="text-xs font-bold text-[var(--text-soft)] uppercase mb-1">Submitted Notes:</p>
                           <p className="text-[var(--text-main)] whitespace-pre-wrap">{m.submission_text}</p>
@@ -722,7 +761,7 @@ export function TasksPage() {
                             </div>
                             <a 
                               href={TasksAPI.downloadAssignmentAttachmentUrl(activeTask.id, m.user_id)} 
-                              className="text-blue-500 hover:underline font-bold text-xs"
+                              className="text-blue-600 dark:text-blue-400 hover:underline font-bold text-xs"
                             >
                               Download File
                             </a>
@@ -740,7 +779,7 @@ export function TasksPage() {
                       );
                       if (userAttachments.length === 0) return null;
                       return (
-                        <div className="p-3 bg-[var(--bg-panel)] border border-[var(--border-main)] rounded-xl text-sm space-y-2">
+                        <div className="p-3.5 bg-[var(--bg-soft)] border border-[var(--border-main)] rounded-xl text-sm space-y-2 shadow-sm">
                           <p className="text-xs font-bold text-[var(--text-soft)] uppercase mb-1">
                             Associated Task Attachments:
                           </p>
@@ -748,7 +787,7 @@ export function TasksPage() {
                             {userAttachments.map((att) => (
                               <div
                                 key={att.id}
-                                className="flex items-center justify-between p-2.5 bg-[var(--bg-soft)]/40 border border-[var(--border-main)] rounded-lg text-xs"
+                                className="flex items-center justify-between p-2.5 bg-[var(--bg-panel)]/40 border border-[var(--border-main)] rounded-lg text-xs"
                               >
                                 <div className="flex items-center gap-2 min-w-0">
                                   <FileText className="w-3.5 h-3.5 text-blue-500 flex-shrink-0" />
@@ -761,7 +800,7 @@ export function TasksPage() {
                                 </div>
                                 <a
                                   href={TasksAPI.downloadAttachmentUrl(att.id)}
-                                  className="text-blue-500 hover:underline font-bold text-xs flex-shrink-0"
+                                  className="text-blue-600 dark:text-blue-400 hover:underline font-bold text-xs flex-shrink-0"
                                 >
                                   Download File
                                 </a>
@@ -773,8 +812,8 @@ export function TasksPage() {
                     })()}
 
                     {m.feedback && (
-                      <div className="p-3 bg-red-500/5 border border-red-500/10 rounded-xl text-sm text-red-500">
-                        <p className="font-bold text-xs uppercase mb-1">Correction Needed / Instructions:</p>
+                      <div className="p-3.5 bg-rose-50/70 border border-rose-200 text-rose-800 dark:bg-rose-950/20 dark:border-rose-900/30 dark:text-rose-400 rounded-xl text-sm shadow-sm">
+                        <p className="font-bold text-xs uppercase mb-1 text-rose-600 dark:text-rose-400">Correction Needed / Instructions:</p>
                         <p>{m.feedback}</p>
                       </div>
                     )}
@@ -784,50 +823,42 @@ export function TasksPage() {
                       <div className="pt-3 border-t border-[var(--border-main)]/50 space-y-3 mt-3">
                         <p className="font-bold text-[var(--text-main)] text-sm">Supervisor Decisions:</p>
                         
-                        {showFeedbackInputUserId === m.user_id ? (
-                          <div className="space-y-2 bg-[var(--bg-panel)] p-4 rounded-xl border border-[var(--border-main)]">
-                            <label className="block text-xs font-bold text-red-400 uppercase">Write instructions for correction:</label>
-                            <textarea
-                              value={reviewFeedbackText}
-                              onChange={(e) => setReviewFeedbackText(e.target.value)}
-                              placeholder="State what needs to be changed..."
-                              rows={3}
-                              className="w-full bg-[var(--bg-soft)] border border-[var(--border-main)] rounded-lg p-2 text-sm text-[var(--text-main)] focus:outline-none"
-                            />
-                            <div className="flex gap-2">
-                              <button
-                                onClick={() => handleReviewDecision(m.user_id, "needs_changes", reviewFeedbackText)}
-                                className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white text-xs font-bold rounded-lg"
-                              >
-                                Send Revision Request
-                              </button>
-                              <button
-                                onClick={() => {
-                                  setShowFeedbackInputUserId(null);
-                                  setReviewFeedbackText("");
-                                }}
-                                className="px-4 py-2 border border-[var(--border-main)] text-[var(--text-soft)] text-xs font-bold rounded-lg"
-                              >
-                                Cancel
-                              </button>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="flex gap-2">
+                        <div className="space-y-2 bg-[var(--bg-panel)] p-4 rounded-xl border border-[var(--border-main)] shadow-sm">
+                          <label className="block text-xs font-bold text-[var(--text-muted)] uppercase">
+                            Supervisor Feedback / Review Comments
+                          </label>
+                          <textarea
+                            value={reviewComments[m.user_id] || ""}
+                            onChange={(e) => setReviewComments({
+                              ...reviewComments,
+                              [m.user_id]: e.target.value
+                            })}
+                            placeholder="Add comments or correction details (optional for approvals, required for revision requests)..."
+                            rows={3}
+                            className="w-full bg-[var(--bg-soft)] border border-[var(--border-main)] rounded-xl p-2.5 text-sm text-[var(--text-main)] focus:outline-none focus:border-indigo-500/50"
+                          />
+                          <div className="flex gap-2 pt-1">
                             <button
-                              onClick={() => handleReviewDecision(m.user_id, "approved")}
-                              className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold rounded-xl flex items-center gap-1.5 transition-colors"
+                              onClick={() => handleReviewDecision(m.user_id, "approved", reviewComments[m.user_id] || "")}
+                              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg flex items-center gap-1.5 transition-colors"
                             >
-                              <Check className="w-4 h-4" /> Approve this Work
+                              <Check className="w-3.5 h-3.5" /> Approve Work
                             </button>
                             <button
-                              onClick={() => setShowFeedbackInputUserId(m.user_id)}
-                              className="px-5 py-2.5 bg-red-650 hover:bg-red-600 text-white text-sm font-bold rounded-xl flex items-center gap-1.5 transition-colors"
+                              onClick={() => {
+                                const comment = (reviewComments[m.user_id] || "").trim();
+                                if (!comment) {
+                                  alert("Please write revision instructions detailing what needs to be changed.");
+                                  return;
+                                }
+                                handleReviewDecision(m.user_id, "needs_changes", comment);
+                              }}
+                              className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white text-xs font-bold rounded-lg flex items-center gap-1.5 transition-colors"
                             >
-                              <MessageSquare className="w-4 h-4" /> Request Revision (Reject)
+                              <X className="w-3.5 h-3.5" /> Request Revision (Decline)
                             </button>
                           </div>
-                        )}
+                        </div>
                       </div>
                     )}
 
@@ -882,7 +913,7 @@ export function TasksPage() {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => openCreateTask(activeProject.id)}
-                className="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl text-xs flex items-center gap-1"
+                className="px-5 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold rounded-xl text-xs flex items-center gap-1 shadow-lg shadow-purple-500/20 transition-all"
               >
                 <Plus className="w-4 h-4" /> Add Task to Project
               </button>
@@ -921,42 +952,136 @@ export function TasksPage() {
             </div>
           </div>
 
-          {/* Project Tasks */}
-          <div className="space-y-3">
-            <h3 className="text-sm font-bold text-[var(--text-main)] uppercase tracking-wider">Project Task List</h3>
-            
-            {projectTasks.length === 0 ? (
-              <div className="text-center py-10 bg-[var(--bg-panel)] border border-[var(--border-main)] rounded-2xl text-[var(--text-soft)]">
-                No tasks added yet. Click "+ Add Task to Project" to get started.
+          {/* Project Content Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Left side: Project Tasks */}
+            <div className="lg:col-span-2 space-y-3">
+              <h3 className="text-sm font-bold text-[var(--text-main)] uppercase tracking-wider">Project Tasks</h3>
+              
+              {projectTasks.length === 0 ? (
+                <div className="text-center py-10 bg-[var(--bg-panel)] border border-[var(--border-main)] rounded-2xl text-[var(--text-soft)]">
+                  No tasks added yet. Click "+ Add Task to Project" to get started.
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {projectTasks.map((t) => {
+                    const hasPendingReview = (t.assignees || []).some(m => m.approval_status === "submitted");
+                    const hasRevisionRequested = (t.assignees || []).some(m => m.approval_status === "needs_changes");
+
+                    return (
+                      <div
+                        key={t.id}
+                        onClick={() => handleOpenTaskWorkspace(t)}
+                        className="cursor-pointer bg-[var(--bg-panel)] border border-[var(--border-main)] p-5 rounded-2xl hover:border-blue-500/40 hover:shadow-sm transition-all space-y-3"
+                      >
+                        <div className="flex justify-between items-start">
+                          <span className="text-[10px] font-bold text-blue-500 uppercase tracking-wider">Task #{t.id}</span>
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            {hasPendingReview && (
+                              <span className="px-2 py-0.5 rounded bg-amber-500/10 text-amber-500 border border-amber-500/20 text-[9px] font-bold">
+                                Pending Review
+                              </span>
+                            )}
+                            {hasRevisionRequested && (
+                              <span className="px-2 py-0.5 rounded bg-red-500/10 text-red-500 border border-red-500/20 text-[9px] font-bold">
+                                Revision Needed
+                              </span>
+                            )}
+                            <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
+                              t.status === "completed" ? "bg-emerald-500/10 text-emerald-500" : "bg-blue-500/10 text-blue-500"
+                            }`}>
+                              {t.status === "completed" ? "Completed" : "Active"}
+                            </span>
+                          </div>
+                        </div>
+                        <h4 className="text-base font-bold text-[var(--text-main)]">{t.task_name}</h4>
+                        <p className="text-xs text-[var(--text-soft)]">
+                          Target: {t.deadline ? t.deadline.split("T")[0] : "None set"}
+                        </p>
+                        <div className="pt-2 border-t border-[var(--border-main)] flex justify-between items-center text-xs text-blue-500 font-bold">
+                          <span>Assigned Team: {(t.assignees || []).length} members</span>
+                          <span>Open Workspace →</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Right side: Project Activity Timeline */}
+            <div className="lg:col-span-1 bg-[var(--bg-panel)] border border-[var(--border-main)] rounded-2xl p-5 shadow-sm space-y-4 h-[550px] flex flex-col">
+              <div className="flex items-center justify-between border-b border-[var(--border-main)] pb-2.5">
+                <h3 className="text-xs font-bold text-[var(--text-main)] uppercase tracking-wider">
+                  Latest Updates & Activity
+                </h3>
+                <span className="text-[10px] font-bold text-blue-500 bg-blue-500/10 px-2 py-0.5 rounded-full">
+                  {projectUpdates.length}
+                </span>
               </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {projectTasks.map((t) => (
-                  <div
-                    key={t.id}
-                    onClick={() => handleOpenTaskWorkspace(t)}
-                    className="cursor-pointer bg-[var(--bg-panel)] border border-[var(--border-main)] p-5 rounded-2xl hover:border-blue-500/40 hover:shadow-sm transition-all space-y-3"
-                  >
-                    <div className="flex justify-between items-start">
-                      <span className="text-[10px] font-bold text-blue-500 uppercase tracking-wider">Task #{t.id}</span>
-                      <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
-                        t.status === "completed" ? "bg-emerald-500/10 text-emerald-500" : "bg-blue-500/10 text-blue-500"
-                      }`}>
-                        {t.status === "completed" ? "Completed" : "Active"}
-                      </span>
-                    </div>
-                    <h4 className="text-base font-bold text-[var(--text-main)]">{t.task_name}</h4>
-                    <p className="text-xs text-[var(--text-soft)]">
-                      Target: {t.deadline ? t.deadline.split("T")[0] : "None set"}
-                    </p>
-                    <div className="pt-2 border-t border-[var(--border-main)] flex justify-between items-center text-xs text-blue-500 font-bold">
-                      <span>Assigned Team: {(t.assignees || []).length} members</span>
-                      <span>Open Workspace →</span>
-                    </div>
-                  </div>
-                ))}
+              <div className="flex-1 overflow-y-auto pr-1 space-y-4">
+                {projectUpdates.length === 0 ? (
+                  <p className="text-xs text-[var(--text-soft)] italic text-center py-10">
+                    No recent activities logged in this project.
+                  </p>
+                ) : (
+                  projectUpdates.map((update, idx) => {
+                    const getTimelineIcon = (type) => {
+                      switch (type) {
+                        case "task_created":
+                          return { icon: Plus, color: "text-blue-500 bg-blue-500/10 border-blue-500/20" };
+                        case "submission":
+                          return { icon: Upload, color: "text-purple-500 bg-purple-500/10 border-purple-500/20" };
+                        case "approval":
+                          return { icon: Check, color: "text-emerald-500 bg-emerald-500/10 border-emerald-500/20" };
+                        case "rejection":
+                          return { icon: X, color: "text-rose-500 bg-rose-500/10 border-rose-500/20" };
+                        case "attachment":
+                          return { icon: Paperclip, color: "text-amber-500 bg-amber-500/10 border-amber-500/20" };
+                        case "project_created":
+                        default:
+                          return { icon: Folder, color: "text-indigo-500 bg-indigo-500/10 border-indigo-500/20" };
+                      }
+                    };
+                    const cfg = getTimelineIcon(update.type);
+                    const Icon = cfg.icon;
+                    return (
+                      <div key={idx} className="flex gap-3 relative text-xs">
+                        {idx !== projectUpdates.length - 1 && (
+                          <span className="absolute left-3.5 top-7 bottom-0 w-0.5 bg-[var(--border-main)]" />
+                        )}
+                        <div className={`w-7 h-7 rounded-xl border flex items-center justify-center flex-shrink-0 ${cfg.color}`}>
+                          <Icon className="w-3.5 h-3.5" />
+                        </div>
+                        <div className="min-w-0 flex-1 space-y-0.5">
+                          <p className="text-[var(--text-main)] font-bold text-xs">
+                            {update.user}{" "}
+                            <span className="text-[var(--text-soft)] font-medium">
+                              {update.type === "submission" && "submitted progress for"}
+                              {update.type === "approval" && `approved progress on`}
+                              {update.type === "rejection" && `requested revisions on`}
+                              {update.type === "attachment" && `uploaded file to`}
+                              {update.type === "task_created" && `created task`}
+                              {update.type === "project_created" && `initiated project`}
+                            </span>{" "}
+                            {update.taskName}
+                          </p>
+                          {update.details && (
+                            <p className="text-[var(--text-muted)] text-[11px] leading-relaxed line-clamp-3 bg-[var(--bg-soft)]/20 p-2 rounded-lg border border-[var(--border-main)]/50 mt-1">
+                              {update.details}
+                            </p>
+                          )}
+                          <p className="text-[var(--text-soft)] text-[10px] mt-1 flex items-center gap-1 font-medium">
+                            <Clock className="w-3 h-3 text-slate-400" />
+                            {new Date(update.timestamp).toLocaleString("en-LK", { dateStyle: "short", timeStyle: "short" })}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
               </div>
-            )}
+            </div>
           </div>
         </div>
 
@@ -978,7 +1103,7 @@ export function TasksPage() {
             <div className="flex flex-wrap items-center gap-2">
               <button
                 onClick={() => setCreateProjectOpen(true)}
-                className="flex items-center gap-1.5 bg-black dark:bg-white text-white dark:text-black px-5 py-2.5 rounded-xl text-xs font-bold transition-all hover:opacity-90 shadow"
+                className="flex items-center gap-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-lg shadow-purple-500/20"
               >
                 <Plus className="w-4 h-4" /> New Project
               </button>
@@ -1031,14 +1156,14 @@ export function TasksPage() {
                   <p className="text-3xl font-black text-red-500">{String(dashboardStats.overdueCount).padStart(2, "0")}</p>
                 </div>
 
-                {/* Budget Utilization (Dark card) */}
-                <div className="bg-[#0b0c21] border border-white/5 rounded-2xl p-5 shadow flex flex-col justify-between min-h-[100px]">
+                {/* Task Completion Rate */}
+                <div className="bg-[var(--bg-panel)] border border-[var(--border-main)] border-l-4 border-l-emerald-500 rounded-2xl p-5 shadow-sm min-h-[100px] flex flex-col justify-between">
                   <div>
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Budget Utilization</p>
-                    <p className="text-2xl font-black text-white">68.4%</p>
+                    <p className="text-xs font-bold uppercase tracking-wider text-[var(--text-soft)]">Task Completion Rate</p>
+                    <p className="text-3xl font-black text-[var(--text-main)] mt-1">{dashboardStats.completionRate}%</p>
                   </div>
-                  <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
-                    <div className="bg-emerald-500 h-full rounded-full" style={{ width: "68.4%" }} />
+                  <div className="w-full bg-[var(--bg-soft)] h-1.5 rounded-full overflow-hidden mt-2">
+                    <div className="bg-emerald-500 h-full rounded-full transition-all duration-500" style={{ width: `${dashboardStats.completionRate}%` }} />
                   </div>
                 </div>
               </div>
@@ -1154,7 +1279,7 @@ export function TasksPage() {
                               {item.isAuthorizedToReview ? (
                                 <button
                                   onClick={() => handleOpenTaskWorkspace(item.task)}
-                                  className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-[11px] font-bold rounded-lg transition-colors"
+                                  className="px-3.5 py-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-[11px] font-bold rounded-lg transition-all shadow shadow-purple-500/20"
                                 >
                                   Review Now
                                 </button>
@@ -1254,40 +1379,40 @@ export function TasksPage() {
 
       {/* CREATE PROJECT MODAL */}
       <Modal open={createProjectOpen} onClose={() => setCreateProjectOpen(false)} title="Create New Project">
-        <div className="space-y-4">
+        <div className="space-y-3">
           <div>
-            <label className="block text-sm font-bold text-[var(--text-main)] mb-1.5">Project Name</label>
+            <label className="block text-sm font-bold text-[var(--text-main)] mb-1">Project Name</label>
             <input
               type="text"
               value={projectName}
               onChange={(e) => setProjectName(e.target.value)}
               placeholder="e.g. Cabinet Paper: National Cyber Strategy"
-              className="w-full bg-[var(--bg-soft)] border border-[var(--border-main)] rounded-xl px-4 py-2.5 text-[var(--text-main)] text-sm focus:outline-none focus:border-blue-500"
+              className="w-full bg-[var(--bg-soft)] border border-[var(--border-main)] rounded-xl px-4 py-2 text-[var(--text-main)] text-sm focus:outline-none focus:border-blue-500"
             />
           </div>
           <div>
-            <label className="block text-sm font-bold text-[var(--text-main)] mb-1.5">Description (Optional)</label>
+            <label className="block text-sm font-bold text-[var(--text-main)] mb-1">Description (Optional)</label>
             <textarea
               value={projectDescription}
               onChange={(e) => setProjectDescription(e.target.value)}
               placeholder="Write a brief description..."
-              rows={3}
-              className="w-full bg-[var(--bg-soft)] border border-[var(--border-main)] rounded-xl px-4 py-2.5 text-[var(--text-main)] text-sm focus:outline-none focus:border-blue-500 resize-none"
+              rows={2}
+              className="w-full bg-[var(--bg-soft)] border border-[var(--border-main)] rounded-xl px-4 py-2 text-[var(--text-main)] text-sm focus:outline-none focus:border-blue-500 resize-none"
             />
           </div>
           <div>
-            <label className="block text-sm font-bold text-[var(--text-main)] mb-1.5">Target Completion Date</label>
+            <label className="block text-sm font-bold text-[var(--text-main)] mb-1">Target Completion Date</label>
             <input
               type="date"
               value={projectDeadline}
               onChange={(e) => setProjectDeadline(e.target.value)}
-              className="w-full bg-[var(--bg-soft)] border border-[var(--border-main)] rounded-xl px-4 py-2.5 text-[var(--text-main)] text-sm focus:outline-none focus:border-blue-500"
+              className="w-full bg-[var(--bg-soft)] border border-[var(--border-main)] rounded-xl px-4 py-2 text-[var(--text-main)] text-sm focus:outline-none focus:border-blue-500"
             />
           </div>
           <button
             onClick={handleCreateProject}
             disabled={actionLoading}
-            className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl transition-all disabled:opacity-50"
+            className="mt-4 w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold py-2.5 rounded-xl transition-all shadow-lg shadow-purple-500/20 disabled:opacity-50"
           >
             {actionLoading ? "Creating Project..." : "Create Project"}
           </button>
@@ -1296,38 +1421,38 @@ export function TasksPage() {
 
       {/* EDIT PROJECT MODAL */}
       <Modal open={editProjectOpen} onClose={() => setEditProjectOpen(false)} title="Edit Project Details">
-        <div className="space-y-4">
+        <div className="space-y-3">
           <div>
-            <label className="block text-sm font-bold text-[var(--text-main)] mb-1.5">Project Name</label>
+            <label className="block text-sm font-bold text-[var(--text-main)] mb-1">Project Name</label>
             <input
               type="text"
               value={projectName}
               onChange={(e) => setProjectName(e.target.value)}
-              className="w-full bg-[var(--bg-soft)] border border-[var(--border-main)] rounded-xl px-4 py-2.5 text-[var(--text-main)] text-sm focus:outline-none focus:border-blue-500"
+              className="w-full bg-[var(--bg-soft)] border border-[var(--border-main)] rounded-xl px-4 py-2 text-[var(--text-main)] text-sm focus:outline-none focus:border-blue-500"
             />
           </div>
           <div>
-            <label className="block text-sm font-bold text-[var(--text-main)] mb-1.5">Description</label>
+            <label className="block text-sm font-bold text-[var(--text-main)] mb-1">Description</label>
             <textarea
               value={projectDescription}
               onChange={(e) => setProjectDescription(e.target.value)}
-              rows={3}
-              className="w-full bg-[var(--bg-soft)] border border-[var(--border-main)] rounded-xl px-4 py-2.5 text-[var(--text-main)] text-sm focus:outline-none focus:border-blue-500 resize-none"
+              rows={2}
+              className="w-full bg-[var(--bg-soft)] border border-[var(--border-main)] rounded-xl px-4 py-2 text-[var(--text-main)] text-sm focus:outline-none focus:border-blue-500 resize-none"
             />
           </div>
           <div>
-            <label className="block text-sm font-bold text-[var(--text-main)] mb-1.5">Target Completion Date</label>
+            <label className="block text-sm font-bold text-[var(--text-main)] mb-1">Target Completion Date</label>
             <input
               type="date"
               value={projectDeadline}
               onChange={(e) => setProjectDeadline(e.target.value)}
-              className="w-full bg-[var(--bg-soft)] border border-[var(--border-main)] rounded-xl px-4 py-2.5 text-[var(--text-main)] text-sm focus:outline-none focus:border-blue-500"
+              className="w-full bg-[var(--bg-soft)] border border-[var(--border-main)] rounded-xl px-4 py-2 text-[var(--text-main)] text-sm focus:outline-none focus:border-blue-500"
             />
           </div>
           <button
             onClick={handleUpdateProject}
             disabled={actionLoading}
-            className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl transition-all disabled:opacity-50"
+            className="mt-4 w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold py-2.5 rounded-xl transition-all shadow-lg shadow-purple-500/20 disabled:opacity-50"
           >
             {actionLoading ? "Updating..." : "Save Project Details"}
           </button>
@@ -1336,23 +1461,23 @@ export function TasksPage() {
 
       {/* CREATE TASK MODAL */}
       <Modal open={createTaskOpen} onClose={() => setCreateTaskOpen(false)} title="Create New Task">
-        <div className="space-y-4">
+        <div className="space-y-2.5">
           <div>
-            <label className="block text-sm font-bold text-[var(--text-main)] mb-1.5">Task Name</label>
+            <label className="block text-sm font-bold text-[var(--text-main)] mb-0.5">Task Name</label>
             <input
               type="text"
               value={taskName}
               onChange={(e) => setTaskName(e.target.value)}
               placeholder="e.g. Budget Proposal Draft"
-              className="w-full bg-[var(--bg-soft)] border border-[var(--border-main)] rounded-xl px-4 py-2.5 text-[var(--text-main)] text-sm focus:outline-none focus:border-blue-500"
+              className="w-full bg-[var(--bg-soft)] border border-[var(--border-main)] rounded-xl px-4 py-2 text-[var(--text-main)] text-sm focus:outline-none focus:border-blue-500"
             />
           </div>
           <div>
-            <label className="block text-sm font-bold text-[var(--text-main)] mb-1.5">Project Association</label>
+            <label className="block text-sm font-bold text-[var(--text-main)] mb-0.5">Project Association</label>
             <select
               value={selectedTaskProject}
               onChange={(e) => setSelectedTaskProject(e.target.value)}
-              className="w-full bg-[var(--bg-soft)] border border-[var(--border-main)] rounded-xl px-4 py-2.5 text-[var(--text-main)] text-sm focus:outline-none focus:border-blue-500"
+              className="w-full bg-[var(--bg-soft)] border border-[var(--border-main)] rounded-xl px-4 py-2 text-[var(--text-main)] text-sm focus:outline-none focus:border-blue-500"
             >
               <option value="">Standalone Task (No Project)</option>
               {projects.map((p) => (
@@ -1361,23 +1486,23 @@ export function TasksPage() {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-bold text-[var(--text-main)] mb-1.5">Target Completion Date</label>
+            <label className="block text-sm font-bold text-[var(--text-main)] mb-0.5">Target Completion Date</label>
             <input
               type="date"
               value={taskDeadline}
               onChange={(e) => setTaskDeadline(e.target.value)}
-              className="w-full bg-[var(--bg-soft)] border border-[var(--border-main)] rounded-xl px-4 py-2.5 text-[var(--text-main)] text-sm focus:outline-none focus:border-blue-500"
+              className="w-full bg-[var(--bg-soft)] border border-[var(--border-main)] rounded-xl px-4 py-2 text-[var(--text-main)] text-sm focus:outline-none focus:border-blue-500"
             />
           </div>
           <div>
-            <label className="block text-sm font-bold text-[var(--text-main)] mb-1.5">Assign Team Members</label>
-            <div className="flex flex-wrap items-center gap-1.5 mb-2">
+            <label className="block text-sm font-bold text-[var(--text-main)] mb-0.5">Assign Team Members</label>
+            <div className="flex flex-wrap items-center gap-1.5 mb-1.5">
               {divisions.map((dept) => (
                 <button
                   key={dept}
                   type="button"
                   onClick={() => setTaskFilterDept(dept)}
-                  className={`px-2.5 py-1 rounded-full text-xs border transition-colors ${
+                  className={`px-2 py-0.5 rounded-full text-xs border transition-colors ${
                     taskFilterDept === dept
                       ? "border-blue-500/40 bg-blue-100 text-blue-850 dark:bg-blue-500/20 dark:text-blue-300"
                       : "border-[var(--border-main)] text-[var(--text-soft)] hover:text-[var(--text-main)]"
@@ -1387,13 +1512,13 @@ export function TasksPage() {
                 </button>
               ))}
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-40 overflow-y-auto p-2 border border-[var(--border-main)] bg-[var(--bg-soft)]/30 rounded-xl">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-1.5 max-h-28 overflow-y-auto p-1.5 border border-[var(--border-main)] bg-[var(--bg-soft)]/30 rounded-xl">
               {filteredCreateUsers.map((u) => {
                 const checked = selectedTaskUsers.includes(u.id);
                 return (
                   <label
                     key={u.id}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer transition-colors ${
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border cursor-pointer transition-colors ${
                       checked
                         ? "border-blue-500/40 bg-blue-500/10"
                         : "border-[var(--border-main)] hover:border-blue-500/30"
@@ -1421,7 +1546,7 @@ export function TasksPage() {
           <button
             onClick={handleCreateTask}
             disabled={actionLoading}
-            className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl transition-all disabled:opacity-50"
+            className="mt-4 w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold py-2.5 rounded-xl transition-all shadow-lg shadow-purple-500/20 disabled:opacity-50"
           >
             {actionLoading ? "Adding Task..." : "Add Task"}
           </button>
@@ -1430,29 +1555,29 @@ export function TasksPage() {
 
       {/* EDIT TASK DETAILS MODAL */}
       <Modal open={editTaskOpen} onClose={() => setEditTaskOpen(false)} title="Change Task Details">
-        <div className="space-y-4">
+        <div className="space-y-3">
           <div>
-            <label className="block text-sm font-bold text-[var(--text-main)] mb-1.5">Task Name</label>
+            <label className="block text-sm font-bold text-[var(--text-main)] mb-1">Task Name</label>
             <input
               type="text"
               value={taskName}
               onChange={(e) => setTaskName(e.target.value)}
-              className="w-full bg-[var(--bg-soft)] border border-[var(--border-main)] rounded-xl px-4 py-2.5 text-[var(--text-main)] text-sm focus:outline-none focus:border-blue-500"
+              className="w-full bg-[var(--bg-soft)] border border-[var(--border-main)] rounded-xl px-4 py-2 text-[var(--text-main)] text-sm focus:outline-none focus:border-blue-500"
             />
           </div>
           <div>
-            <label className="block text-sm font-bold text-[var(--text-main)] mb-1.5">Target Completion Date</label>
+            <label className="block text-sm font-bold text-[var(--text-main)] mb-1">Target Completion Date</label>
             <input
               type="date"
               value={taskDeadline}
               onChange={(e) => setTaskDeadline(e.target.value)}
-              className="w-full bg-[var(--bg-soft)] border border-[var(--border-main)] rounded-xl px-4 py-2.5 text-[var(--text-main)] text-sm focus:outline-none focus:border-blue-500"
+              className="w-full bg-[var(--bg-soft)] border border-[var(--border-main)] rounded-xl px-4 py-2 text-[var(--text-main)] text-sm focus:outline-none focus:border-blue-500"
             />
           </div>
           <button
             onClick={handleUpdateTask}
             disabled={actionLoading}
-            className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl transition-all disabled:opacity-50"
+            className="mt-4 w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold py-2.5 rounded-xl transition-all shadow-lg shadow-purple-500/20 disabled:opacity-50"
           >
             {actionLoading ? "Updating..." : "Save Task Details"}
           </button>
@@ -1461,18 +1586,18 @@ export function TasksPage() {
 
       {/* EDIT ASSIGNEES / MEMBERS MODAL */}
       <Modal open={editAssigneesOpen} onClose={() => setEditAssigneesOpen(false)} title="Change Team Members">
-        <div className="space-y-4">
+        <div className="space-y-3">
           <p className="text-xs text-[var(--text-soft)]">
             Select the team members responsible for this task.
           </p>
           <div>
-            <div className="flex flex-wrap items-center gap-1.5 mb-2">
+            <div className="flex flex-wrap items-center gap-1.5 mb-1.5">
               {divisions.map((dept) => (
                 <button
                   key={dept}
                   type="button"
                   onClick={() => setEditAssigneesDeptFilter(dept)}
-                  className={`px-2.5 py-1 rounded-full text-xs border transition-colors ${
+                  className={`px-2 py-0.5 rounded-full text-xs border transition-colors ${
                     editAssigneesDeptFilter === dept
                       ? "border-blue-500/40 bg-blue-100 text-blue-800 dark:bg-blue-500/20 dark:text-blue-300"
                       : "border-[var(--border-main)] text-[var(--text-soft)]"
@@ -1482,13 +1607,13 @@ export function TasksPage() {
                 </button>
               ))}
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-48 overflow-y-auto p-2 border border-[var(--border-main)] bg-[var(--bg-soft)]/30 rounded-xl">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-1.5 max-h-36 overflow-y-auto p-1.5 border border-[var(--border-main)] bg-[var(--bg-soft)]/30 rounded-xl">
               {filteredEditUsers.map((u) => {
                 const checked = editAssignees.includes(u.id);
                 return (
                   <label
                     key={u.id}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer transition-colors ${
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border cursor-pointer transition-colors ${
                       checked
                         ? "border-blue-500/40 bg-blue-500/10"
                         : "border-[var(--border-main)] hover:border-blue-500/30"
@@ -1509,17 +1634,17 @@ export function TasksPage() {
               })}
             </div>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 mt-4">
             <button
               onClick={saveAssignees}
               disabled={actionLoading}
-              className="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 rounded-xl transition-all disabled:opacity-50"
+              className="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold py-2 rounded-xl transition-all shadow-lg shadow-purple-500/20 disabled:opacity-50"
             >
               {actionLoading ? "Saving..." : "Save Changes"}
             </button>
             <button
               onClick={() => setEditAssigneesOpen(false)}
-              className="flex-1 border border-[var(--border-main)] text-[var(--text-soft)] hover:bg-[var(--bg-soft)]/20 py-2.5 rounded-xl text-sm font-semibold"
+              className="flex-1 border border-[var(--border-main)] text-[var(--text-soft)] hover:bg-[var(--bg-soft)]/20 py-2 rounded-xl text-sm font-semibold"
             >
               Cancel
             </button>

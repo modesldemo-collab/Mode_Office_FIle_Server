@@ -13,16 +13,18 @@
 	--text-muted: #b5b2c9;
 	--text-soft: #85819d;
 	--border-main: rgba(255, 255, 255, 0.1);
+	--bg-overlay: rgba(0, 0, 0, 0.65);
 }
 
 .theme-light {
 	--bg-main: #eaedf6;
-	--bg-panel: rgba(255, 255, 255, 0.45);
-	--bg-soft: rgba(255, 255, 255, 0.65);
+	--bg-panel: rgba(255, 255, 255, 0.75);
+	--bg-soft: rgba(255, 255, 255, 0.85);
 	--text-main: #2b254a;
 	--text-muted: #59537a;
 	--text-soft: #8b85ad;
-	--border-main: rgba(255, 255, 255, 0.4);
+	--border-main: rgba(99, 102, 241, 0.12);
+	--bg-overlay: rgba(15, 23, 42, 0.25);
 }
 
 body {

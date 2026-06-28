@@ -13,6 +13,7 @@ import { LogsPage } from "./pages/LogsPage";
 import { UsersPage } from "./pages/admin/UsersPage";
 import { DepartmentsPage } from "./pages/admin/DepartmentsPage";
 import { PersonsPage } from "./pages/admin/PersonsPage";
+import { AssetsPage } from "./pages/admin/AssetsPage";
 import { GovScribePage } from "./pages/GovScribePage";
 
 function AppRouter() {
@@ -38,6 +39,7 @@ function AppRouter() {
     users:                UsersPage,
     departments:          DepartmentsPage,
     persons:              PersonsPage,
+    assets:               AssetsPage,
   }[page] || DashboardPage;
 
   return (

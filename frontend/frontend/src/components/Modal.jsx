@@ -4,13 +4,13 @@ import { X } from "lucide-react";
 export function Modal({ open, onClose, title, children, wide = false }) {
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-[var(--bg-overlay)] backdrop-blur-sm flex justify-center items-center p-4 md:p-8">
       <div
         className={`bg-[var(--bg-panel)] border border-[var(--border-main)] rounded-2xl shadow-2xl w-full ${
           wide ? "max-w-4xl" : "max-w-lg"
-        } max-h-[90vh] flex flex-col`}
+        } max-h-[85vh] flex flex-col my-auto`}
       >
-        <div className="flex items-center justify-between p-5 border-b border-[var(--border-main)]">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border-main)]">
           <h3 className="text-lg font-semibold text-[var(--text-main)]">{title}</h3>
           <button
             onClick={onClose}
@@ -19,7 +19,7 @@ export function Modal({ open, onClose, title, children, wide = false }) {
             <X className="w-5 h-5" />
           </button>
         </div>
-        <div className="overflow-y-auto flex-1 p-5 text-[var(--text-main)]">{children}</div>
+        <div className="overflow-y-auto flex-1 px-6 py-5 text-[var(--text-main)]">{children}</div>
       </div>
     </div>
   );

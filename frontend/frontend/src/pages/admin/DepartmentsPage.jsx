@@ -48,7 +48,7 @@ export function DepartmentsPage() {
           className="flex-1 bg-[var(--bg-panel)] border border-[var(--border-main)] rounded-xl px-4 py-2.5 text-[var(--text-main)] text-sm focus:outline-none focus:border-cyan-500"
         />
         <button onClick={handleCreate} disabled={loading}
-          className="flex items-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold px-4 py-2.5 rounded-xl">
+          className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold px-4 py-2.5 rounded-xl transition-all shadow shadow-purple-500/20">
           <Plus className="w-4 h-4" /> Add
         </button>
       </div>

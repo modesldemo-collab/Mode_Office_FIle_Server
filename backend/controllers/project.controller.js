@@ -213,9 +213,133 @@ const remove = async (req, res) => {
   }
 };
 
+// GET /api/projects/:id/updates
+const getProjectUpdates = async (req, res) => {
+  const projectId = Number(req.params.id);
+  try {
+    const project = await getProjectById(projectId);
+    if (!project) return res.status(404).json({ error: "Project not found" });
+
+    // 1. Task submissions and reviews
+    const [subRows] = await db.query(
+      `SELECT ta.task_id, t.task_name, ta.user_id, u.username, 
+              ta.approval_status, ta.submitted_at, ta.completed_at, 
+              ta.feedback, ta.submission_text, ta.file_name
+       FROM task_assignments ta 
+       JOIN tasks t ON t.id = ta.task_id 
+       JOIN users u ON u.id = ta.user_id 
+       WHERE t.project_id = ?`,
+      [projectId]
+    );
+
+    // 2. Task attachments
+    const [attachRows] = await db.query(
+      `SELECT ta.id, ta.task_id, t.task_name, ta.uploader_id, u.username, 
+              ta.file_name, ta.created_at
+       FROM task_attachments ta 
+       JOIN tasks t ON t.id = ta.task_id 
+       JOIN users u ON u.id = ta.uploader_id 
+       WHERE t.project_id = ?`,
+      [projectId]
+    );
+
+    // 3. New tasks
+    const [taskRows] = await db.query(
+      `SELECT t.id, t.task_name, t.created_at, t.assigned_by, u.username AS creator_name
+       FROM tasks t
+       JOIN users u ON u.id = t.assigned_by
+       WHERE t.project_id = ?`,
+      [projectId]
+    );
+
+    const activities = [];
+
+    // Process Task Submissions & Reviews
+    subRows.forEach((row) => {
+      // Submission event
+      if (row.submitted_at) {
+        activities.push({
+          type: "submission",
+          timestamp: row.submitted_at,
+          user: row.username,
+          taskName: row.task_name,
+          taskId: row.task_id,
+          details: row.submission_text || "Submitted progress log.",
+          fileName: row.file_name,
+        });
+      }
+      // Review decision event (Approved / Needs Changes)
+      if (row.approval_status === "approved" && row.completed_at) {
+        activities.push({
+          type: "approval",
+          timestamp: row.completed_at,
+          user: "Supervisor",
+          taskName: row.task_name,
+          taskId: row.task_id,
+          details: row.feedback || "Approved task progress.",
+          assignee: row.username,
+        });
+      } else if (row.approval_status === "needs_changes") {
+        activities.push({
+          type: "rejection",
+          timestamp: row.submitted_at, // fallback
+          user: "Supervisor",
+          taskName: row.task_name,
+          taskId: row.task_id,
+          details: row.feedback || "Requested changes/revisions.",
+          assignee: row.username,
+        });
+      }
+    });
+
+    // Process Task Attachments
+    attachRows.forEach((row) => {
+      activities.push({
+        type: "attachment",
+        timestamp: row.created_at,
+        user: row.username,
+        taskName: row.task_name,
+        taskId: row.task_id,
+        details: `Uploaded document: ${row.file_name}`,
+        fileName: row.file_name,
+      });
+    });
+
+    // Process New Tasks Created
+    taskRows.forEach((row) => {
+      activities.push({
+        type: "task_created",
+        timestamp: row.created_at,
+        user: row.creator_name,
+        taskName: row.task_name,
+        taskId: row.id,
+        details: "Created new task.",
+      });
+    });
+
+    // Process Project Creation
+    const [ownerRows] = await db.query("SELECT username FROM users WHERE id = ?", [project.created_by]);
+    activities.push({
+      type: "project_created",
+      timestamp: project.created_at,
+      user: ownerRows[0]?.username || "Manager",
+      taskName: project.project_name,
+      details: "Project initiated.",
+    });
+
+    // Sort by timestamp DESC
+    activities.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+    res.json(activities);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 module.exports = {
   list,
   create,
   update,
   remove,
+  getProjectUpdates,
 };

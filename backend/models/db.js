@@ -246,6 +246,36 @@ async function initDB() {
       )
     `);
 
+    await conn.query(`
+      CREATE TABLE IF NOT EXISTS assets (
+        id               INT AUTO_INCREMENT PRIMARY KEY,
+        asset_id         VARCHAR(50) UNIQUE,
+        asset_name       VARCHAR(255) NOT NULL,
+        description      TEXT,
+        category         VARCHAR(100),
+        serial_id        VARCHAR(100),
+        status           VARCHAR(50) DEFAULT 'Available',
+        assigned_user_id INT,
+        image_path       VARCHAR(255),
+        created_at       TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at       TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (assigned_user_id) REFERENCES users(id) ON DELETE SET NULL
+      )
+    `);
+
+    await conn.query(`
+      CREATE TABLE IF NOT EXISTS asset_activities (
+        id          INT AUTO_INCREMENT PRIMARY KEY,
+        asset_id    INT NOT NULL,
+        user_id     INT,
+        action_type VARCHAR(50) NOT NULL,
+        description TEXT,
+        created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (asset_id) REFERENCES assets(id) ON DELETE CASCADE,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+      )
+    `);
+
     // Backfill old single-assignee tasks into task_assignments once.
     await conn.query(
       `INSERT IGNORE INTO task_assignments (task_id, user_id, is_completed, completed_at)

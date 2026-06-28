@@ -14,6 +14,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { StatsAPI } from "../api";
+import { useAuth } from "../context/AuthContext";
 
 function KPI({ title, value, subtitle, icon: Icon }) {
   const config = {
@@ -188,33 +189,47 @@ function TrendBars({ trend }) {
   );
 }
 
-function UsersPanel({ users }) {
+function PersonalProfilePanel({ user, stats }) {
   return (
     <section className="white-card rounded-2xl p-5">
       <div className="flex items-center gap-2 mb-4 border-b border-[var(--border-main)] pb-3">
-        <Users className="w-4 h-4 text-indigo-500" />
-        <h3 className="text-[var(--text-main)] text-sm font-bold uppercase tracking-wider">User Details</h3>
+        <UserCircle2 className="w-4.5 h-4.5 text-indigo-500" />
+        <h3 className="text-[var(--text-main)] text-sm font-bold uppercase tracking-wider">My Profile Details</h3>
       </div>
 
-      <div className="space-y-2.5">
-        {users.map((u) => (
-          <div key={u.id} className="rounded-xl border border-[var(--border-main)] p-3 flex items-center justify-between gap-2 hover:bg-[var(--bg-soft)] transition-colors">
-            <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-400 to-[#3b3260] text-white flex items-center justify-center font-bold text-sm shadow-sm border border-white/20">
-                {u.username?.[0]?.toUpperCase() || "U"}
-              </div>
-              <div className="min-w-0">
-                <p className="text-sm text-[var(--text-main)] font-semibold truncate">{u.username}</p>
-                <p className="text-xs text-[var(--text-soft)] truncate">{u.email}</p>
-              </div>
-            </div>
-            <div className="text-right">
-              <p className="text-xs text-indigo-600 font-bold capitalize">{u.role}</p>
-              <p className="text-[10px] font-bold text-[var(--text-soft)] uppercase tracking-wider">{u.dept_name || "No Dept"}</p>
+      <div className="space-y-4">
+        <div className="rounded-xl border border-[var(--border-main)] p-4 flex items-center gap-4 bg-[var(--bg-soft)]/20">
+          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-600 to-indigo-600 text-white flex items-center justify-center font-black text-2xl shadow border-2 border-white/20">
+            {user?.username?.[0]?.toUpperCase() || "U"}
+          </div>
+          <div className="min-w-0 flex-1">
+            <h4 className="text-base text-[var(--text-main)] font-extrabold truncate">{user?.username}</h4>
+            <p className="text-xs text-[var(--text-soft)] truncate mt-0.5">{user?.email}</p>
+            <div className="flex gap-2 mt-2">
+              <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                {user?.role}
+              </span>
+              <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-[var(--bg-soft)] text-[var(--text-soft)] border border-[var(--border-main)]">
+                {user?.dept_name || "No Division"}
+              </span>
             </div>
           </div>
-        ))}
-        {!users.length && <p className="text-sm text-[var(--text-soft)]">No active users</p>}
+        </div>
+
+        <div className="grid grid-cols-3 gap-3">
+          <div className="rounded-xl border border-[var(--border-main)] p-3 text-center bg-[var(--bg-soft)]/10">
+            <p className="text-[10px] font-bold uppercase text-[var(--text-soft)] tracking-wider">My Docs</p>
+            <p className="text-xl font-black text-[var(--text-main)] mt-1">{stats?.myTotalDocs ?? 0}</p>
+          </div>
+          <div className="rounded-xl border border-[var(--border-main)] p-3 text-center bg-[var(--bg-soft)]/10">
+            <p className="text-[10px] font-bold uppercase text-[var(--text-soft)] tracking-wider">My Tasks</p>
+            <p className="text-xl font-black text-[var(--text-main)] mt-1">{stats?.myTotalTasks ?? 0}</p>
+          </div>
+          <div className="rounded-xl border border-[var(--border-main)] p-3 text-center bg-[var(--bg-soft)]/10">
+            <p className="text-[10px] font-bold uppercase text-[var(--text-soft)] tracking-wider">Done</p>
+            <p className="text-xl font-black text-emerald-500 mt-1">{stats?.myCompletedTasks ?? 0}</p>
+          </div>
+        </div>
       </div>
     </section>
   );
@@ -262,6 +277,7 @@ function TasksPanel({ tasks }) {
 }
 
 export function DashboardPage() {
+  const { user } = useAuth();
   const [stats, setStats] = useState(null);
 
   useEffect(() => {
@@ -269,7 +285,6 @@ export function DashboardPage() {
   }, []);
 
   const trend = stats?.trend7d || [];
-  const users = stats?.userDetails || [];
   const tasks = stats?.taskDetails || [];
 
   return (
@@ -277,10 +292,10 @@ export function DashboardPage() {
       <section className="rounded-3xl border border-transparent bg-gradient-to-br from-[#3b3260] via-[#483d73] to-[#251e3d] p-6 lg:p-8 shadow-lg text-white">
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
-            <p className="text-purple-300 text-xs font-bold uppercase tracking-wider">Insight Workspace</p>
-            <h2 className="text-2xl lg:text-3xl font-extrabold mt-2 tracking-tight">Analytics Dashboard</h2>
+            <p className="text-purple-300 text-xs font-bold uppercase tracking-wider">{user?.dept_name || "Insight Workspace"}</p>
+            <h2 className="text-2xl lg:text-3xl font-extrabold mt-2 tracking-tight">Welcome, {user?.username}!</h2>
             <p className="text-sm text-purple-200/80 mt-3 max-w-3xl leading-relaxed">
-              Overview of documents, people, and tasks with real-time operational signals.
+              Personalized overview of your documents, assignments, and active work tasks.
             </p>
           </div>
           <div className="rounded-2xl border border-white/20 bg-white/10 px-4 py-3 flex items-center gap-3 shadow-inner">
@@ -294,10 +309,10 @@ export function DashboardPage() {
       </section>
 
       <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-        <KPI title="Documents" value={stats?.totalDocs} subtitle="Active files" icon={FileText} />
-        <KPI title="Users" value={stats?.totalUsers} subtitle="Active accounts" icon={UserCircle2} />
-        <KPI title="Tasks" value={stats?.totalTasks} subtitle={`${stats?.pendingTasks ?? 0} pending`} icon={ClipboardCheck} />
-        <KPI title="Completed Tasks" value={stats?.completedTasks} subtitle={`${stats?.completion?.tasks ?? 0}% completion`} icon={CheckCircle2} />
+        <KPI title="Documents" value={stats?.totalDocs} subtitle={`${stats?.myTotalDocs ?? 0} uploaded by you`} icon={FileText} />
+        <KPI title="Users" value={stats?.totalUsers} subtitle={`Dept: ${user?.dept_name || "General"}`} icon={UserCircle2} />
+        <KPI title="Tasks" value={stats?.totalTasks} subtitle={`${stats?.myTotalTasks ?? 0} assigned to you`} icon={ClipboardCheck} />
+        <KPI title="Completed Tasks" value={stats?.completedTasks} subtitle={`${stats?.myCompletedTasks ?? 0} completed by you`} icon={CheckCircle2} />
       </section>
 
       <section className="grid xl:grid-cols-3 gap-4">
@@ -308,7 +323,7 @@ export function DashboardPage() {
       </section>
 
       <section className="grid xl:grid-cols-2 gap-4">
-        <UsersPanel users={users} />
+        <PersonalProfilePanel user={user} stats={stats} />
         <TasksPanel tasks={tasks} />
       </section>
 

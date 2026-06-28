@@ -780,9 +780,20 @@ const reviewTask = async (req, res) => {
     const task = await getTaskById(taskId);
     if (!task) return res.status(404).json({ error: "Task not found" });
 
-    const canReview = isAdminUser(req.user) || task.assigned_by === req.user.id;
+    let isProjectOwner = false;
+    if (task.project_id) {
+      const [projectRows] = await db.query(
+        "SELECT created_by FROM projects WHERE id = ?",
+        [task.project_id]
+      );
+      if (projectRows.length > 0 && projectRows[0].created_by === req.user.id) {
+        isProjectOwner = true;
+      }
+    }
+
+    const canReview = isAdminUser(req.user) || task.assigned_by === req.user.id || isProjectOwner;
     if (!canReview) {
-      return res.status(403).json({ error: "Only the task assigner or admin can review this task" });
+      return res.status(403).json({ error: "Only the task assigner, project owner, or admin can review this task" });
     }
 
     const isCompleted = status === "approved" ? 1 : 0;

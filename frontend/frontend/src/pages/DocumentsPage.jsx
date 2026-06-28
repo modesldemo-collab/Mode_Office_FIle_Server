@@ -151,7 +151,7 @@ export function DocumentsPage() {
         </button>
         <button
           onClick={() => setUploadOpen(true)}
-          className="flex items-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold px-4 py-2.5 rounded-xl transition-all shadow-lg shadow-cyan-500/20"
+          className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold px-4 py-2.5 rounded-xl transition-all shadow-lg shadow-purple-500/20"
         >
           <Plus className="w-4 h-4" /> Upload
         </button>

@@ -37,7 +37,7 @@ export function PersonsPage() {
     <div className="space-y-5 max-w-xl">
       <div className="flex justify-end">
         <button onClick={() => setModalOpen(true)}
-          className="flex items-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold px-4 py-2.5 rounded-xl">
+          className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold px-4 py-2.5 rounded-xl transition-all shadow shadow-purple-500/20">
           <Plus className="w-4 h-4" /> Add Person
         </button>
       </div>
@@ -83,7 +83,7 @@ export function PersonsPage() {
             </select>
           </div>
           <button onClick={handleCreate} disabled={loading}
-            className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold py-3 rounded-lg disabled:opacity-50">
+            className="mt-4 w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold py-3 rounded-lg transition-all shadow-lg shadow-purple-500/20 disabled:opacity-50">
             {loading ? "Saving…" : "Add Person"}
           </button>
         </div>

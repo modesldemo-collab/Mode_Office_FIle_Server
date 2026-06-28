@@ -18,21 +18,21 @@ export function DocLogsModal({ open, onClose, docId }) {
     <Modal open={open} onClose={onClose} title="Document History" wide>
       <div className="space-y-2">
         {logs.length === 0 && (
-          <p className="text-slate-500 text-sm text-center py-8">No history found</p>
+          <p className="text-[var(--text-soft)] text-sm text-center py-8">No history found</p>
         )}
         {logs.map((l) => (
-          <div key={l.id} className="bg-slate-800/60 rounded-xl p-4 border border-slate-700/50">
+          <div key={l.id} className="bg-[var(--bg-soft)] border border-[var(--border-main)] rounded-xl p-4">
             <div className="flex items-center justify-between gap-3 flex-wrap">
               <div className="flex items-center gap-2">
                 <ActionBadge action={l.action_type} />
-                <span className="text-cyan-300 text-sm font-medium">{humanAction(l.action_type)}</span>
+                <span className="text-cyan-600 dark:text-cyan-400 text-sm font-bold">{humanAction(l.action_type)}</span>
               </div>
-              <span className="text-slate-300 text-sm font-medium">{l.editor_name || "Unknown"}</span>
-              <span className="text-slate-500 text-xs">{formatDate(l.changed_at)}</span>
+              <span className="text-[var(--text-main)] text-sm font-semibold">{l.editor_name || "Unknown"}</span>
+              <span className="text-[var(--text-soft)] text-xs">{formatDate(l.changed_at)}</span>
             </div>
             <ul className="mt-3 space-y-1">
               {buildAuditSummary(l).map((line) => (
-                <li key={line} className="text-sm text-slate-300">- {line}</li>
+                <li key={line} className="text-sm text-[var(--text-muted)]">- {line}</li>
               ))}
             </ul>
           </div>

@@ -114,6 +114,7 @@ export const ProjectsAPI = {
   update: (id, data) => api.patch(`/api/projects/${id}`, data),
   delete: (id) => api.delete(`/api/projects/${id}`),
   getAttachments: (id) => api.get(`/api/projects/${id}/attachments`),
+  getUpdates: (id) => api.get(`/api/projects/${id}/updates`),
 };
 
 export const NotificationsAPI = {
@@ -131,5 +132,15 @@ export const GovScribeAPI = {
   exportPDF: (data) => api.post("/api/govscribe/export-pdf", data, { responseType: "blob" }),
 };
 
-export default api;
+export const AssetsAPI = {
+  list: () => api.get("/api/assets"),
+  create: (formData) => api.post("/api/assets", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  }),
+  update: (id, formData) => api.put(`/api/assets/${id}`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  }),
+  delete: (id) => api.delete(`/api/assets/${id}`),
+};
 
+export default api;

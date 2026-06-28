@@ -131,6 +131,21 @@ const getDashboardStats = async (req, res) => {
     "SELECT COUNT(*) AS finalDocs FROM documents WHERE is_deleted = 0 AND status = 'final'"
   );
 
+  const [[{ myTotalDocs }]] = await db.query(
+    "SELECT COUNT(*) AS myTotalDocs FROM documents WHERE uploader_id = ? AND is_deleted = 0",
+    [req.user.id]
+  );
+
+  const [[{ myTotalTasks }]] = await db.query(
+    "SELECT COUNT(*) AS myTotalTasks FROM task_assignments WHERE user_id = ?",
+    [req.user.id]
+  );
+
+  const [[{ myCompletedTasks }]] = await db.query(
+    "SELECT COUNT(*) AS myCompletedTasks FROM task_assignments WHERE user_id = ? AND (is_completed = 1 OR approval_status = 'approved')",
+    [req.user.id]
+  );
+
   const completion = {
     documents: totalDocs ? Math.round((Number(finalDocs) / Number(totalDocs)) * 100) : 0,
     tasks: totalTasks ? Math.round((Number(completedTasks) / Number(totalTasks)) * 100) : 0,
@@ -152,6 +167,9 @@ const getDashboardStats = async (req, res) => {
     recentActivity,
     trend7d,
     completion,
+    myTotalDocs,
+    myTotalTasks,
+    myCompletedTasks,
   });
 };
 

@@ -11,6 +11,7 @@ import {
   LogOut,
   ShieldCheck,
   Sparkles,
+  Database,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { Modal } from "../components/Modal";
@@ -28,6 +29,7 @@ export const ADMIN_NAV = [
   { id: "users", label: "Users", icon: Users },
   { id: "departments", label: "Departments", icon: Building2 },
   { id: "persons", label: "Responsible Persons", icon: ShieldCheck },
+  { id: "assets", label: "Assets", icon: Database },
   { id: "logs", label: "Audit Logs", icon: ScrollText },
 ];
 
@@ -144,7 +146,7 @@ export function Sidebar({ open, onClose }) {
           </div>
           <button
             onClick={() => setPage("govscribe")}
-            className="w-full text-center text-[10px] font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl py-2 transition-colors shadow-sm shadow-indigo-600/10"
+            className="w-full text-center text-[10px] font-bold text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 rounded-xl py-2 transition-all shadow-sm shadow-purple-500/20"
           >
             Open GovScribe
           </button>
@@ -180,40 +182,40 @@ export function Sidebar({ open, onClose }) {
       </div>
 
       <Modal open={pwdOpen} onClose={() => setPwdOpen(false)} title="Change Password">
-        <div className="space-y-4">
+        <div className="space-y-3">
           <div>
-            <label className="block text-xs font-medium text-slate-400 mb-1.5 uppercase tracking-wider">Current Password</label>
+            <label className="block text-xs font-bold text-[var(--text-muted)] mb-0.5 uppercase tracking-wider">Current Password</label>
             <input
               type="password"
               value={currentPwd}
               onChange={(e) => setCurrentPwd(e.target.value)}
-              className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-cyan-500"
+              className="w-full bg-[var(--bg-soft)] border border-[var(--border-main)] rounded-xl px-4 py-2 text-[var(--text-main)] text-sm focus:outline-none focus:border-cyan-500"
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-slate-400 mb-1.5 uppercase tracking-wider">New Password</label>
+            <label className="block text-xs font-bold text-[var(--text-muted)] mb-0.5 uppercase tracking-wider">New Password</label>
             <input
               type="password"
               value={newPwd}
               onChange={(e) => setNewPwd(e.target.value)}
-              className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-cyan-500"
+              className="w-full bg-[var(--bg-soft)] border border-[var(--border-main)] rounded-xl px-4 py-2 text-[var(--text-main)] text-sm focus:outline-none focus:border-cyan-500"
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-slate-400 mb-1.5 uppercase tracking-wider">Confirm New Password</label>
+            <label className="block text-xs font-bold text-[var(--text-muted)] mb-0.5 uppercase tracking-wider">Confirm New Password</label>
             <input
               type="password"
               value={confirmPwd}
               onChange={(e) => setConfirmPwd(e.target.value)}
-              className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-cyan-500"
+              className="w-full bg-[var(--bg-soft)] border border-[var(--border-main)] rounded-xl px-4 py-2 text-[var(--text-main)] text-sm focus:outline-none focus:border-cyan-500"
             />
           </div>
-          {pwdError && <p className="text-red-400 text-sm">{pwdError}</p>}
-          {pwdSuccess && <p className="text-emerald-400 text-sm">{pwdSuccess}</p>}
+          {pwdError && <p className="text-red-500 text-sm font-semibold">{pwdError}</p>}
+          {pwdSuccess && <p className="text-emerald-600 dark:text-emerald-400 text-sm font-semibold">{pwdSuccess}</p>}
           <button
             onClick={handleChangePassword}
             disabled={pwdLoading}
-            className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold py-3 rounded-lg disabled:opacity-50"
+            className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold py-2.5 rounded-xl disabled:opacity-50 transition-all shadow-lg shadow-purple-500/20"
           >
             {pwdLoading ? "Updating..." : "Update Password"}
           </button>
