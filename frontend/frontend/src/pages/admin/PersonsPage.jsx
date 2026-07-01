@@ -4,11 +4,11 @@ import { PersonsAPI, Departments } from "../../api";
 import { Modal } from "../../components/Modal";
 
 export function PersonsPage() {
-  const [persons, setPersons]         = useState([]);
+  const [persons, setPersons] = useState([]);
   const [departments, setDepartments] = useState([]);
-  const [modalOpen, setModalOpen]     = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", dept_id: "" });
-  const [loading, setLoading]         = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const fetchAll = useCallback(() => {
     PersonsAPI.list().then((r) => setPersons(r.data));
@@ -53,7 +53,7 @@ export function PersonsPage() {
               <p className="text-[var(--text-main)] text-sm font-medium">{p.name}</p>
               {p.email && <p className="text-[var(--text-soft)] text-xs">{p.email}</p>}
             </div>
-            <span className="text-[var(--text-soft)] text-xs">{p.dept_name || "—"}</span>
+            <span className="text-[var(--text-soft)] text-xs">{p.dept_name || "-"}</span>
             <button onClick={() => handleDelete(p.id)}
               className="text-[var(--text-soft)] hover:text-red-400 p-1.5 rounded-lg hover:bg-red-500/10">
               <Trash2 className="w-4 h-4" />

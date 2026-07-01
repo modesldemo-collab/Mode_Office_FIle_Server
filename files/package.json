@@ -1,7 +1,7 @@
 {
   "name": "mde-file-management-backend",
   "version": "1.0.0",
-  "description": "Ministry of Digital Economy — File Management System Backend",
+  "description": "Ministry of Digital Economy - Digital WorkspaceBackend",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

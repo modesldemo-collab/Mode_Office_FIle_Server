@@ -2,7 +2,7 @@
  * controllers/document.controller.js
  */
 
-const fs   = require("fs");
+const fs = require("fs");
 const path = require("path");
 const { db } = require("../models/db");
 const { writeLog } = require("../utils/auditLog");
@@ -81,25 +81,24 @@ const getAll = async (req, res) => {
     conditions.push("EXISTS (SELECT 1 FROM document_shares ds WHERE ds.doc_id = d.id)");
   }
 
-  if (dept_id)   { conditions.push("d.dept_id = ?"); params.push(dept_id); }
-  if (status)    { conditions.push("d.status = ?");  params.push(status); }
+  if (dept_id) { conditions.push("d.dept_id = ?"); params.push(dept_id); }
+  if (status) { conditions.push("d.status = ?"); params.push(status); }
   if (search) {
     conditions.push("(d.doc_name LIKE ? OR d.file_name LIKE ?)");
     params.push(`%${search}%`, `%${search}%`);
   }
   if (from_date) { conditions.push("d.created_at >= ?"); params.push(from_date); }
-  if (to_date)   { conditions.push("d.created_at <= ?"); params.push(to_date + " 23:59:59"); }
+  if (to_date) { conditions.push("d.created_at <= ?"); params.push(to_date + " 23:59:59"); }
 
   const where = "WHERE " + conditions.join(" AND ");
 
   const [rows] = await db.query(
     `SELECT d.*, u.username AS uploader_name, dept.dept_name
            , (d.uploader_id = ${currentUserId}) AS is_owner
-           , ${
-             isAdmin
-               ? "0"
-               : `EXISTS (SELECT 1 FROM document_shares ds2 WHERE ds2.doc_id = d.id AND ds2.shared_with = ${currentUserId})`
-           } AS shared_with_me
+           , ${isAdmin
+      ? "0"
+      : `EXISTS (SELECT 1 FROM document_shares ds2 WHERE ds2.doc_id = d.id AND ds2.shared_with = ${currentUserId})`
+    } AS shared_with_me
            , (SELECT COUNT(*) FROM document_shares dsc WHERE dsc.doc_id = d.id) AS share_count
      FROM documents d
      LEFT JOIN users u ON d.uploader_id = u.id
@@ -129,11 +128,10 @@ const getOne = async (req, res) => {
   const [rows] = await db.query(
     `SELECT d.*, u.username AS uploader_name, dept.dept_name
             , (d.uploader_id = ${currentUserId}) AS is_owner
-            , ${
-              isAdminUser(req.user)
-                ? "0"
-                : `EXISTS (SELECT 1 FROM document_shares ds2 WHERE ds2.doc_id = d.id AND ds2.shared_with = ${currentUserId})`
-            } AS shared_with_me
+            , ${isAdminUser(req.user)
+      ? "0"
+      : `EXISTS (SELECT 1 FROM document_shares ds2 WHERE ds2.doc_id = d.id AND ds2.shared_with = ${currentUserId})`
+    } AS shared_with_me
      FROM documents d
      LEFT JOIN users u ON d.uploader_id = u.id
      LEFT JOIN departments dept ON d.dept_id = dept.id
@@ -166,7 +164,7 @@ const upload = async (req, res) => {
       req.user.id,
       dept_id || null,
       responsible_persons || "[]",
-      status  || "draft",
+      status || "draft",
     ]
   );
 
@@ -199,19 +197,19 @@ const updateMetadata = async (req, res) => {
      SET doc_name=?, dept_id=?, responsible_persons=?, status=?, updated_at=NOW()
      WHERE id = ?`,
     [
-      doc_name             ?? old.doc_name,
-      dept_id              !== undefined ? dept_id              : old.dept_id,
-      responsible_persons  !== undefined ? responsible_persons  : old.responsible_persons,
-      status               ?? old.status,
-        docId,
+      doc_name ?? old.doc_name,
+      dept_id !== undefined ? dept_id : old.dept_id,
+      responsible_persons !== undefined ? responsible_persons : old.responsible_persons,
+      status ?? old.status,
+      docId,
     ]
   );
 
-    await writeLog(docId, req.user.id, "UPDATE_METADATA", {
+  await writeLog(docId, req.user.id, "UPDATE_METADATA", {
     doc_name: old.doc_name,
-    dept_id:  old.dept_id,
+    dept_id: old.dept_id,
     responsible_persons: old.responsible_persons,
-    status:   old.status,
+    status: old.status,
   }, { doc_name, dept_id, responsible_persons, status });
 
   res.json({ message: "Updated" });
@@ -235,14 +233,14 @@ const softDelete = async (req, res) => {
   );
 
   await writeLog(docId, req.user.id, "DELETE", {
-    doc_name:  existing[0].doc_name,
+    doc_name: existing[0].doc_name,
     file_path: existing[0].file_path,
   }, null);
 
   res.json({ message: "Deleted" });
 };
 
-// GET /api/documents/:id/preview  — stream file inline
+// GET /api/documents/:id/preview  - stream file inline
 const preview = async (req, res) => {
   const docId = Number(req.params.id);
   const allowed = await hasDocumentAccess(docId, req.user);

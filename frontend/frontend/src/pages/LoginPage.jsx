@@ -6,8 +6,8 @@ export function LoginPage() {
   const { login } = useAuth();
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError]       = useState("");
-  const [loading, setLoading]   = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -40,7 +40,7 @@ export function LoginPage() {
             Ministry of Digital Economy
           </h1>
           <p className="text-[#59537a] font-bold text-xs mt-1.5 uppercase tracking-wider">
-            File Management System — Sri Lanka
+            Digital Workspace- Sri Lanka
           </p>
         </div>
 

@@ -5,15 +5,15 @@ const parseHtmlToBlocks = (html) => {
   if (!html) return [];
   const tempDiv = document.createElement("div");
   tempDiv.innerHTML = html;
-  
+
   const blocks = [];
   const children = Array.from(tempDiv.childNodes);
-  
+
   children.forEach(node => {
     if (node.nodeType === Node.ELEMENT_NODE && node.tagName === "P") {
       const phtml = node.innerHTML.trim();
       if (!phtml) return;
-      
+
       // Heuristic: if paragraph is long, try splitting into sentences to flow across pages
       if (node.textContent.length > 300) {
         const sentences = node.innerHTML.split(/(?<=[.!?])\s+/);
@@ -25,7 +25,7 @@ const parseHtmlToBlocks = (html) => {
             safeToSplit = false;
           }
         });
-        
+
         if (safeToSplit && sentences.length > 1) {
           sentences.forEach(s => {
             blocks.push(`<p>${s.trim()}</p>`);
@@ -43,7 +43,7 @@ const parseHtmlToBlocks = (html) => {
       blocks.push(`<p>${node.outerHTML}</p>`);
     }
   });
-  
+
   return blocks;
 };
 
@@ -52,8 +52,8 @@ const PAGE_HEIGHT_PT = 842;
 const PAGE_WIDTH_PT = 595.28;
 
 // Available heights for body content on Page 1 vs subsequent pages
-const PAGE_1_MAX_BODY_HEIGHT = 478; 
-const PAGE_N_MAX_BODY_HEIGHT = 670; 
+const PAGE_1_MAX_BODY_HEIGHT = 478;
+const PAGE_N_MAX_BODY_HEIGHT = 670;
 
 const SIGNATORIES_HEIGHT = 90;
 
@@ -61,11 +61,11 @@ const estimateBlockHeight = (blockHtml) => {
   const temp = document.createElement("div");
   temp.innerHTML = blockHtml;
   const text = temp.textContent || "";
-  
+
   const brCount = (blockHtml.match(/<br\s*\/?>/gi) || []).length;
   const charLines = Math.ceil(text.length / 80) || 1;
   const totalLines = charLines + brCount;
-  
+
   // Font height (11.5pt) + lineGap (3.5pt) = 15pt per line.
   // Add paragraph separation margin of 10pt.
   return totalLines * 15 + 10;
@@ -74,19 +74,19 @@ const estimateBlockHeight = (blockHtml) => {
 const paginateContent = (htmlContent, hasSignatories) => {
   const blocks = parseHtmlToBlocks(htmlContent);
   const pages = [];
-  
+
   let currentPageBlocks = [];
   let currentY = 0;
   let isPage1 = true;
-  
+
   const getPageLimit = (isFirstPage) => {
     return isFirstPage ? PAGE_1_MAX_BODY_HEIGHT : PAGE_N_MAX_BODY_HEIGHT;
   };
-  
+
   blocks.forEach((block) => {
     const blockHeight = estimateBlockHeight(block);
     const pageLimit = getPageLimit(isPage1);
-    
+
     if (currentY + blockHeight > pageLimit) {
       pages.push({
         blocks: currentPageBlocks,
@@ -101,7 +101,7 @@ const paginateContent = (htmlContent, hasSignatories) => {
       currentY += blockHeight;
     }
   });
-  
+
   const pageLimit = getPageLimit(isPage1);
   if (hasSignatories) {
     if (currentY + SIGNATORIES_HEIGHT > pageLimit) {
@@ -129,7 +129,7 @@ const paginateContent = (htmlContent, hasSignatories) => {
       showSignatories: false
     });
   }
-  
+
   return pages;
 };
 
@@ -209,7 +209,7 @@ export default function OfficialLetter({ formData, aiData, editorRef, onContentC
 
   const handlePageInput = (index, e) => {
     const newHtml = e.currentTarget.innerHTML;
-    
+
     // Update local HTML cache
     const updatedHtmls = [...localPagesHtml];
     updatedHtmls[index] = newHtml;
@@ -255,7 +255,7 @@ export default function OfficialLetter({ formData, aiData, editorRef, onContentC
                   style={getOverlayStyle(formData.refNo, 50)}
                   className="absolute left-[40mm] font-sans font-extrabold text-slate-800 tracking-wide"
                 >
-                  {formData.refNo || "—"}
+                  {formData.refNo || "-"}
                 </div>
 
                 {/* Dynamic Overlay: Your No. */}
@@ -263,7 +263,7 @@ export default function OfficialLetter({ formData, aiData, editorRef, onContentC
                   style={getOverlayStyle(formData.yourNo, 34)}
                   className="absolute left-[113mm] font-sans font-extrabold text-slate-800 tracking-wide"
                 >
-                  {formData.yourNo || "—"}
+                  {formData.yourNo || "-"}
                 </div>
 
                 {/* Dynamic Overlay: Date */}
@@ -271,7 +271,7 @@ export default function OfficialLetter({ formData, aiData, editorRef, onContentC
                   style={getOverlayStyle(formData.date, 24)}
                   className="absolute left-[170mm] font-sans font-extrabold text-slate-800 tracking-wide"
                 >
-                  {formData.date || "—"}
+                  {formData.date || "-"}
                 </div>
               </div>
             ) : (

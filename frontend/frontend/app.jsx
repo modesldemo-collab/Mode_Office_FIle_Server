@@ -1,18 +1,18 @@
 /**
  * ============================================================
- * FILE MANAGEMENT SYSTEM — FRONTEND
+ * Digital Workspace- FRONTEND
  * Ministry of Digital Economy, Sri Lanka
- * App.jsx — All UI in one file
+ * App.jsx - All UI in one file
  * ============================================================
  * Sections (ctrl+f to jump):
- *  § API          — axios helper & all API calls
- *  § AUTH         — login page + context
- *  § LAYOUT       — shell, sidebar, topbar
- *  § DASHBOARD    — stats overview
- *  § DOCUMENTS    — list, upload modal, edit modal, preview
- *  § LOGS         — audit table (TanStack Table)
- *  § ADMIN        — users, departments, persons panels
- *  § APP          — router & entry point
+ *  § API          - axios helper & all API calls
+ *  § AUTH         - login page + context
+ *  § LAYOUT       - shell, sidebar, topbar
+ *  § DASHBOARD    - stats overview
+ *  § DOCUMENTS    - list, upload modal, edit modal, preview
+ *  § LOGS         - audit table (TanStack Table)
+ *  § ADMIN        - users, departments, persons panels
+ *  § APP          - router & entry point
  * ============================================================
  */
 
@@ -220,7 +220,7 @@ function LoginPage() {
             Ministry of Digital Economy
           </h1>
           <p className="text-slate-400 text-sm mt-1">
-            File Management System — Sri Lanka
+            Digital Workspace- Sri Lanka
           </p>
         </div>
 
@@ -286,8 +286,8 @@ function Badge({ status }) {
   return (
     <span
       className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${status === "final"
-          ? "bg-emerald-900/40 text-emerald-400 border border-emerald-800/50"
-          : "bg-amber-900/40 text-amber-400 border border-amber-800/50"
+        ? "bg-emerald-900/40 text-emerald-400 border border-emerald-800/50"
+        : "bg-amber-900/40 text-amber-400 border border-amber-800/50"
         }`}
     >
       {status === "final" ? (
@@ -339,14 +339,14 @@ function FileIcon({ type }) {
 }
 
 function formatBytes(b) {
-  if (!b) return "—";
+  if (!b) return "-";
   if (b < 1024) return `${b} B`;
   if (b < 1024 ** 2) return `${(b / 1024).toFixed(1)} KB`;
   return `${(b / 1024 ** 2).toFixed(1)} MB`;
 }
 
 function formatDate(d) {
-  if (!d) return "—";
+  if (!d) return "-";
   return new Date(d).toLocaleString("en-LK", { dateStyle: "medium", timeStyle: "short" });
 }
 
@@ -368,7 +368,7 @@ function ActionBadge({ action }) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// § LAYOUT — Sidebar + Shell
+// § LAYOUT - Sidebar + Shell
 // ═══════════════════════════════════════════════════════════════
 const NavCtx = createContext(null);
 
@@ -391,8 +391,8 @@ function Sidebar({ open, onClose }) {
     <button
       onClick={() => { setPage(item.id); onClose?.(); }}
       className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${page === item.id
-          ? "bg-cyan-500/15 text-cyan-400 border border-cyan-500/30"
-          : "text-slate-400 hover:text-white hover:bg-slate-800"
+        ? "bg-cyan-500/15 text-cyan-400 border border-cyan-500/30"
+        : "text-slate-400 hover:text-white hover:bg-slate-800"
         }`}
     >
       <item.icon className="w-4 h-4 flex-shrink-0" />
@@ -413,7 +413,7 @@ function Sidebar({ open, onClose }) {
           </div>
           <div>
             <p className="text-white text-sm font-bold leading-tight">Ministry of Digital Economy</p>
-            <p className="text-slate-500 text-xs">File Management</p>
+            <p className="text-slate-500 text-xs">Digital Workspace</p>
           </div>
         </div>
       </div>
@@ -510,7 +510,7 @@ function StatCard({ label, value, icon: Icon, color }) {
       <div className="flex items-center justify-between">
         <div>
           <p className="text-slate-400 text-sm">{label}</p>
-          <p className="text-3xl font-bold text-white mt-1">{value ?? "—"}</p>
+          <p className="text-3xl font-bold text-white mt-1">{value ?? "-"}</p>
         </div>
         <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${color}`}>
           <Icon className="w-6 h-6 text-white" />
@@ -657,8 +657,8 @@ function UploadModal({ open, onClose, onSuccess, departments, persons }) {
           onDrop={handleDrop}
           onClick={() => fileRef.current?.click()}
           className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all ${dragging
-              ? "border-cyan-500 bg-cyan-500/10"
-              : "border-slate-700 hover:border-slate-500 bg-slate-800/40"
+            ? "border-cyan-500 bg-cyan-500/10"
+            : "border-slate-700 hover:border-slate-500 bg-slate-800/40"
             }`}
         >
           <input ref={fileRef} type="file" className="hidden" onChange={handleFileChange} />
@@ -683,7 +683,7 @@ function UploadModal({ open, onClose, onSuccess, departments, persons }) {
                 Drag & drop or click to select
               </p>
               <p className="text-slate-500 text-xs mt-1">
-                PDF, DOCX, XLSX, PPT, Images, Audio — up to 200 MB
+                PDF, DOCX, XLSX, PPT, Images, Audio - up to 200 MB
               </p>
             </>
           )}
@@ -723,7 +723,7 @@ function UploadModal({ open, onClose, onSuccess, departments, persons }) {
             onChange={(e) => setDeptId(e.target.value)}
             className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-cyan-500"
           >
-            <option value="">— Select Department —</option>
+            <option value="">- Select Department -</option>
             {departments.map((d) => (
               <option key={d.id} value={d.id}>{d.dept_name}</option>
             ))}
@@ -743,8 +743,8 @@ function UploadModal({ open, onClose, onSuccess, departments, persons }) {
                   type="button"
                   onClick={() => togglePerson(p.id)}
                   className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${selectedPersons.includes(p.id)
-                      ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/50"
-                      : "bg-slate-700 text-slate-400 border border-slate-600 hover:border-slate-500"
+                    ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/50"
+                    : "bg-slate-700 text-slate-400 border border-slate-600 hover:border-slate-500"
                     }`}
                 >
                   {p.name}
@@ -766,10 +766,10 @@ function UploadModal({ open, onClose, onSuccess, departments, persons }) {
                 type="button"
                 onClick={() => setStatus(s)}
                 className={`flex-1 py-2.5 rounded-lg text-sm font-medium border transition-all ${status === s
-                    ? s === "final"
-                      ? "bg-emerald-900/40 text-emerald-400 border-emerald-800/50"
-                      : "bg-amber-900/40 text-amber-400 border-amber-800/50"
-                    : "bg-slate-800 text-slate-400 border-slate-700 hover:border-slate-500"
+                  ? s === "final"
+                    ? "bg-emerald-900/40 text-emerald-400 border-emerald-800/50"
+                    : "bg-amber-900/40 text-amber-400 border-amber-800/50"
+                  : "bg-slate-800 text-slate-400 border-slate-700 hover:border-slate-500"
                   }`}
               >
                 {s === "final" ? "✓ Final" : "✎ Draft"}
@@ -862,7 +862,7 @@ function EditModal({ open, onClose, onSuccess, doc, departments, persons }) {
             onChange={(e) => setDeptId(e.target.value)}
             className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-cyan-500"
           >
-            <option value="">— Select Department —</option>
+            <option value="">- Select Department -</option>
             {departments.map((d) => (
               <option key={d.id} value={d.id}>{d.dept_name}</option>
             ))}
@@ -878,8 +878,8 @@ function EditModal({ open, onClose, onSuccess, doc, departments, persons }) {
                   type="button"
                   onClick={() => togglePerson(p.id)}
                   className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${selectedPersons.includes(p.id)
-                      ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/50"
-                      : "bg-slate-700 text-slate-400 border border-slate-600"
+                    ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/50"
+                    : "bg-slate-700 text-slate-400 border border-slate-600"
                     }`}
                 >
                   {p.name}
@@ -897,10 +897,10 @@ function EditModal({ open, onClose, onSuccess, doc, departments, persons }) {
                 type="button"
                 onClick={() => setStatus(s)}
                 className={`flex-1 py-2.5 rounded-lg text-sm font-medium border transition-all ${status === s
-                    ? s === "final"
-                      ? "bg-emerald-900/40 text-emerald-400 border-emerald-800/50"
-                      : "bg-amber-900/40 text-amber-400 border-amber-800/50"
-                    : "bg-slate-800 text-slate-400 border-slate-700"
+                  ? s === "final"
+                    ? "bg-emerald-900/40 text-emerald-400 border-emerald-800/50"
+                    : "bg-amber-900/40 text-amber-400 border-amber-800/50"
+                  : "bg-slate-800 text-slate-400 border-slate-700"
                   }`}
               >
                 {s === "final" ? "✓ Final" : "✎ Draft"}
@@ -1174,11 +1174,11 @@ function DocumentsPage() {
                       </div>
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-slate-400">{doc.dept_name || "—"}</td>
+                  <td className="px-4 py-3 text-slate-400">{doc.dept_name || "-"}</td>
                   <td className="px-4 py-3"><Badge status={doc.status} /></td>
                   <td className="px-4 py-3 text-slate-400">{formatBytes(doc.file_size)}</td>
                   <td className="px-4 py-3 text-slate-400 whitespace-nowrap">{formatDate(doc.created_at)}</td>
-                  <td className="px-4 py-3 text-slate-400">{doc.uploader_name || "—"}</td>
+                  <td className="px-4 py-3 text-slate-400">{doc.uploader_name || "-"}</td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1">
                       <button
@@ -1312,14 +1312,14 @@ function LogsPage() {
   const columnHelper = createColumnHelper();
   const columns = [
     columnHelper.accessor("id", { header: "ID", size: 60, cell: (i) => <span className="text-slate-500 text-xs">#{i.getValue()}</span> }),
-    columnHelper.accessor("doc_name", { header: "Document", cell: (i) => <span className="text-white font-medium">{i.getValue() || "—"}</span> }),
-    columnHelper.accessor("editor_name", { header: "Edited By", cell: (i) => <span className="text-slate-300">{i.getValue() || "—"}</span> }),
+    columnHelper.accessor("doc_name", { header: "Document", cell: (i) => <span className="text-white font-medium">{i.getValue() || "-"}</span> }),
+    columnHelper.accessor("editor_name", { header: "Edited By", cell: (i) => <span className="text-slate-300">{i.getValue() || "-"}</span> }),
     columnHelper.accessor("action_type", { header: "Action", cell: (i) => <ActionBadge action={i.getValue()} /> }),
     columnHelper.accessor("old_value", {
       header: "Old Value",
       cell: (i) => (
         <pre className="text-xs text-red-300/70 max-w-xs truncate">
-          {i.getValue() ? JSON.stringify(i.getValue()) : "—"}
+          {i.getValue() ? JSON.stringify(i.getValue()) : "-"}
         </pre>
       ),
     }),
@@ -1327,7 +1327,7 @@ function LogsPage() {
       header: "New Value",
       cell: (i) => (
         <pre className="text-xs text-emerald-300/70 max-w-xs truncate">
-          {i.getValue() ? JSON.stringify(i.getValue()) : "—"}
+          {i.getValue() ? JSON.stringify(i.getValue()) : "-"}
         </pre>
       ),
     }),
@@ -1443,7 +1443,7 @@ function LogsPage() {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// § ADMIN — USERS
+// § ADMIN - USERS
 // ═══════════════════════════════════════════════════════════════
 function UsersPage() {
   const [users, setUsers] = useState([]);
@@ -1514,11 +1514,11 @@ function UsersPage() {
               <tr key={u.id} className="border-b border-slate-800/50 hover:bg-slate-800/30">
                 <td className="px-4 py-3 text-white font-medium">{u.username}</td>
                 <td className="px-4 py-3 text-slate-400">{u.email}</td>
-                <td className="px-4 py-3 text-slate-400">{u.dept_name || "—"}</td>
+                <td className="px-4 py-3 text-slate-400">{u.dept_name || "-"}</td>
                 <td className="px-4 py-3">
                   <span className={`px-2 py-0.5 rounded text-xs font-medium border ${u.role === "admin"
-                      ? "bg-violet-900/40 text-violet-400 border-violet-800/50"
-                      : "bg-slate-800 text-slate-400 border-slate-700"
+                    ? "bg-violet-900/40 text-violet-400 border-violet-800/50"
+                    : "bg-slate-800 text-slate-400 border-slate-700"
                     }`}>{u.role}</span>
                 </td>
                 <td className="px-4 py-3">
@@ -1590,7 +1590,7 @@ function UsersPage() {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// § ADMIN — DEPARTMENTS
+// § ADMIN - DEPARTMENTS
 // ═══════════════════════════════════════════════════════════════
 function DepartmentsPage() {
   const [depts, setDepts] = useState([]);
@@ -1679,7 +1679,7 @@ function DepartmentsPage() {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// § ADMIN — RESPONSIBLE PERSONS
+// § ADMIN - RESPONSIBLE PERSONS
 // ═══════════════════════════════════════════════════════════════
 function PersonsPage() {
   const [persons, setPersons] = useState([]);
@@ -1730,7 +1730,7 @@ function PersonsPage() {
               <p className="text-white text-sm font-medium">{p.name}</p>
               {p.email && <p className="text-slate-500 text-xs">{p.email}</p>}
             </div>
-            <span className="text-slate-500 text-xs">{p.dept_name || "—"}</span>
+            <span className="text-slate-500 text-xs">{p.dept_name || "-"}</span>
             <button onClick={() => handleDelete(p.id)}
               className="text-slate-500 hover:text-red-400 p-1.5 rounded-lg hover:bg-red-500/10">
               <Trash2 className="w-4 h-4" />
@@ -1770,7 +1770,7 @@ function PersonsPage() {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// § APP — Main Router
+// § APP - Main Router
 // ═══════════════════════════════════════════════════════════════
 function AppRouter() {
   const { user } = useAuth();

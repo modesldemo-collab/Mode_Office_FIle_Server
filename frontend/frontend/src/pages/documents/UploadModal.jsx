@@ -8,15 +8,15 @@ import { formatBytes } from "../../utils";
 
 export function UploadModal({ open, onClose, onSuccess, departments, users }) {
   const { user } = useAuth();
-  const [file, setFile]                       = useState(null);
-  const [docName, setDocName]                 = useState("");
-  const [deptId, setDeptId]                   = useState(user?.dept_id || "");
+  const [file, setFile] = useState(null);
+  const [docName, setDocName] = useState("");
+  const [deptId, setDeptId] = useState(user?.dept_id || "");
   const [selectedUsers, setSelectedUsers] = useState([]);
-  const [status, setStatus]                   = useState("draft");
-  const [dragging, setDragging]               = useState(false);
-  const [loading, setLoading]                 = useState(false);
-  const [progress, setProgress]               = useState(0);
-  const [error, setError]                     = useState("");
+  const [status, setStatus] = useState("draft");
+  const [dragging, setDragging] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [error, setError] = useState("");
   const fileRef = useRef();
 
   const reset = () => {
@@ -48,11 +48,11 @@ export function UploadModal({ open, onClose, onSuccess, departments, users }) {
     setError(""); setLoading(true);
     try {
       const fd = new FormData();
-      fd.append("file",                file);
-      fd.append("doc_name",            docName);
-      fd.append("dept_id",             deptId || "");
+      fd.append("file", file);
+      fd.append("doc_name", docName);
+      fd.append("dept_id", deptId || "");
       fd.append("responsible_persons", JSON.stringify(selectedUsers));
-      fd.append("status",              status);
+      fd.append("status", status);
 
       await api.post("/api/documents", fd, {
         headers: { "Content-Type": "multipart/form-data" },
@@ -77,11 +77,10 @@ export function UploadModal({ open, onClose, onSuccess, departments, users }) {
           onDragLeave={() => setDragging(false)}
           onDrop={handleDrop}
           onClick={() => fileRef.current?.click()}
-          className={`border-2 border-dashed rounded-xl p-5 text-center cursor-pointer transition-all ${
-            dragging
+          className={`border-2 border-dashed rounded-xl p-5 text-center cursor-pointer transition-all ${dragging
               ? "border-cyan-500 bg-cyan-500/10"
               : "border-[var(--border-main)] hover:border-cyan-500/50 bg-[var(--bg-soft)]/50"
-          }`}
+            }`}
         >
           <input ref={fileRef} type="file" className="hidden" onChange={handleFileChange} />
           {file ? (
@@ -105,7 +104,7 @@ export function UploadModal({ open, onClose, onSuccess, departments, users }) {
                 Drag & drop or click to select
               </p>
               <p className="text-[var(--text-soft)] text-xs mt-0.5">
-                PDF, DOCX, XLSX, PPT, Images, Audio — up to 200 MB
+                PDF, DOCX, XLSX, PPT, Images, Audio - up to 200 MB
               </p>
             </>
           )}
@@ -142,7 +141,7 @@ export function UploadModal({ open, onClose, onSuccess, departments, users }) {
             onChange={(e) => setDeptId(e.target.value)}
             className="w-full bg-[var(--bg-soft)] border border-[var(--border-main)] rounded-xl px-4 py-2 text-[var(--text-main)] text-sm focus:outline-none focus:border-cyan-500"
           >
-            <option value="">— Select Department —</option>
+            <option value="">- Select Department -</option>
             {departments.map((d) => (
               <option key={d.id} value={d.id}>{d.dept_name}</option>
             ))}
@@ -160,11 +159,10 @@ export function UploadModal({ open, onClose, onSuccess, departments, users }) {
                   key={u.id}
                   type="button"
                   onClick={() => toggleUser(u.id)}
-                  className={`px-3 py-0.5 rounded-full text-xs font-medium transition-all border ${
-                    selectedUsers.includes(u.id)
+                  className={`px-3 py-0.5 rounded-full text-xs font-medium transition-all border ${selectedUsers.includes(u.id)
                       ? "bg-cyan-100 text-cyan-800 border-cyan-200 dark:bg-cyan-900/40 dark:text-cyan-400 dark:border-cyan-800/50"
                       : "bg-[var(--bg-soft)] text-[var(--text-muted)] border-[var(--border-main)] hover:border-[var(--text-soft)]"
-                  }`}
+                    }`}
                 >
                   {u.username}
                 </button>
@@ -183,13 +181,12 @@ export function UploadModal({ open, onClose, onSuccess, departments, users }) {
                 key={s}
                 type="button"
                 onClick={() => setStatus(s)}
-                className={`flex-1 py-2 rounded-xl text-sm font-medium border transition-all ${
-                  status === s
+                className={`flex-1 py-2 rounded-xl text-sm font-medium border transition-all ${status === s
                     ? s === "final"
                       ? "bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-900/40 dark:text-emerald-400 dark:border-emerald-800/50"
                       : "bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/40 dark:text-amber-400 dark:border-amber-800/50"
                     : "bg-[var(--bg-soft)] text-[var(--text-muted)] border-[var(--border-main)] hover:border-[var(--text-soft)]"
-                }`}
+                  }`}
               >
                 {s === "final" ? "✓ Final" : "✎ Draft"}
               </button>

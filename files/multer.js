@@ -1,10 +1,10 @@
 /**
- * config/multer.js — Multer storage & upload configuration
+ * config/multer.js - Multer storage & upload configuration
  */
 
 const multer = require("multer");
-const path   = require("path");
-const fs     = require("fs");
+const path = require("path");
+const fs = require("fs");
 const { UPLOAD_DIR } = require("./constants");
 
 const storage = multer.diskStorage({

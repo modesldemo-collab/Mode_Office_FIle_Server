@@ -87,8 +87,8 @@ export function Sidebar({ open, onClose }) {
     <button
       onClick={() => { setPage(item.id); onClose?.(); }}
       className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-all duration-200 ${page === item.id
-          ? "active-sidebar-tab text-[#6366f1] font-bold"
-          : "text-[#5e578c] dark:text-[#9591af] hover:text-[#2b254a] dark:hover:text-white hover:bg-white/20 dark:hover:bg-white/5 rounded-xl"
+        ? "active-sidebar-tab text-[#6366f1] font-bold"
+        : "text-[#5e578c] dark:text-[#9591af] hover:text-[#2b254a] dark:hover:text-white hover:bg-white/20 dark:hover:bg-white/5 rounded-xl"
         }`}
     >
       <item.icon className={`w-4 h-4 flex-shrink-0 transition-colors ${page === item.id ? "text-[#6366f1]" : "text-[#5e578c] dark:text-[#9591af]"}`} />
@@ -108,7 +108,7 @@ export function Sidebar({ open, onClose }) {
           </div>
           <div>
             <p className="text-[#2b254a] dark:text-white text-[12px] font-extrabold leading-tight whitespace-nowrap">MoDE</p>
-            <p className="text-[#5e578c] dark:text-[#8b85ad] text-[9px] uppercase tracking-wider font-bold">File Management</p>
+            <p className="text-[#5e578c] dark:text-[#8b85ad] text-[9px] uppercase tracking-wider font-bold">Digital Workspace</p>
           </div>
         </div>
       </div>

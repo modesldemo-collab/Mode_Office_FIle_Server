@@ -1,12 +1,12 @@
 /**
  * ============================================================
- * FILE MANAGEMENT SYSTEM — BACKEND
+ * Digital Workspace- BACKEND
  * Ministry of Digital Economy, Sri Lanka
- * server.js — Entry point
+ * server.js - Entry point
  * ============================================================
  */
 
-const app    = require("./app");
+const app = require("./app");
 const { initDB } = require("./models/db");
 
 const PORT = process.env.PORT || 5000;
@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 5000;
 initDB()
   .then(() => {
     app.listen(PORT, () =>
-      console.log(`\n🚀  MDE File Management Server running on http://localhost:${PORT}\n`)
+      console.log(`\n🚀  MDE Digital Workspace Server running on http://localhost:${PORT}\n`)
     );
   })
   .catch((err) => {

@@ -4,16 +4,16 @@ import { UsersAPI, Departments } from "../../api";
 import { Modal } from "../../components/Modal";
 
 export function UsersPage() {
-  const [users, setUsers]             = useState([]);
+  const [users, setUsers] = useState([]);
   const [departments, setDepartments] = useState([]);
-  const [modalOpen, setModalOpen]     = useState(false);
-  const [editUser, setEditUser]       = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editUser, setEditUser] = useState(null);
   const [form, setForm] = useState({
     username: "", email: "", password: "",
     dept_id: "", role: "user", is_active: 1,
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError]     = useState("");
+  const [error, setError] = useState("");
   const [pwdModalOpen, setPwdModalOpen] = useState(false);
   const [pwdUser, setPwdUser] = useState(null);
   const [newPassword, setNewPassword] = useState("");
@@ -116,13 +116,12 @@ export function UsersPage() {
               <tr key={u.id} className="border-b border-[var(--border-main)] hover:bg-[var(--bg-soft)]">
                 <td className="px-4 py-3 text-[var(--text-main)] font-medium">{u.username}</td>
                 <td className="px-4 py-3 text-[var(--text-muted)]">{u.email}</td>
-                <td className="px-4 py-3 text-[var(--text-muted)]">{u.dept_name || "—"}</td>
+                <td className="px-4 py-3 text-[var(--text-muted)]">{u.dept_name || "-"}</td>
                 <td className="px-4 py-3">
-                  <span className={`px-2 py-0.5 rounded text-xs font-medium border ${
-                    u.role === "admin"
+                  <span className={`px-2 py-0.5 rounded text-xs font-medium border ${u.role === "admin"
                       ? "bg-violet-600/10 text-violet-700 border-violet-600/30 dark:bg-violet-900/40 dark:text-violet-400 dark:border-violet-800/50"
                       : "bg-[var(--bg-soft)] text-[var(--text-main)] border-[var(--border-main)]"
-                  }`}>{u.role}</span>
+                    }`}>{u.role}</span>
                 </td>
                 <td className="px-4 py-3">
                   <span className={`w-2 h-2 rounded-full inline-block ${u.is_active ? "bg-emerald-500" : "bg-slate-300 dark:bg-slate-600"}`} />
@@ -150,7 +149,7 @@ export function UsersPage() {
         <div className="space-y-4">
           {[
             { label: "Username", key: "username", type: "text" },
-            { label: "Email",    key: "email",    type: "email" },
+            { label: "Email", key: "email", type: "email" },
             ...(!editUser ? [{ label: "Password", key: "password", type: "password" }] : []),
           ].map(({ label, key, type }) => (
             <div key={key}>

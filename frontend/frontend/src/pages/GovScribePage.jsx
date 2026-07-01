@@ -595,7 +595,7 @@ export function GovScribePage() {
                   <svg className="w-3 h-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20A10 10 0 0012 2z" />
                   </svg>
-                  For <strong className="font-bold">Bold / Italic / Underline</strong> — click inside the preview &amp; use the toolbar, or select text in the preview.
+                  For <strong className="font-bold">Bold / Italic / Underline</strong> - click inside the preview &amp; use the toolbar, or select text in the preview.
                 </p>
               </div>
 

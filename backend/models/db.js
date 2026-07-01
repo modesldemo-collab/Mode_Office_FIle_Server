@@ -1,18 +1,18 @@
 /**
- * models/db.js — MySQL connection pool and DB initialisation
+ * models/db.js - MySQL connection pool and DB initialisation
  */
 
-const mysql  = require("mysql2/promise");
+const mysql = require("mysql2/promise");
 const bcrypt = require("bcryptjs");
 
 const db = mysql.createPool({
-  host:             process.env.DB_HOST || "localhost",
-  port:             process.env.DB_PORT || 3306,
-  user:             process.env.DB_USER || "root",
-  password:         process.env.DB_PASS || "",
-  database:         process.env.DB_NAME || "mde_file_management",
+  host: process.env.DB_HOST || "localhost",
+  port: process.env.DB_PORT || 3306,
+  user: process.env.DB_USER || "root",
+  password: process.env.DB_PASS || "",
+  database: process.env.DB_NAME || "mde_file_management",
   waitForConnections: true,
-  connectionLimit:  10,
+  connectionLimit: 10,
 });
 
 async function columnExists(conn, tableName, columnName) {
@@ -337,7 +337,7 @@ async function initDB() {
     const [testProjects] = await conn.query(
       "SELECT id FROM projects WHERE created_by = ? LIMIT 1", [testUserId]
     );
-    
+
     if (testProjects.length === 0) {
       const [p1] = await conn.query(
         "INSERT INTO projects (project_name, description, created_by, deadline, status) VALUES (?,?,?,?,?)",
@@ -347,7 +347,7 @@ async function initDB() {
         "INSERT INTO projects (project_name, description, created_by, deadline, status) VALUES (?,?,?,?,?)",
         ["National E-ID System Rollout", "Implementation of the new electronic identity card system nationwide.", testUserId, "2026-10-15", "active"]
       );
-      
+
       const p1Id = p1.insertId;
       const p2Id = p2.insertId;
 

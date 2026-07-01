@@ -17,37 +17,37 @@ import { NavCtx } from "../layout/Sidebar";
 export function DocumentsPage() {
   const { user } = useAuth();
   const { setPage: setAppPage } = React.useContext(NavCtx);
-  const [docs, setDocs]               = useState([]);
-  const [total, setTotal]             = useState(0);
+  const [docs, setDocs] = useState([]);
+  const [total, setTotal] = useState(0);
   const [departments, setDepartments] = useState([]);
-  const [users, setUsers]             = useState([]);
-  const [loading, setLoading]         = useState(false);
-  const [page, setPage]               = useState(1);
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(1);
   const limit = 20;
 
-  const [search, setSearch]             = useState("");
-  const [filterDept, setFilterDept]     = useState("");
+  const [search, setSearch] = useState("");
+  const [filterDept, setFilterDept] = useState("");
   const [filterStatus, setFilterStatus] = useState("draft");
   const [filterFolder, setFilterFolder] = useState("");
-  const [fromDate, setFromDate]         = useState("");
-  const [toDate, setToDate]             = useState("");
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
 
   const [uploadOpen, setUploadOpen] = useState(false);
-  const [editDoc, setEditDoc]       = useState(null);
+  const [editDoc, setEditDoc] = useState(null);
   const [previewDoc, setPreviewDoc] = useState(null);
-  const [logsDocId, setLogsDocId]   = useState(null);
-  const [shareDoc, setShareDoc]     = useState(null);
+  const [logsDocId, setLogsDocId] = useState(null);
+  const [shareDoc, setShareDoc] = useState(null);
 
   const fetchDocs = useCallback(async () => {
     setLoading(true);
     try {
       const r = await DocsAPI.list({
         search,
-        dept_id:   filterDept,
-        status:    filterStatus,
-        folder:    filterFolder,
+        dept_id: filterDept,
+        status: filterStatus,
+        folder: filterFolder,
         from_date: fromDate,
-        to_date:   toDate,
+        to_date: toDate,
         page,
         limit,
       });
@@ -193,11 +193,11 @@ export function DocumentsPage() {
                       </div>
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-[var(--text-muted)]">{doc.dept_name || "—"}</td>
+                  <td className="px-4 py-3 text-[var(--text-muted)]">{doc.dept_name || "-"}</td>
                   <td className="px-4 py-3"><Badge status={doc.status} /></td>
                   <td className="px-4 py-3 text-[var(--text-muted)]">{formatBytes(doc.file_size)}</td>
                   <td className="px-4 py-3 text-[var(--text-muted)] whitespace-nowrap">{formatDate(doc.created_at)}</td>
-                  <td className="px-4 py-3 text-[var(--text-muted)]">{doc.uploader_name || "—"}</td>
+                  <td className="px-4 py-3 text-[var(--text-muted)]">{doc.uploader_name || "-"}</td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1">
                       <button onClick={() => setPreviewDoc(doc)} className="p-1.5 text-slate-500 hover:text-cyan-400 rounded-lg hover:bg-cyan-500/10 transition-all" title="Preview">
