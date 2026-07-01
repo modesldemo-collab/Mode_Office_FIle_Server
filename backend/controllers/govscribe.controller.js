@@ -541,8 +541,7 @@ exports.exportLetterPDF = async (req, res) => {
         doc.addPage();
       }
 
-      // Horizontal line above signatories
-      doc.strokeColor("#e2e8f0").lineWidth(0.5).moveTo(72, doc.y).lineTo(pageWidth - 72, doc.y).stroke();
+      // Removed horizontal line above signatories per request
       doc.moveDown(1);
 
       const sigY = doc.y;

@@ -8,14 +8,14 @@ const timeAgo = (dateInput) => {
   if (!dateInput) return "";
   const diffMs = new Date() - new Date(dateInput);
   const diffSecs = Math.floor(diffMs / 1000);
-  if (diffSecs < 60) return `${diffSecs} SECONDS AGO`;
+  if (diffSecs < 60) return `${diffSecs}s ago`;
   const diffMins = Math.floor(diffSecs / 60);
-  if (diffMins < 60) return `${diffMins} MINUTES AGO`;
+  if (diffMins < 60) return `${diffMins}m ago`;
   const diffHrs = Math.floor(diffMins / 60);
-  if (diffHrs < 24) return `${diffHrs} HOURS AGO`;
+  if (diffHrs < 24) return `${diffHrs}h ago`;
   const diffDays = Math.floor(diffHrs / 24);
-  if (diffDays === 1) return `YESTERDAY`;
-  return `${diffDays} DAYS AGO`;
+  if (diffDays === 1) return `yesterday`;
+  return `${diffDays}d ago`;
 };
 
 export function AssetsPage() {
@@ -341,9 +341,9 @@ export function AssetsPage() {
                     <div className={`w-2 h-2 rounded-full ${act.action_type === 'Registered' ? 'bg-emerald-500' : act.action_type === 'Maintenance Logged' ? 'bg-rose-500' : 'bg-blue-500'}`} />
                   </div>
                   <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-3 rounded border border-[var(--border-main)] bg-[var(--bg-soft)] shadow-sm">
-                    <div className="flex items-center justify-between mb-1">
-                      <h4 className="font-bold text-[var(--text-main)] text-sm">{act.action_type}</h4>
-                      <time className="text-[10px] font-medium text-[var(--text-muted)] uppercase">{timeAgo(act.created_at)}</time>
+                    <div className="flex items-center justify-between mb-1 gap-2">
+                      <h4 className="font-bold text-[var(--text-main)] text-sm truncate">{act.action_type}</h4>
+                      <time className="text-[10px] font-medium text-[var(--text-muted)] uppercase whitespace-nowrap shrink-0">{timeAgo(act.created_at)}</time>
                     </div>
                     <p className="text-xs text-[var(--text-soft)]">{act.description}</p>
                     <p className="text-[10px] text-[var(--text-muted)] mt-1 italic">by {act.user_name || 'System'}</p>

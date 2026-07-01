@@ -107,7 +107,7 @@ export function Sidebar({ open, onClose }) {
             <img src="/emblem.svg" alt="Sri Lanka National Emblem" className="w-full h-full object-contain" />
           </div>
           <div>
-            <p className="text-[#2b254a] dark:text-white text-[12px] font-extrabold leading-tight whitespace-nowrap">Ministry of Digital Economy</p>
+            <p className="text-[#2b254a] dark:text-white text-[12px] font-extrabold leading-tight whitespace-nowrap">MoDE</p>
             <p className="text-[#5e578c] dark:text-[#8b85ad] text-[9px] uppercase tracking-wider font-bold">File Management</p>
           </div>
         </div>

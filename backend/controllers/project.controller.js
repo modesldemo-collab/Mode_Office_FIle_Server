@@ -3,6 +3,7 @@
  */
 
 const { db } = require("../models/db");
+const { logProjectActivity } = require("../utils/projectLogger");
 
 const isAdminUser = (user) => user?.role === "admin";
 
@@ -137,6 +138,9 @@ const create = async (req, res) => {
       [project_name.trim(), description || null, req.user.id, deadline || null]
     );
 
+    // Activity will be logged dynamically in getProjectUpdates, but we can also log explicitly if needed.
+    // For now we rely on the dynamic project creation log in getProjectUpdates.
+
     res.status(201).json({ id: result.insertId, message: "Project created successfully" });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -188,6 +192,8 @@ const update = async (req, res) => {
 
     params.push(projectId);
     await db.query(`UPDATE projects SET ${updates.join(", ")}, updated_at = NOW() WHERE id = ?`, params);
+    
+    await logProjectActivity(projectId, req.user.id, "project_updated", "Project details were updated.");
 
     res.json({ message: "Project updated successfully" });
   } catch (err) {
@@ -325,6 +331,27 @@ const getProjectUpdates = async (req, res) => {
       user: ownerRows[0]?.username || "Manager",
       taskName: project.project_name,
       details: "Project initiated.",
+    });
+
+    // 4. Fetch explicitly logged activities
+    const [logRows] = await db.query(
+      `SELECT pa.*, u.username, t.task_name
+       FROM project_activities pa
+       LEFT JOIN users u ON u.id = pa.user_id
+       LEFT JOIN tasks t ON t.id = pa.task_id
+       WHERE pa.project_id = ?`,
+      [projectId]
+    );
+    
+    logRows.forEach((row) => {
+      activities.push({
+        type: row.action_type,
+        timestamp: row.created_at,
+        user: row.username || "System",
+        taskName: row.task_name || "Project Activity",
+        taskId: row.task_id,
+        details: row.description,
+      });
     });
 
     // Sort by timestamp DESC

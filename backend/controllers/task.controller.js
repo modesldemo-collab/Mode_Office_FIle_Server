@@ -6,6 +6,7 @@ const fs   = require("fs");
 const path = require("path");
 const { db } = require("../models/db");
 const { createNotifications } = require("../utils/notify");
+const { logProjectActivity } = require("../utils/projectLogger");
 
 const isAdminUser = (user) => user?.role === "admin";
 
@@ -42,20 +43,29 @@ const getActiveUserIds = async (userIds) => {
 };
 
 const replaceTaskAssignees = async (conn, taskId, assigneeIds, markCompleted) => {
-  await conn.query("DELETE FROM task_assignments WHERE task_id = ?", [taskId]);
-  if (!assigneeIds.length) return;
-
-  const rows = assigneeIds.map((userId) => [
-    taskId,
-    userId,
-    markCompleted ? 1 : 0,
-    markCompleted ? new Date() : null,
-  ]);
-
-  await conn.query(
-    "INSERT INTO task_assignments (task_id, user_id, is_completed, completed_at) VALUES ?",
-    [rows]
-  );
+  const [existingRows] = await conn.query("SELECT user_id FROM task_assignments WHERE task_id = ?", [taskId]);
+  const existingUserIds = existingRows.map(row => row.user_id);
+  
+  const toDelete = existingUserIds.filter(id => !assigneeIds.includes(id));
+  const toInsert = assigneeIds.filter(id => !existingUserIds.includes(id));
+  
+  if (toDelete.length > 0) {
+    await conn.query("DELETE FROM task_assignments WHERE task_id = ? AND user_id IN (?)", [taskId, toDelete]);
+  }
+  
+  if (toInsert.length > 0) {
+    const rows = toInsert.map((userId) => [
+      taskId,
+      userId,
+      markCompleted ? 1 : 0,
+      markCompleted ? new Date() : null,
+    ]);
+    
+    await conn.query(
+      "INSERT INTO task_assignments (task_id, user_id, is_completed, completed_at) VALUES ?",
+      [rows]
+    );
+  }
 };
 
 const loadTaskAssignees = async (taskIds) => {
@@ -251,6 +261,7 @@ const assignToUser = async (req, res) => {
     );
     await replaceTaskAssignees(conn, taskId, activeIds, false);
     await conn.commit();
+    await logProjectActivity(task.project_id, req.user.id, "task_assigned", `Reassigned members for task: ${task.task_name}`, task.id);
 
     await createNotifications({
       userIds: activeIds,
@@ -317,6 +328,7 @@ const updateStatus = async (req, res) => {
       [status === "completed" ? 1 : 0, status === "completed" ? 1 : 0, taskId]
     );
     await db.query("UPDATE tasks SET status = ?, updated_at = NOW() WHERE id = ?", [status, taskId]);
+    await logProjectActivity(task.project_id, req.user.id, "task_status_changed", `Changed task status to ${status}`, task.id);
     return res.json({ message: "Task status updated" });
   }
 
@@ -348,6 +360,7 @@ const updateStatus = async (req, res) => {
     [status === "completed" ? 1 : 0, status === "completed" ? 1 : 0, taskId, req.user.id]
   );
   await syncTaskOverallStatus(taskId);
+  await logProjectActivity(task.project_id, req.user.id, "task_status_changed", `Changed task status to ${status}`, task.id);
 
   res.json({ message: "Task status updated" });
 };
@@ -399,8 +412,9 @@ const updateTaskDetails = async (req, res) => {
 
     params.push(taskId);
     await db.query(`UPDATE tasks SET ${updates.join(", ")}, updated_at = NOW() WHERE id = ?`, params);
+    await logProjectActivity(task.project_id, req.user.id, "task_updated", `Updated details for task: ${task.task_name}`, task.id);
 
-    res.json({ message: "Task updated successfully" });
+    res.json({ message: "Task details updated successfully" });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

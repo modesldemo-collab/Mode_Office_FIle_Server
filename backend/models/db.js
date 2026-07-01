@@ -7,6 +7,7 @@ const bcrypt = require("bcryptjs");
 
 const db = mysql.createPool({
   host:             process.env.DB_HOST || "localhost",
+  port:             process.env.DB_PORT || 3306,
   user:             process.env.DB_USER || "root",
   password:         process.env.DB_PASS || "",
   database:         process.env.DB_NAME || "mde_file_management",
@@ -264,6 +265,21 @@ async function initDB() {
     `);
 
     await conn.query(`
+      CREATE TABLE IF NOT EXISTS project_activities (
+        id          INT AUTO_INCREMENT PRIMARY KEY,
+        project_id  INT NOT NULL,
+        user_id     INT,
+        action_type VARCHAR(50) NOT NULL,
+        description TEXT,
+        task_id     INT NULL,
+        created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
+        FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE CASCADE
+      )
+    `);
+
+    await conn.query(`
       CREATE TABLE IF NOT EXISTS asset_activities (
         id          INT AUTO_INCREMENT PRIMARY KEY,
         asset_id    INT NOT NULL,
@@ -298,6 +314,63 @@ async function initDB() {
         ["admin", "admin@mde.gov.lk", hash, "admin"]
       );
       console.log("✅  Default admin created: admin@mde.gov.lk / admin@MDE2025");
+    }
+
+    // Seed test user if none exists
+    const [testUsers] = await conn.query(
+      "SELECT id FROM users WHERE email = 'testuser@mde.gov.lk' LIMIT 1"
+    );
+    let testUserId;
+    if (testUsers.length === 0) {
+      const hash = await bcrypt.hash("test@MDE2025", 10);
+      const [res] = await conn.query(
+        "INSERT INTO users (username, email, password_hash, role) VALUES (?,?,?,?)",
+        ["testuser", "testuser@mde.gov.lk", hash, "user"]
+      );
+      testUserId = res.insertId;
+      console.log("✅  Test user created: testuser@mde.gov.lk / test@MDE2025");
+    } else {
+      testUserId = testUsers[0].id;
+    }
+
+    // Seed dummy projects for test user
+    const [testProjects] = await conn.query(
+      "SELECT id FROM projects WHERE created_by = ? LIMIT 1", [testUserId]
+    );
+    
+    if (testProjects.length === 0) {
+      const [p1] = await conn.query(
+        "INSERT INTO projects (project_name, description, created_by, deadline, status) VALUES (?,?,?,?,?)",
+        ["Digital Transformation Initiative 2026", "A strategic project to digitize government processes.", testUserId, "2026-12-31", "active"]
+      );
+      const [p2] = await conn.query(
+        "INSERT INTO projects (project_name, description, created_by, deadline, status) VALUES (?,?,?,?,?)",
+        ["National E-ID System Rollout", "Implementation of the new electronic identity card system nationwide.", testUserId, "2026-10-15", "active"]
+      );
+      
+      const p1Id = p1.insertId;
+      const p2Id = p2.insertId;
+
+      // Seed dummy tasks for test user
+      const [t1] = await conn.query(
+        "INSERT INTO tasks (project_id, task_name, assigned_by, assigned_to, deadline, status) VALUES (?,?,?,?,?,?)",
+        [p1Id, "Finalize vendor selection for cloud infrastructure", testUserId, testUserId, "2026-07-15", "pending"]
+      );
+      const [t2] = await conn.query(
+        "INSERT INTO tasks (project_id, task_name, assigned_by, assigned_to, deadline, status) VALUES (?,?,?,?,?,?)",
+        [p1Id, "Draft initial policy guidelines", testUserId, testUserId, "2026-08-01", "completed"]
+      );
+      const [t3] = await conn.query(
+        "INSERT INTO tasks (project_id, task_name, assigned_by, assigned_to, deadline, status) VALUES (?,?,?,?,?,?)",
+        [p2Id, "Review biometric security standards", testUserId, testUserId, "2026-07-10", "pending"]
+      );
+
+      // Add to task_assignments
+      await conn.query("INSERT INTO task_assignments (task_id, user_id, is_completed, completed_at) VALUES (?,?,?,?)", [t1.insertId, testUserId, 0, null]);
+      await conn.query("INSERT INTO task_assignments (task_id, user_id, is_completed, completed_at) VALUES (?,?,?,?)", [t2.insertId, testUserId, 1, new Date()]);
+      await conn.query("INSERT INTO task_assignments (task_id, user_id, is_completed, completed_at) VALUES (?,?,?,?)", [t3.insertId, testUserId, 0, null]);
+
+      console.log("✅  Test projects and tasks seeded for test user.");
     }
 
     console.log("✅  Database initialised");

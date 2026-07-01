@@ -123,7 +123,7 @@ export function TasksPage() {
         ProjectsAPI.list(),
         TasksAPI.list()
       ]);
-      setProjects(pRes.data || []);
+      setProjects((pRes.data || []).filter(p => p.status !== "completed"));
       setTasks(tRes.data || []);
     } catch (err) {
       console.error("Error loading project workspace data:", err);
@@ -406,6 +406,47 @@ export function TasksPage() {
     await fetchData();
   };
 
+  const handleCompleteProject = async (id) => {
+    if (!confirm("Are you sure you want to mark this project as completed? It will be moved to Completed Tasks & Projects.")) return;
+    setActionLoading(true);
+    try {
+      await ProjectsAPI.update(id, { status: "completed" });
+      if (selectedProjectId === id) setSelectedProjectId(null);
+      await fetchData();
+    } catch (err) {
+      alert("Failed to complete project");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleCompleteTask = async (id) => {
+    if (!confirm("Are you sure you want to end this task? It will be marked as Completed.")) return;
+    setActionLoading(true);
+    try {
+      await TasksAPI.updateStatus(id, { status: "completed" });
+      if (selectedTaskId === id) setSelectedTaskId(null);
+      await fetchData();
+    } catch (err) {
+      alert("Failed to complete task");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleRestoreTask = async (id) => {
+    if (!confirm("Are you sure you want to restore this task? It will be marked as Active.")) return;
+    setActionLoading(true);
+    try {
+      await TasksAPI.restore(id);
+      await fetchData();
+    } catch (err) {
+      alert("Failed to restore task");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   // Assignee edit
   const startEditAssignees = (task) => {
     setEditAssignees((task.assignees || []).map((a) => a.user_id));
@@ -556,12 +597,29 @@ export function TasksPage() {
             
             <div className="flex items-center gap-2">
               {isOwner && (
-                <button
-                  onClick={() => openEditTask(activeTask)}
-                  className="px-4 py-2 border border-[var(--border-main)] text-sm font-bold rounded-xl bg-[var(--bg-panel)] hover:bg-[var(--bg-soft)] text-[var(--text-main)]"
-                >
-                  Change Target Date
-                </button>
+                <>
+                  {activeTask.status === "completed" ? (
+                    <button
+                      onClick={() => handleRestoreTask(activeTask.id)}
+                      className="px-4 py-2 border border-blue-500/20 text-sm font-bold rounded-xl bg-[var(--bg-panel)] hover:bg-blue-500/10 text-blue-600 dark:text-blue-400"
+                    >
+                      Restore Task
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => handleCompleteTask(activeTask.id)}
+                      className="px-4 py-2 border border-emerald-500/20 text-sm font-bold rounded-xl bg-[var(--bg-panel)] hover:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                    >
+                      End Task
+                    </button>
+                  )}
+                  <button
+                    onClick={() => openEditTask(activeTask)}
+                    className="px-4 py-2 border border-[var(--border-main)] text-sm font-bold rounded-xl bg-[var(--bg-panel)] hover:bg-[var(--bg-soft)] text-[var(--text-main)]"
+                  >
+                    Change Target Date
+                  </button>
+                </>
               )}
             </div>
           </div>
@@ -812,8 +870,18 @@ export function TasksPage() {
                     })()}
 
                     {m.feedback && (
-                      <div className="p-3.5 bg-rose-50/70 border border-rose-200 text-rose-800 dark:bg-rose-950/20 dark:border-rose-900/30 dark:text-rose-400 rounded-xl text-sm shadow-sm">
-                        <p className="font-bold text-xs uppercase mb-1 text-rose-600 dark:text-rose-400">Correction Needed / Instructions:</p>
+                      <div className={`p-3.5 border rounded-xl text-sm shadow-sm ${
+                        m.approval_status === "approved"
+                          ? "bg-emerald-50/70 border-emerald-200 text-emerald-800 dark:bg-emerald-950/20 dark:border-emerald-900/30 dark:text-emerald-400"
+                          : "bg-rose-50/70 border-rose-200 text-rose-800 dark:bg-rose-950/20 dark:border-rose-900/30 dark:text-rose-400"
+                      }`}>
+                        <p className={`font-bold text-xs uppercase mb-1 ${
+                          m.approval_status === "approved"
+                            ? "text-emerald-600 dark:text-emerald-400"
+                            : "text-rose-600 dark:text-rose-400"
+                        }`}>
+                          {m.approval_status === "approved" ? "Supervisor Notes:" : "Correction Needed / Instructions:"}
+                        </p>
                         <p>{m.feedback}</p>
                       </div>
                     )}
@@ -919,6 +987,12 @@ export function TasksPage() {
               </button>
               {isProjectOwner && (
                 <>
+                  <button
+                    onClick={() => handleCompleteProject(activeProject.id)}
+                    className="px-3 py-2 border border-emerald-500/20 text-xs font-bold rounded-xl text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10"
+                  >
+                    End Project
+                  </button>
                   <button
                     onClick={() => openEditProject(activeProject)}
                     className="px-3 py-2 border border-[var(--border-main)] text-xs font-bold rounded-xl bg-[var(--bg-panel)] text-[var(--text-main)] hover:bg-[var(--bg-soft)]"
@@ -1038,6 +1112,13 @@ export function TasksPage() {
                           return { icon: X, color: "text-rose-500 bg-rose-500/10 border-rose-500/20" };
                         case "attachment":
                           return { icon: Paperclip, color: "text-amber-500 bg-amber-500/10 border-amber-500/20" };
+                        case "task_assigned":
+                          return { icon: Users, color: "text-blue-500 bg-blue-500/10 border-blue-500/20" };
+                        case "task_status_changed":
+                          return { icon: CheckCircle2, color: "text-emerald-500 bg-emerald-500/10 border-emerald-500/20" };
+                        case "task_updated":
+                        case "project_updated":
+                          return { icon: FileText, color: "text-indigo-500 bg-indigo-500/10 border-indigo-500/20" };
                         case "project_created":
                         default:
                           return { icon: Folder, color: "text-indigo-500 bg-indigo-500/10 border-indigo-500/20" };
@@ -1063,6 +1144,10 @@ export function TasksPage() {
                               {update.type === "attachment" && `uploaded file to`}
                               {update.type === "task_created" && `created task`}
                               {update.type === "project_created" && `initiated project`}
+                              {update.type === "task_assigned" && `assigned members to`}
+                              {update.type === "task_status_changed" && `changed status of`}
+                              {update.type === "task_updated" && `updated task`}
+                              {update.type === "project_updated" && `updated project`}
                             </span>{" "}
                             {update.taskName}
                           </p>
@@ -1346,7 +1431,7 @@ export function TasksPage() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {tasks.filter((t) => !t.project_id).map((t) => (
+                  {tasks.filter((t) => !t.project_id && t.status !== "completed").map((t) => (
                     <div
                       key={t.id}
                       onClick={() => handleOpenTaskWorkspace(t)}
@@ -1361,7 +1446,7 @@ export function TasksPage() {
                       </div>
                     </div>
                   ))}
-                  {tasks.filter((t) => !t.project_id).length === 0 && (
+                  {tasks.filter((t) => !t.project_id && t.status !== "completed").length === 0 && (
                     <div className="col-span-3 text-center py-6 text-xs text-[var(--text-soft)] italic">
                       No standalone tasks found.
                     </div>
