@@ -71,8 +71,10 @@ const getDashboardStats = async (req, res) => {
       FROM tasks t
       LEFT JOIN users ub ON ub.id = t.assigned_by
       LEFT JOIN users ut ON ut.id = t.assigned_to
+      WHERE t.assigned_to = ? OR t.assigned_by = ?
       ORDER BY t.updated_at DESC
-      LIMIT 8`
+      LIMIT 8`,
+      [req.user.id, req.user.id]
     );
 
   const [recentActivity] = await db.query(
@@ -82,8 +84,10 @@ const getDashboardStats = async (req, res) => {
      FROM document_logs l
      LEFT JOIN users u ON u.id = l.edited_by
      LEFT JOIN documents d ON d.id = l.doc_id
+     WHERE l.edited_by = ?
      ORDER BY l.changed_at DESC
-     LIMIT 8`
+     LIMIT 8`,
+     [req.user.id]
   );
 
   const [logTrendRaw] = await db.query(
@@ -146,6 +150,36 @@ const getDashboardStats = async (req, res) => {
     [req.user.id]
   );
 
+  const [[{ mySharedDocs }]] = await db.query(
+    "SELECT COUNT(*) AS count FROM document_shares WHERE shared_with = ?",
+    [req.user.id]
+  );
+
+  const [upcomingDeadlines] = await db.query(
+    `SELECT t.id, t.task_name, t.deadline, p.project_name
+     FROM tasks t
+     LEFT JOIN task_assignments ta ON ta.task_id = t.id
+     LEFT JOIN projects p ON p.id = t.project_id
+     WHERE (ta.user_id = ? OR t.assigned_to = ?) 
+       AND (ta.is_completed = 0 OR t.status = 'pending') 
+       AND t.deadline IS NOT NULL
+     GROUP BY t.id
+     ORDER BY t.deadline ASC
+     LIMIT 5`,
+    [req.user.id, req.user.id]
+  );
+
+  const [recentDocuments] = await db.query(
+    `SELECT d.id, d.doc_name, d.file_type, d.created_at, d.status
+     FROM documents d
+     LEFT JOIN document_shares ds ON ds.doc_id = d.id
+     WHERE (d.uploader_id = ? OR ds.shared_with = ?) AND d.is_deleted = 0
+     GROUP BY d.id
+     ORDER BY d.created_at DESC
+     LIMIT 5`,
+    [req.user.id, req.user.id]
+  );
+
   const completion = {
     documents: totalDocs ? Math.round((Number(finalDocs) / Number(totalDocs)) * 100) : 0,
     tasks: totalTasks ? Math.round((Number(completedTasks) / Number(totalTasks)) * 100) : 0,
@@ -170,6 +204,9 @@ const getDashboardStats = async (req, res) => {
     myTotalDocs,
     myTotalTasks,
     myCompletedTasks,
+    mySharedDocs: mySharedDocs?.count || 0,
+    upcomingDeadlines,
+    recentDocuments,
   });
 };
 

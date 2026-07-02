@@ -708,7 +708,7 @@ export function TasksPage() {
                   onChange={(e) => setSubmissionText(e.target.value)}
                   placeholder="Write a simple sentence describing your progress (e.g., Prepared the draft budget proposal and shared with coordinator)."
                   rows={5}
-                  className="w-full bg-[var(--bg-soft)]/50 border border-[var(--border-main)] rounded-xl px-4 py-3 text-[var(--text-main)] text-base focus:outline-none focus:border-blue-500 transition-all resize-none"
+                  className="w-full bg-[var(--bg-soft)] border border-[var(--border-main)] rounded-xl px-4 py-3 text-[var(--text-main)] placeholder:text-[var(--text-muted)] text-base focus:outline-none focus:border-blue-500 transition-all resize-none"
                 />
               </div>
 
