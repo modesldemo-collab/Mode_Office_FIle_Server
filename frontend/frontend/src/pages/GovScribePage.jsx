@@ -200,9 +200,16 @@ export function GovScribePage() {
 
   const getPlainText = () => {
     if (!bodyContent) return "";
+    let html = bodyContent;
+    // Replace paragraph and break tags with newlines
+    html = html.replace(/<br\s*[\/]?>/gi, "\n");
+    html = html.replace(/<\/p>/gi, "\n\n");
+    html = html.replace(/<\/div>/gi, "\n");
+    
     const tempDiv = document.createElement("div");
-    tempDiv.innerHTML = bodyContent;
-    return tempDiv.innerText || "";
+    tempDiv.innerHTML = html;
+    let text = tempDiv.textContent || tempDiv.innerText || "";
+    return text.replace(/\n{3,}/g, "\n\n").trim();
   };
 
   // 1. Auto-generate from Subject

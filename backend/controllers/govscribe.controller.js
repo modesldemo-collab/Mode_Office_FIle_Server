@@ -458,27 +458,27 @@ exports.exportLetterPDF = async (req, res) => {
       }
     };
 
-    // My No (x: 113, max width: 50mm = 141 points)
+    // My No (x: 120)
     const refNoStyle = getPdfOverlayStyle(refNo);
     doc.fontSize(refNoStyle.fontSize).font("Helvetica-Bold").fillColor("#334155");
-    doc.text(refNo || "-", 113, 143 + refNoStyle.yOffset, {
-      width: 141,
+    doc.text(refNo || "-", 120, 142 + refNoStyle.yOffset, {
+      width: 135,
       lineGap: refNoStyle.lineGap
     });
 
-    // Your No (x: 320, max width: 34mm = 96 points)
+    // Your No (x: 335)
     const yourNoStyle = getPdfOverlayStyle(yourNo);
     doc.fontSize(yourNoStyle.fontSize).font("Helvetica-Bold").fillColor("#334155");
-    doc.text(yourNo || "-", 320, 143 + yourNoStyle.yOffset, {
-      width: 96,
+    doc.text(yourNo || "-", 335, 142 + yourNoStyle.yOffset, {
+      width: 90,
       lineGap: yourNoStyle.lineGap
     });
 
-    // Date (x: 482, max width: 24mm = 68 points)
+    // Date (x: 485)
     const dateStyle = getPdfOverlayStyle(date);
     doc.fontSize(dateStyle.fontSize).font("Helvetica-Bold").fillColor("#334155");
-    doc.text(date || "-", 482, 143 + dateStyle.yOffset, {
-      width: 68,
+    doc.text(date || "-", 485, 142 + dateStyle.yOffset, {
+      width: 65,
       lineGap: dateStyle.lineGap
     });
 
@@ -504,7 +504,7 @@ exports.exportLetterPDF = async (req, res) => {
     doc.fontSize(12.5).font("Helvetica-Bold").fillColor("#0f172a");
     const subjectText = subject ? subject.toUpperCase() : "UNTITLED DOCUMENT";
     doc.text(subjectText, {
-      align: "justify",
+      align: "left",
       underline: true,
       lineGap: 3
     });

@@ -253,7 +253,7 @@ export default function OfficialLetter({ formData, aiData, editorRef, onContentC
                 {/* Dynamic Overlay: My No. */}
                 <div
                   style={getOverlayStyle(formData.refNo, 50)}
-                  className="absolute left-[40mm] font-sans font-extrabold text-slate-800 tracking-wide"
+                  className="absolute left-[43mm] font-sans font-extrabold text-slate-800 tracking-wide"
                 >
                   {formData.refNo || "-"}
                 </div>
@@ -261,7 +261,7 @@ export default function OfficialLetter({ formData, aiData, editorRef, onContentC
                 {/* Dynamic Overlay: Your No. */}
                 <div
                   style={getOverlayStyle(formData.yourNo, 34)}
-                  className="absolute left-[113mm] font-sans font-extrabold text-slate-800 tracking-wide"
+                  className="absolute left-[120mm] font-sans font-extrabold text-slate-800 tracking-wide"
                 >
                   {formData.yourNo || "-"}
                 </div>
@@ -269,7 +269,7 @@ export default function OfficialLetter({ formData, aiData, editorRef, onContentC
                 {/* Dynamic Overlay: Date */}
                 <div
                   style={getOverlayStyle(formData.date, 24)}
-                  className="absolute left-[170mm] font-sans font-extrabold text-slate-800 tracking-wide"
+                  className="absolute left-[172mm] font-sans font-extrabold text-slate-800 tracking-wide"
                 >
                   {formData.date || "-"}
                 </div>
