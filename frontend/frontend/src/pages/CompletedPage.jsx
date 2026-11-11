@@ -44,7 +44,7 @@ export function CompletedDocumentsPage() {
         </div>
         <button
           onClick={() => setPage("documents")}
-          className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-white text-sm font-semibold px-4 py-2.5 rounded-xl border border-slate-700 hover:border-cyan-500/40 transition-all whitespace-nowrap"
+          className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-all shadow-lg shadow-purple-500/20 whitespace-nowrap"
         >
           Back to Documents
         </button>

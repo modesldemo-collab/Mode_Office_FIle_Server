@@ -3,12 +3,12 @@ import { DocsAPI } from "../../api";
 import { Modal } from "../../components/Modal";
 
 export function EditModal({ open, onClose, onSuccess, doc, departments, users }) {
-  const [docName, setDocName]                 = useState("");
-  const [deptId, setDeptId]                   = useState("");
+  const [docName, setDocName] = useState("");
+  const [deptId, setDeptId] = useState("");
   const [selectedUsers, setSelectedUsers] = useState([]);
-  const [status, setStatus]                   = useState("draft");
-  const [loading, setLoading]                 = useState(false);
-  const [error, setError]                     = useState("");
+  const [status, setStatus] = useState("draft");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (doc) {
@@ -37,8 +37,8 @@ export function EditModal({ open, onClose, onSuccess, doc, departments, users })
     setError(""); setLoading(true);
     try {
       await DocsAPI.update(doc.id, {
-        doc_name:            docName,
-        dept_id:             deptId || null,
+        doc_name: docName,
+        dept_id: deptId || null,
         responsible_persons: JSON.stringify(selectedUsers),
         status,
       });
@@ -53,24 +53,24 @@ export function EditModal({ open, onClose, onSuccess, doc, departments, users })
 
   return (
     <Modal open={open} onClose={onClose} title="Edit Document Metadata">
-      <div className="space-y-5">
+      <div className="space-y-3.5">
         <div>
-          <label className="block text-xs font-medium text-slate-400 mb-2 uppercase tracking-wider">Document Name *</label>
+          <label className="block text-xs font-bold text-[var(--text-muted)] mb-1 uppercase tracking-wider">Document Name *</label>
           <input
             type="text"
             value={docName}
             onChange={(e) => setDocName(e.target.value)}
-            className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-cyan-500"
+            className="w-full bg-[var(--bg-soft)] border border-[var(--border-main)] rounded-xl px-4 py-2 text-[var(--text-main)] text-sm focus:outline-none focus:border-cyan-500"
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-slate-400 mb-2 uppercase tracking-wider">Department</label>
+          <label className="block text-xs font-bold text-[var(--text-muted)] mb-1 uppercase tracking-wider">Department</label>
           <select
             value={deptId}
             onChange={(e) => setDeptId(e.target.value)}
-            className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-cyan-500"
+            className="w-full bg-[var(--bg-soft)] border border-[var(--border-main)] rounded-xl px-4 py-2 text-[var(--text-main)] text-sm focus:outline-none focus:border-cyan-500"
           >
-            <option value="">— Select Department —</option>
+            <option value="">- Select Department -</option>
             {departments.map((d) => (
               <option key={d.id} value={d.id}>{d.dept_name}</option>
             ))}
@@ -78,18 +78,17 @@ export function EditModal({ open, onClose, onSuccess, doc, departments, users })
         </div>
         {users.length > 0 && (
           <div>
-            <label className="block text-xs font-medium text-slate-400 mb-2 uppercase tracking-wider">Related Users</label>
-            <div className="flex flex-wrap gap-2 max-h-28 overflow-y-auto bg-slate-800/50 border border-slate-700 rounded-lg p-3">
+            <label className="block text-xs font-bold text-[var(--text-muted)] mb-1 uppercase tracking-wider">Related Users</label>
+            <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto bg-[var(--bg-soft)]/50 border border-[var(--border-main)] rounded-xl p-2.5">
               {users.map((u) => (
                 <button
                   key={u.id}
                   type="button"
                   onClick={() => toggleUser(u.id)}
-                  className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
-                    selectedUsers.includes(u.id)
-                      ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/50"
-                      : "bg-slate-700 text-slate-400 border border-slate-600"
-                  }`}
+                  className={`px-3 py-0.5 rounded-full text-xs font-medium transition-all border ${selectedUsers.includes(u.id)
+                      ? "bg-cyan-100 text-cyan-800 border-cyan-200 dark:bg-cyan-900/40 dark:text-cyan-400 dark:border-cyan-800/50"
+                      : "bg-[var(--bg-soft)] text-[var(--text-muted)] border-[var(--border-main)] hover:border-[var(--text-soft)]"
+                    }`}
                 >
                   {u.username}
                 </button>
@@ -98,20 +97,19 @@ export function EditModal({ open, onClose, onSuccess, doc, departments, users })
           </div>
         )}
         <div>
-          <label className="block text-xs font-medium text-slate-400 mb-2 uppercase tracking-wider">Status</label>
-          <div className="flex gap-3">
+          <label className="block text-xs font-bold text-[var(--text-muted)] mb-1 uppercase tracking-wider">Status</label>
+          <div className="flex gap-2">
             {["draft", "final"].map((s) => (
               <button
                 key={s}
                 type="button"
                 onClick={() => setStatus(s)}
-                className={`flex-1 py-2.5 rounded-lg text-sm font-medium border transition-all ${
-                  status === s
+                className={`flex-1 py-2 rounded-xl text-sm font-medium border transition-all ${status === s
                     ? s === "final"
-                      ? "bg-emerald-900/40 text-emerald-400 border-emerald-800/50"
-                      : "bg-amber-900/40 text-amber-400 border-amber-800/50"
-                    : "bg-slate-800 text-slate-400 border-slate-700"
-                }`}
+                      ? "bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-900/40 dark:text-emerald-400 dark:border-emerald-800/50"
+                      : "bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/40 dark:text-amber-400 dark:border-amber-800/50"
+                    : "bg-[var(--bg-soft)] text-[var(--text-muted)] border-[var(--border-main)] hover:border-[var(--text-soft)]"
+                  }`}
               >
                 {s === "final" ? "✓ Final" : "✎ Draft"}
               </button>
@@ -124,7 +122,7 @@ export function EditModal({ open, onClose, onSuccess, doc, departments, users })
         <button
           onClick={handleSave}
           disabled={loading}
-          className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold py-3 rounded-lg transition-all disabled:opacity-50"
+          className="mt-4 w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold py-2.5 rounded-xl transition-all shadow-lg shadow-purple-500/20 disabled:opacity-50"
         >
           {loading ? "Saving…" : "Save Changes"}
         </button>

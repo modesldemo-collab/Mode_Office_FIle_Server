@@ -1,5 +1,5 @@
 /**
- * utils/auditLog.js — Writes a row to the document_logs table.
+ * utils/auditLog.js - Writes a row to the document_logs table.
  */
 
 const { db } = require("../models/db");
@@ -7,7 +7,7 @@ const { db } = require("../models/db");
 /**
  * @param {number} docId
  * @param {number} userId
- * @param {string} action   — e.g. 'UPLOAD', 'UPDATE_METADATA', 'DELETE'
+ * @param {string} action   - e.g. 'UPLOAD', 'UPDATE_METADATA', 'DELETE'
  * @param {object|null} oldVal
  * @param {object|null} newVal
  */

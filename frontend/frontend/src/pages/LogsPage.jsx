@@ -73,13 +73,13 @@ export function LogsPage() {
         <div className="ml-auto flex gap-2">
           <button
             onClick={LogsAPI.exportExcel}
-            className="flex items-center gap-2 px-4 py-2.5 bg-emerald-700/30 hover:bg-emerald-700/50 text-emerald-400 text-sm font-medium rounded-xl border border-emerald-700/50 transition-colors"
+            className="flex items-center gap-2 px-4 py-2.5 bg-emerald-100 hover:bg-emerald-200 text-emerald-800 dark:bg-emerald-700/30 dark:hover:bg-emerald-700/50 dark:text-emerald-400 text-sm font-medium rounded-xl border border-emerald-200 dark:border-emerald-700/50 transition-colors"
           >
             <FileSpreadsheet className="w-4 h-4" /> Export Excel
           </button>
           <button
             onClick={LogsAPI.exportPdf}
-            className="flex items-center gap-2 px-4 py-2.5 bg-red-700/30 hover:bg-red-700/50 text-red-400 text-sm font-medium rounded-xl border border-red-700/50 transition-colors"
+            className="flex items-center gap-2 px-4 py-2.5 bg-red-100 hover:bg-red-200 text-red-800 dark:bg-red-700/30 dark:hover:bg-red-700/50 dark:text-red-400 text-sm font-medium rounded-xl border border-red-200 dark:border-red-700/50 transition-colors"
           >
             <FileText className="w-4 h-4" /> Export PDF
           </button>

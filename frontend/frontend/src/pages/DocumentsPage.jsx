@@ -17,37 +17,37 @@ import { NavCtx } from "../layout/Sidebar";
 export function DocumentsPage() {
   const { user } = useAuth();
   const { setPage: setAppPage } = React.useContext(NavCtx);
-  const [docs, setDocs]               = useState([]);
-  const [total, setTotal]             = useState(0);
+  const [docs, setDocs] = useState([]);
+  const [total, setTotal] = useState(0);
   const [departments, setDepartments] = useState([]);
-  const [users, setUsers]             = useState([]);
-  const [loading, setLoading]         = useState(false);
-  const [page, setPage]               = useState(1);
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(1);
   const limit = 20;
 
-  const [search, setSearch]             = useState("");
-  const [filterDept, setFilterDept]     = useState("");
+  const [search, setSearch] = useState("");
+  const [filterDept, setFilterDept] = useState("");
   const [filterStatus, setFilterStatus] = useState("draft");
   const [filterFolder, setFilterFolder] = useState("");
-  const [fromDate, setFromDate]         = useState("");
-  const [toDate, setToDate]             = useState("");
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
 
   const [uploadOpen, setUploadOpen] = useState(false);
-  const [editDoc, setEditDoc]       = useState(null);
+  const [editDoc, setEditDoc] = useState(null);
   const [previewDoc, setPreviewDoc] = useState(null);
-  const [logsDocId, setLogsDocId]   = useState(null);
-  const [shareDoc, setShareDoc]     = useState(null);
+  const [logsDocId, setLogsDocId] = useState(null);
+  const [shareDoc, setShareDoc] = useState(null);
 
   const fetchDocs = useCallback(async () => {
     setLoading(true);
     try {
       const r = await DocsAPI.list({
         search,
-        dept_id:   filterDept,
-        status:    filterStatus,
-        folder:    filterFolder,
+        dept_id: filterDept,
+        status: filterStatus,
+        folder: filterFolder,
         from_date: fromDate,
-        to_date:   toDate,
+        to_date: toDate,
         page,
         limit,
       });
@@ -64,6 +64,17 @@ export function DocumentsPage() {
   }, []);
 
   useEffect(() => { fetchDocs(); }, [fetchDocs]);
+
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash && hash.startsWith("#view-")) {
+      const targetId = Number(hash.replace("#view-", ""));
+      window.location.hash = "";
+      DocsAPI.get(targetId)
+        .then((r) => setPreviewDoc(r.data))
+        .catch((err) => console.error("Failed to load doc from notification", err));
+    }
+  }, []);
 
   const handleDelete = async (id) => {
     if (!confirm("Delete this document? This action is logged.")) return;
@@ -90,13 +101,13 @@ export function DocumentsPage() {
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
             placeholder="Search documents…"
-            className="w-full pl-10 pr-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-sm focus:outline-none focus:border-cyan-500"
+            className="w-full pl-10 pr-4 py-2.5 bg-[var(--bg-panel)] border border-[var(--border-main)] rounded-xl text-[var(--text-main)] text-sm focus:outline-none focus:border-cyan-500"
           />
         </div>
         <select
           value={filterDept}
           onChange={(e) => { setFilterDept(e.target.value); setPage(1); }}
-          className="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-slate-300 text-sm focus:outline-none focus:border-cyan-500"
+          className="bg-[var(--bg-panel)] border border-[var(--border-main)] rounded-xl px-3 py-2.5 text-[var(--text-main)] text-sm focus:outline-none focus:border-cyan-500"
         >
           <option value="">All Departments</option>
           {departments.map((d) => (
@@ -106,7 +117,7 @@ export function DocumentsPage() {
         <select
           value={filterStatus}
           onChange={(e) => { setFilterStatus(e.target.value); setPage(1); }}
-          className="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-slate-300 text-sm focus:outline-none focus:border-cyan-500"
+          className="bg-[var(--bg-panel)] border border-[var(--border-main)] rounded-xl px-3 py-2.5 text-[var(--text-main)] text-sm focus:outline-none focus:border-cyan-500"
         >
           <option value="">All Status</option>
           <option value="draft">Draft</option>
@@ -115,49 +126,49 @@ export function DocumentsPage() {
         <select
           value={filterFolder}
           onChange={(e) => { setFilterFolder(e.target.value); setPage(1); }}
-          className="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-slate-300 text-sm focus:outline-none focus:border-cyan-500"
+          className="bg-[var(--bg-panel)] border border-[var(--border-main)] rounded-xl px-3 py-2.5 text-[var(--text-main)] text-sm focus:outline-none focus:border-cyan-500"
         >
           <option value="">{user?.role === "admin" ? "All Folder Views" : "My Folder (Own + Shared)"}</option>
           <option value="my">Uploaded By Me</option>
           <option value="shared">Shared</option>
         </select>
         <input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)}
-          className="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-slate-300 text-sm focus:outline-none focus:border-cyan-500" />
+          className="bg-[var(--bg-panel)] border border-[var(--border-main)] rounded-xl px-3 py-2.5 text-[var(--text-main)] text-sm focus:outline-none focus:border-cyan-500" />
         <input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)}
-          className="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-slate-300 text-sm focus:outline-none focus:border-cyan-500" />
+          className="bg-[var(--bg-panel)] border border-[var(--border-main)] rounded-xl px-3 py-2.5 text-[var(--text-main)] text-sm focus:outline-none focus:border-cyan-500" />
         <button
           onClick={() => { setSearch(""); setFilterDept(""); setFilterStatus(""); setFilterFolder(""); setFromDate(""); setToDate(""); setPage(1); }}
-          className="text-slate-400 hover:text-white p-2.5 rounded-xl border border-slate-700 hover:border-slate-500 transition-colors"
+          className="text-[var(--text-soft)] hover:text-[var(--text-main)] p-2.5 rounded-xl border border-[var(--border-main)] hover:border-slate-500 transition-colors"
           title="Clear filters"
         >
           <RefreshCw className="w-4 h-4" />
         </button>
         <button
           onClick={() => setAppPage("completedDocuments")}
-          className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-white font-semibold px-4 py-2.5 rounded-xl border border-slate-700 hover:border-cyan-500/40 transition-all"
+          className="flex items-center gap-2 bg-[var(--bg-soft)] hover:bg-[var(--border-main)] text-[var(--text-main)] font-semibold px-4 py-2.5 rounded-xl border border-[var(--border-main)] hover:border-cyan-500/40 transition-all"
         >
           <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Completed Documents
         </button>
         <button
           onClick={() => setUploadOpen(true)}
-          className="flex items-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold px-4 py-2.5 rounded-xl transition-all shadow-lg shadow-cyan-500/20"
+          className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold px-4 py-2.5 rounded-xl transition-all shadow-lg shadow-purple-500/20"
         >
           <Plus className="w-4 h-4" /> Upload
         </button>
       </div>
 
       {/* Table */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
+      <div className="bg-[var(--bg-panel)] border border-[var(--border-main)] rounded-2xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-slate-800 bg-slate-950/50">
-                <th className="text-left px-4 py-3 text-slate-400 font-medium">Document</th>
-                <th className="text-left px-4 py-3 text-slate-400 font-medium">Department</th>
-                <th className="text-left px-4 py-3 text-slate-400 font-medium">Status</th>
-                <th className="text-left px-4 py-3 text-slate-400 font-medium">Size</th>
-                <th className="text-left px-4 py-3 text-slate-400 font-medium">Uploaded</th>
-                <th className="text-left px-4 py-3 text-slate-400 font-medium">By</th>
+              <tr className="border-b border-[var(--border-main)] bg-[var(--bg-soft)]">
+                <th className="text-left px-4 py-3 text-[var(--text-muted)] font-medium">Document</th>
+                <th className="text-left px-4 py-3 text-[var(--text-muted)] font-medium">Department</th>
+                <th className="text-left px-4 py-3 text-[var(--text-muted)] font-medium">Status</th>
+                <th className="text-left px-4 py-3 text-[var(--text-muted)] font-medium">Size</th>
+                <th className="text-left px-4 py-3 text-[var(--text-muted)] font-medium">Uploaded</th>
+                <th className="text-left px-4 py-3 text-[var(--text-muted)] font-medium">By</th>
                 <th className="px-4 py-3" />
               </tr>
             </thead>
@@ -169,24 +180,24 @@ export function DocumentsPage() {
                 <tr><td colSpan={7} className="text-center py-12 text-slate-500">No documents found</td></tr>
               )}
               {!loading && docs.map((doc) => (
-                <tr key={doc.id} className="border-b border-slate-800/50 hover:bg-slate-800/30 transition-colors">
+                <tr key={doc.id} className="border-b border-[var(--border-main)] hover:bg-[var(--bg-soft)] transition-colors">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2.5">
                       <FileIcon type={doc.file_type} />
                       <div>
-                        <p className="text-white font-medium leading-tight">{doc.doc_name}</p>
-                        <p className="text-slate-500 text-xs">{doc.file_name}</p>
+                        <p className="text-[var(--text-main)] font-medium leading-tight">{doc.doc_name}</p>
+                        <p className="text-[var(--text-soft)] text-xs">{doc.file_name}</p>
                         {doc.shared_with_me ? (
                           <p className="text-cyan-400 text-[11px]">Shared with you</p>
                         ) : null}
                       </div>
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-slate-400">{doc.dept_name || "—"}</td>
+                  <td className="px-4 py-3 text-[var(--text-muted)]">{doc.dept_name || "-"}</td>
                   <td className="px-4 py-3"><Badge status={doc.status} /></td>
-                  <td className="px-4 py-3 text-slate-400">{formatBytes(doc.file_size)}</td>
-                  <td className="px-4 py-3 text-slate-400 whitespace-nowrap">{formatDate(doc.created_at)}</td>
-                  <td className="px-4 py-3 text-slate-400">{doc.uploader_name || "—"}</td>
+                  <td className="px-4 py-3 text-[var(--text-muted)]">{formatBytes(doc.file_size)}</td>
+                  <td className="px-4 py-3 text-[var(--text-muted)] whitespace-nowrap">{formatDate(doc.created_at)}</td>
+                  <td className="px-4 py-3 text-[var(--text-muted)]">{doc.uploader_name || "-"}</td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1">
                       <button onClick={() => setPreviewDoc(doc)} className="p-1.5 text-slate-500 hover:text-cyan-400 rounded-lg hover:bg-cyan-500/10 transition-all" title="Preview">
@@ -225,17 +236,17 @@ export function DocumentsPage() {
         </div>
 
         {totalPages > 1 && (
-          <div className="flex items-center justify-between px-4 py-3 border-t border-slate-800">
-            <p className="text-slate-500 text-sm">
+          <div className="flex items-center justify-between px-4 py-3 border-t border-[var(--border-main)]">
+            <p className="text-[var(--text-soft)] text-sm">
               Showing {(page - 1) * limit + 1}–{Math.min(page * limit, total)} of {total}
             </p>
             <div className="flex gap-2">
               <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}
-                className="px-3 py-1.5 text-sm rounded-lg bg-slate-800 text-slate-300 disabled:opacity-40 hover:bg-slate-700 transition-colors">
+                className="px-3 py-1.5 text-sm rounded-lg bg-[var(--bg-soft)] text-[var(--text-main)] disabled:opacity-40 hover:bg-[var(--border-main)] transition-colors">
                 Prev
               </button>
               <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page >= totalPages}
-                className="px-3 py-1.5 text-sm rounded-lg bg-slate-800 text-slate-300 disabled:opacity-40 hover:bg-slate-700 transition-colors">
+                className="px-3 py-1.5 text-sm rounded-lg bg-[var(--bg-soft)] text-[var(--text-main)] disabled:opacity-40 hover:bg-[var(--border-main)] transition-colors">
                 Next
               </button>
             </div>

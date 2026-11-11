@@ -77,11 +77,44 @@ export const StatsAPI = {
 export const TasksAPI = {
   list: () => api.get("/api/tasks"),
   create: (data) => api.post("/api/tasks", data),
+  update: (id, data) => api.patch(`/api/tasks/${id}/assign`, data),
   assign: (id, data) => api.patch(`/api/tasks/${id}/assign`, data),
+  updateDetails: (id, data) => api.patch(`/api/tasks/${id}`, data),
   selfAssign: (id) => api.patch(`/api/tasks/${id}/self-assign`),
   updateStatus: (id, data) => api.patch(`/api/tasks/${id}/status`, data),
   restore: (id) => api.patch(`/api/tasks/${id}/restore`),
   delete: (id) => api.delete(`/api/tasks/${id}`),
+  // New attachments & review endpoints
+  uploadAttachment: (id, formData) =>
+    api.post(`/api/tasks/${id}/attachments`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    }),
+  getAttachments: (id) => api.get(`/api/tasks/${id}/attachments`),
+  deleteAttachment: (attachmentId) => api.delete(`/api/tasks/attachments/${attachmentId}`),
+  submitForReview: (id, data) => {
+    if (data instanceof FormData) {
+      return api.patch(`/api/tasks/${id}/submit`, data, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+    }
+    return api.patch(`/api/tasks/${id}/submit`, data);
+  },
+  reviewTask: (id, data) => api.patch(`/api/tasks/${id}/review`, data),
+  downloadAttachmentUrl: (attachmentId) =>
+    `${BASE_URL}/api/tasks/attachments/${attachmentId}/download?token=${encodeURIComponent(localStorage.getItem("mde_token") || "")}`,
+  previewAttachmentUrl: (attachmentId) =>
+    `${BASE_URL}/api/tasks/attachments/${attachmentId}/preview?token=${encodeURIComponent(localStorage.getItem("mde_token") || "")}`,
+  downloadAssignmentAttachmentUrl: (taskId, userId) =>
+    `${BASE_URL}/api/tasks/${taskId}/assignments/${userId}/download?token=${encodeURIComponent(localStorage.getItem("mde_token") || "")}`,
+};
+
+export const ProjectsAPI = {
+  list: () => api.get("/api/projects"),
+  create: (data) => api.post("/api/projects", data),
+  update: (id, data) => api.patch(`/api/projects/${id}`, data),
+  delete: (id) => api.delete(`/api/projects/${id}`),
+  getAttachments: (id) => api.get(`/api/projects/${id}/attachments`),
+  getUpdates: (id) => api.get(`/api/projects/${id}/updates`),
 };
 
 export const NotificationsAPI = {
@@ -99,5 +132,15 @@ export const GovScribeAPI = {
   exportPDF: (data) => api.post("/api/govscribe/export-pdf", data, { responseType: "blob" }),
 };
 
-export default api;
+export const AssetsAPI = {
+  list: () => api.get("/api/assets"),
+  create: (formData) => api.post("/api/assets", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  }),
+  update: (id, formData) => api.put(`/api/assets/${id}`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  }),
+  delete: (id) => api.delete(`/api/assets/${id}`),
+};
 
+export default api;

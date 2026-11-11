@@ -1,9 +1,9 @@
 /**
- * config/constants.js — App-wide constants
+ * config/constants.js - App-wide constants
  */
 
 const path = require("path");
-const fs   = require("fs");
+const fs = require("fs");
 
 const UPLOAD_DIR = process.env.UPLOAD_DIR || path.join(__dirname, "..", "uploads");
 const JWT_SECRET = process.env.JWT_SECRET || "mde_sri_lanka_secret_2025";

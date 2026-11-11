@@ -7,7 +7,7 @@ const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = require("../config/constants");
 
 /**
- * authenticate — verifies JWT from Authorization header or ?token= query param.
+ * authenticate - verifies JWT from Authorization header or ?token= query param.
  * Attaches decoded payload to req.user on success.
  */
 const authenticate = (req, res, next) => {
@@ -25,7 +25,7 @@ const authenticate = (req, res, next) => {
 };
 
 /**
- * adminOnly — must be used AFTER authenticate.
+ * adminOnly - must be used AFTER authenticate.
  * Rejects non-admin callers with 403.
  */
 const adminOnly = (req, res, next) => {

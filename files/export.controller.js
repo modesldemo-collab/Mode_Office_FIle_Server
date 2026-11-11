@@ -3,18 +3,18 @@
  * Handles Excel and PDF export of the audit log.
  */
 
-const ExcelJS     = require("exceljs");
+const ExcelJS = require("exceljs");
 const PDFDocument = require("pdfkit");
 const { db } = require("../models/db");
 
 // GET /api/export/logs/excel
 const exportExcel = async (req, res) => {
   const { from_date, to_date } = req.query;
-  const params     = [];
+  const params = [];
   const conditions = [];
 
   if (from_date) { conditions.push("l.changed_at >= ?"); params.push(from_date); }
-  if (to_date)   { conditions.push("l.changed_at <= ?"); params.push(to_date + " 23:59:59"); }
+  if (to_date) { conditions.push("l.changed_at <= ?"); params.push(to_date + " 23:59:59"); }
 
   const where = conditions.length ? "WHERE " + conditions.join(" AND ") : "";
 
@@ -30,17 +30,17 @@ const exportExcel = async (req, res) => {
   );
 
   const workbook = new ExcelJS.Workbook();
-  workbook.creator = "MDE File Management System";
+  workbook.creator = "MDE Digital Workspace System";
   const sheet = workbook.addWorksheet("Audit Log");
 
   sheet.columns = [
-    { header: "Log ID",    key: "id",          width: 8  },
-    { header: "Document",  key: "doc_name",     width: 30 },
-    { header: "Edited By", key: "editor",       width: 20 },
-    { header: "Action",    key: "action_type",  width: 20 },
-    { header: "Old Value", key: "old_value",    width: 40 },
-    { header: "New Value", key: "new_value",    width: 40 },
-    { header: "Timestamp", key: "changed_at",   width: 25 },
+    { header: "Log ID", key: "id", width: 8 },
+    { header: "Document", key: "doc_name", width: 30 },
+    { header: "Edited By", key: "editor", width: 20 },
+    { header: "Action", key: "action_type", width: 20 },
+    { header: "Old Value", key: "old_value", width: 40 },
+    { header: "New Value", key: "new_value", width: 40 },
+    { header: "Timestamp", key: "changed_at", width: 25 },
   ];
 
   sheet.getRow(1).font = { bold: true, color: { argb: "FFFFFFFF" } };
@@ -51,13 +51,13 @@ const exportExcel = async (req, res) => {
 
   rows.forEach((r) => {
     sheet.addRow({
-      id:          r.id,
-      doc_name:    r.doc_name,
-      editor:      r.editor,
+      id: r.id,
+      doc_name: r.doc_name,
+      editor: r.editor,
       action_type: r.action_type,
-      old_value:   JSON.stringify(r.old_value),
-      new_value:   JSON.stringify(r.new_value),
-      changed_at:  new Date(r.changed_at).toLocaleString(),
+      old_value: JSON.stringify(r.old_value),
+      new_value: JSON.stringify(r.new_value),
+      changed_at: new Date(r.changed_at).toLocaleString(),
     });
   });
 
@@ -86,7 +86,7 @@ const exportPDF = async (req, res) => {
   res.setHeader("Content-Disposition", "attachment; filename=audit_log.pdf");
   doc.pipe(res);
 
-  doc.fontSize(16).text("Ministry of Digital Economy — Audit Log", { align: "center" });
+  doc.fontSize(16).text("Ministry of Digital Economy - Audit Log", { align: "center" });
   doc.moveDown();
   doc.fontSize(9);
 

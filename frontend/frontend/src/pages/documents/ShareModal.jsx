@@ -73,8 +73,8 @@ export function ShareModal({ open, onClose, onSuccess, doc, users }) {
 
   return (
     <Modal open={open} onClose={onClose} title={`Share: ${doc?.doc_name || "Document"}`}>
-      <div className="space-y-4">
-        <p className="text-sm text-slate-400">
+      <div className="space-y-3">
+        <p className="text-sm text-[var(--text-muted)]">
           Select users who can see this file in their Documents folder.
         </p>
 
@@ -83,12 +83,12 @@ export function ShareModal({ open, onClose, onSuccess, doc, users }) {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search users by name/email/department"
-          className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-cyan-500"
+          className="w-full bg-[var(--bg-soft)] border border-[var(--border-main)] rounded-xl px-4 py-2 text-[var(--text-main)] text-sm focus:outline-none focus:border-cyan-500"
         />
 
-        <div className="max-h-64 overflow-y-auto bg-slate-800/40 border border-slate-700 rounded-lg p-2 space-y-2">
+        <div className="max-h-48 overflow-y-auto bg-[var(--bg-soft)]/40 border border-[var(--border-main)] rounded-xl p-2 space-y-1.5">
           {filteredUsers.length === 0 && (
-            <p className="text-sm text-slate-500 px-2 py-4 text-center">No users found</p>
+            <p className="text-sm text-[var(--text-soft)] px-2 py-4 text-center">No users found</p>
           )}
 
           {filteredUsers.map((u) => {
@@ -96,22 +96,22 @@ export function ShareModal({ open, onClose, onSuccess, doc, users }) {
             return (
               <label
                 key={u.id}
-                className={`flex items-start gap-3 px-3 py-2 rounded-lg border cursor-pointer transition-colors ${
+                className={`flex items-start gap-3 px-3 py-1.5 rounded-xl border cursor-pointer transition-colors ${
                   checked
-                    ? "border-cyan-500/40 bg-cyan-500/10"
-                    : "border-slate-700 hover:border-slate-500 bg-slate-900/40"
+                    ? "border-cyan-500/40 bg-cyan-500/10 dark:border-cyan-500/30 dark:bg-cyan-500/10"
+                    : "border-[var(--border-main)] hover:border-[var(--text-soft)] bg-[var(--bg-soft)]/20"
                 }`}
               >
                 <input
                   type="checkbox"
                   checked={checked}
                   onChange={() => toggleUser(u.id)}
-                  className="mt-0.5"
+                  className="mt-1"
                 />
                 <div className="min-w-0">
-                  <p className="text-sm text-white font-medium">{u.username}</p>
-                  <p className="text-xs text-slate-400 truncate">{u.email}</p>
-                  <p className="text-xs text-slate-500">{u.dept_name || "No department"}</p>
+                  <p className="text-sm text-[var(--text-main)] font-semibold">{u.username}</p>
+                  <p className="text-xs text-[var(--text-muted)] truncate">{u.email}</p>
+                  <p className="text-xs text-[var(--text-soft)]">{u.dept_name || "No department"}</p>
                 </div>
               </label>
             );
@@ -127,7 +127,7 @@ export function ShareModal({ open, onClose, onSuccess, doc, users }) {
         <button
           onClick={handleSave}
           disabled={loading}
-          className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold py-3 rounded-lg transition-all disabled:opacity-50"
+          className="mt-4 w-full flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold py-2.5 rounded-xl transition-all shadow-lg shadow-purple-500/20 disabled:opacity-50"
         >
           <Send className="w-4 h-4" />
           {loading ? "Saving shares..." : "Save Sharing"}

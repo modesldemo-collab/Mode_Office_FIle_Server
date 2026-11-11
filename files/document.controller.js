@@ -2,7 +2,7 @@
  * controllers/document.controller.js
  */
 
-const fs   = require("fs");
+const fs = require("fs");
 const path = require("path");
 const { db } = require("../models/db");
 const { writeLog } = require("../utils/auditLog");
@@ -19,14 +19,14 @@ const getAll = async (req, res) => {
   const params = [];
   const conditions = ["d.is_deleted = 0"];
 
-  if (dept_id)   { conditions.push("d.dept_id = ?"); params.push(dept_id); }
-  if (status)    { conditions.push("d.status = ?");  params.push(status); }
+  if (dept_id) { conditions.push("d.dept_id = ?"); params.push(dept_id); }
+  if (status) { conditions.push("d.status = ?"); params.push(status); }
   if (search) {
     conditions.push("(d.doc_name LIKE ? OR d.file_name LIKE ?)");
     params.push(`%${search}%`, `%${search}%`);
   }
   if (from_date) { conditions.push("d.created_at >= ?"); params.push(from_date); }
-  if (to_date)   { conditions.push("d.created_at <= ?"); params.push(to_date + " 23:59:59"); }
+  if (to_date) { conditions.push("d.created_at <= ?"); params.push(to_date + " 23:59:59"); }
 
   const where = "WHERE " + conditions.join(" AND ");
 
@@ -85,7 +85,7 @@ const upload = async (req, res) => {
       req.user.id,
       dept_id || null,
       responsible_persons || "[]",
-      status  || "draft",
+      status || "draft",
     ]
   );
 
@@ -114,19 +114,19 @@ const updateMetadata = async (req, res) => {
      SET doc_name=?, dept_id=?, responsible_persons=?, status=?, updated_at=NOW()
      WHERE id = ?`,
     [
-      doc_name             ?? old.doc_name,
-      dept_id              !== undefined ? dept_id              : old.dept_id,
-      responsible_persons  !== undefined ? responsible_persons  : old.responsible_persons,
-      status               ?? old.status,
+      doc_name ?? old.doc_name,
+      dept_id !== undefined ? dept_id : old.dept_id,
+      responsible_persons !== undefined ? responsible_persons : old.responsible_persons,
+      status ?? old.status,
       req.params.id,
     ]
   );
 
   await writeLog(req.params.id, req.user.id, "UPDATE_METADATA", {
     doc_name: old.doc_name,
-    dept_id:  old.dept_id,
+    dept_id: old.dept_id,
     responsible_persons: old.responsible_persons,
-    status:   old.status,
+    status: old.status,
   }, { doc_name, dept_id, responsible_persons, status });
 
   res.json({ message: "Updated" });
@@ -146,14 +146,14 @@ const softDelete = async (req, res) => {
   );
 
   await writeLog(req.params.id, req.user.id, "DELETE", {
-    doc_name:  existing[0].doc_name,
+    doc_name: existing[0].doc_name,
     file_path: existing[0].file_path,
   }, null);
 
   res.json({ message: "Deleted" });
 };
 
-// GET /api/documents/:id/preview  — stream file inline
+// GET /api/documents/:id/preview  - stream file inline
 const preview = async (req, res) => {
   const [rows] = await db.query(
     "SELECT file_path, file_name FROM documents WHERE id = ? AND is_deleted = 0",

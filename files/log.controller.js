@@ -4,7 +4,7 @@
 
 const { db } = require("../models/db");
 
-// GET /api/logs  — full audit log with filters
+// GET /api/logs  - full audit log with filters
 const getAll = async (req, res) => {
   const {
     doc_id, user_id, action_type,
@@ -16,11 +16,11 @@ const getAll = async (req, res) => {
   const params = [];
   const conditions = [];
 
-  if (doc_id)      { conditions.push("l.doc_id = ?");      params.push(doc_id); }
-  if (user_id)     { conditions.push("l.edited_by = ?");   params.push(user_id); }
+  if (doc_id) { conditions.push("l.doc_id = ?"); params.push(doc_id); }
+  if (user_id) { conditions.push("l.edited_by = ?"); params.push(user_id); }
   if (action_type) { conditions.push("l.action_type = ?"); params.push(action_type); }
-  if (from_date)   { conditions.push("l.changed_at >= ?"); params.push(from_date); }
-  if (to_date)     { conditions.push("l.changed_at <= ?"); params.push(to_date + " 23:59:59"); }
+  if (from_date) { conditions.push("l.changed_at >= ?"); params.push(from_date); }
+  if (to_date) { conditions.push("l.changed_at <= ?"); params.push(to_date + " 23:59:59"); }
 
   const where = conditions.length ? "WHERE " + conditions.join(" AND ") : "";
 
@@ -43,7 +43,7 @@ const getAll = async (req, res) => {
   res.json({ data: rows, total });
 };
 
-// GET /api/logs/:docId  — logs for a single document
+// GET /api/logs/:docId  - logs for a single document
 const getByDocument = async (req, res) => {
   const [rows] = await db.query(
     `SELECT l.*, u.username AS editor_name

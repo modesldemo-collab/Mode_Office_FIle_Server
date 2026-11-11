@@ -77,7 +77,7 @@ function generateAdvancedMockImprovement(content) {
 
   const lines = polished.split("\n").map(line => line.trim()).filter(Boolean);
   let finalPolished = "";
-  
+
   if (lines.length > 0) {
     // Structure like a formal government document improvement
     finalPolished = `We write to formally address the correspondence previously submitted. In accordance with the standard protocols of the Ministry, the content has been refined for administrative clarity and formal presentation:
@@ -181,7 +181,7 @@ exports.generate = async (req, res) => {
       return res.json(mockResult);
     }
 
-    const systemInstruction = 
+    const systemInstruction =
       "You are an elite Government Administrative AI Assistant operating in a high-level official state office. Your task is to draft formal, official correspondence that matches the administrative templates of ministries and state departments. Structure the letter with: an introduction paragraph presenting the request, a detailed rationale paragraph supporting it, and a polite, formal conclusion paragraph. Use passive voice, highly formal administrative vocabulary, and avoid abbreviations. Output strictly in JSON format without markdown. Schema: { \"content\": \"String containing the body paragraphs separated by double-newlines.\" }";
 
     const model = getGeminiModel(systemInstruction);
@@ -210,8 +210,8 @@ Write only the body paragraphs. Ensure a highly formal, government-appropriate t
       const mockResult = generateAdvancedMockLetter(req.body.subject, req.body.recipientDesignation, req.body.recipientCompany);
       return res.json(mockResult);
     }
-    return res.status(500).json({ 
-      error: error.message || "Failed to generate letter content due to an internal server error." 
+    return res.status(500).json({
+      error: error.message || "Failed to generate letter content due to an internal server error."
     });
   }
 };
@@ -233,7 +233,7 @@ exports.improve = async (req, res) => {
       return res.json(mockResult);
     }
 
-    const systemInstruction = 
+    const systemInstruction =
       "You are an elite Government Administrative AI Assistant. Improve the provided official correspondence text. Enhance the syntax to use passive voice, sophisticated formal vocabulary, and clear transition phrases suitable for high-level civil service communications. Resolve all grammar, punctuation, and structural sub-optimalities. Output strictly in JSON format without markdown. Schema: { \"content\": \"String containing the improved text.\" }";
 
     const model = getGeminiModel(systemInstruction);
@@ -256,8 +256,8 @@ exports.improve = async (req, res) => {
       const mockResult = generateAdvancedMockImprovement(req.body.content);
       return res.json(mockResult);
     }
-    return res.status(500).json({ 
-      error: error.message || "Failed to improve content due to an internal server error." 
+    return res.status(500).json({
+      error: error.message || "Failed to improve content due to an internal server error."
     });
   }
 };
@@ -279,7 +279,7 @@ exports.audit = async (req, res) => {
       return res.json(mockResult);
     }
 
-    const systemInstruction = 
+    const systemInstruction =
       "You are an elite Government Document Auditor. Audit the provided letter text for spelling errors, formatting issues, and tone concerns (such as informal language, overly active phrasing, or colloquialisms). Identify each issue precisely and suggest a professional fix. Output strictly in JSON format without markdown. Schema: { \"errors\": [ { \"type\": \"Grammar\" | \"Tone\" | \"Format\", \"issue\": \"Specific description of the mistake\", \"suggestion\": \"Clear recommended revision\" } ] }";
 
     const model = getGeminiModel(systemInstruction);
@@ -302,8 +302,8 @@ exports.audit = async (req, res) => {
       const mockResult = generateAdvancedMockAudit(req.body.content);
       return res.json(mockResult);
     }
-    return res.status(500).json({ 
-      error: error.message || "Failed to audit content due to an internal server error." 
+    return res.status(500).json({
+      error: error.message || "Failed to audit content due to an internal server error."
     });
   }
 };
@@ -458,27 +458,27 @@ exports.exportLetterPDF = async (req, res) => {
       }
     };
 
-    // My No (x: 113, max width: 50mm = 141 points)
+    // My No (x: 120)
     const refNoStyle = getPdfOverlayStyle(refNo);
     doc.fontSize(refNoStyle.fontSize).font("Helvetica-Bold").fillColor("#334155");
-    doc.text(refNo || "—", 113, 143 + refNoStyle.yOffset, {
-      width: 141,
+    doc.text(refNo || "-", 120, 142 + refNoStyle.yOffset, {
+      width: 135,
       lineGap: refNoStyle.lineGap
     });
 
-    // Your No (x: 320, max width: 34mm = 96 points)
+    // Your No (x: 335)
     const yourNoStyle = getPdfOverlayStyle(yourNo);
     doc.fontSize(yourNoStyle.fontSize).font("Helvetica-Bold").fillColor("#334155");
-    doc.text(yourNo || "—", 320, 143 + yourNoStyle.yOffset, {
-      width: 96,
+    doc.text(yourNo || "-", 335, 142 + yourNoStyle.yOffset, {
+      width: 90,
       lineGap: yourNoStyle.lineGap
     });
 
-    // Date (x: 482, max width: 24mm = 68 points)
+    // Date (x: 485)
     const dateStyle = getPdfOverlayStyle(date);
     doc.fontSize(dateStyle.fontSize).font("Helvetica-Bold").fillColor("#334155");
-    doc.text(date || "—", 482, 143 + dateStyle.yOffset, {
-      width: 68,
+    doc.text(date || "-", 485, 142 + dateStyle.yOffset, {
+      width: 65,
       lineGap: dateStyle.lineGap
     });
 
@@ -504,7 +504,7 @@ exports.exportLetterPDF = async (req, res) => {
     doc.fontSize(12.5).font("Helvetica-Bold").fillColor("#0f172a");
     const subjectText = subject ? subject.toUpperCase() : "UNTITLED DOCUMENT";
     doc.text(subjectText, {
-      align: "justify",
+      align: "left",
       underline: true,
       lineGap: 3
     });
@@ -513,7 +513,7 @@ exports.exportLetterPDF = async (req, res) => {
     // Write Body paragraphs
     doc.fontSize(11.5).font("Times-Roman").fillColor("#1e293b");
     const paragraphs = bodyContent ? bodyContent.split("\n\n").map(p => p.trim()).filter(Boolean) : [];
-    
+
     if (paragraphs.length === 0) {
       doc.font("Times-Italic").fillColor("#94a3b8").text("No letter content drafted.", { align: "center" });
     } else {
@@ -534,15 +534,14 @@ exports.exportLetterPDF = async (req, res) => {
 
     if (hasLeftSignatory || hasRightSignatory) {
       doc.moveDown(2);
-      
+
       // Check Y position: Signatories need about 80 points.
       // If current cursor Y exceeds 660, start signatories on a fresh page to prevent overflow clipping.
       if (doc.y > 660) {
         doc.addPage();
       }
 
-      // Horizontal line above signatories
-      doc.strokeColor("#e2e8f0").lineWidth(0.5).moveTo(72, doc.y).lineTo(pageWidth - 72, doc.y).stroke();
+      // Removed horizontal line above signatories per request
       doc.moveDown(1);
 
       const sigY = doc.y;
@@ -553,9 +552,9 @@ exports.exportLetterPDF = async (req, res) => {
         if (signatoryLeftName) {
           doc.fontSize(11).font("Times-Italic").fillColor("#3730a3");
           doc.text(`Sgd / ${signatoryLeftName.split(" ")[0]}`, 72, sigY, { width: blockWidth });
-          
+
           doc.strokeColor("#cbd5e1").lineWidth(0.5).moveTo(72, sigY + 16).lineTo(72 + 150, sigY + 16).stroke();
-          
+
           doc.fontSize(11).font("Helvetica-Bold").fillColor("#0f172a");
           doc.text(signatoryLeftName, 72, sigY + 24, { width: blockWidth });
         }
@@ -571,9 +570,9 @@ exports.exportLetterPDF = async (req, res) => {
         if (signatoryRightName) {
           doc.fontSize(11).font("Times-Italic").fillColor("#3730a3");
           doc.text(`Sgd / ${signatoryRightName.split(" ")[0]}`, rightSigX, sigY, { align: "right", width: blockWidth });
-          
+
           doc.strokeColor("#cbd5e1").lineWidth(0.5).moveTo(pageWidth - 72 - 150, sigY + 16).lineTo(pageWidth - 72, sigY + 16).stroke();
-          
+
           doc.fontSize(11).font("Helvetica-Bold").fillColor("#0f172a");
           doc.text(signatoryRightName, rightSigX, sigY + 24, { align: "right", width: blockWidth });
         }
@@ -592,11 +591,11 @@ exports.exportLetterPDF = async (req, res) => {
         if (i === range.start) continue;
 
         doc.switchToPage(i);
-        
+
         // Temporarily set bottom margin to 0 to prevent text drawing from triggering a page break
         const oldBottomMargin = doc.page.margins.bottom;
         doc.page.margins.bottom = 0;
-        
+
         // Page numbering drawn in footer
         doc.fontSize(8).font("Helvetica").fillColor("#64748b");
         doc.text(
@@ -605,7 +604,7 @@ exports.exportLetterPDF = async (req, res) => {
           pageHeight - 80,
           { align: "right", width: pageWidth - 144 }
         );
-        
+
         // Restore bottom margin
         doc.page.margins.bottom = oldBottomMargin;
       }
