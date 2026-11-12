@@ -2,18 +2,51 @@
  * models/db.js - MySQL connection pool and DB initialisation
  */
 
+const fs = require("fs");
+const path = require("path");
 const mysql = require("mysql2/promise");
 const bcrypt = require("bcryptjs");
 
-const db = mysql.createPool({
+function getSslConfig() {
+  if (process.env.DB_SSL_CA) {
+    const caPath = path.resolve(__dirname, "..", process.env.DB_SSL_CA);
+    if (fs.existsSync(caPath)) {
+      return { ca: fs.readFileSync(caPath), rejectUnauthorized: true };
+    }
+    return { rejectUnauthorized: false };
+  }
+  if (
+    process.env.DB_HOST &&
+    process.env.DB_HOST !== "localhost" &&
+    process.env.DB_HOST !== "127.0.0.1"
+  ) {
+    return { rejectUnauthorized: false };
+  }
+  return undefined;
+}
+
+const dbConfig = {
   host: process.env.DB_HOST || "localhost",
-  port: process.env.DB_PORT || 3306,
+  port: Number(process.env.DB_PORT) || 3306,
   user: process.env.DB_USER || "root",
-  password: process.env.DB_PASS || "",
+  password: process.env.DB_PASSWORD ?? process.env.DB_PASS ?? "",
   database: process.env.DB_NAME || "mde_file_management",
+  ssl: getSslConfig(),
   waitForConnections: true,
   connectionLimit: 10,
-});
+};
+
+const db = mysql.createPool(dbConfig);
+
+async function ensureDatabaseExists() {
+  const { database, waitForConnections, connectionLimit, ...baseConfig } = dbConfig;
+  const conn = await mysql.createConnection(baseConfig);
+  try {
+    await conn.query(`CREATE DATABASE IF NOT EXISTS \`${database}\``);
+  } finally {
+    await conn.end();
+  }
+}
 
 async function columnExists(conn, tableName, columnName) {
   const [rows] = await conn.query(
@@ -25,6 +58,7 @@ async function columnExists(conn, tableName, columnName) {
 
 // ── Schema bootstrap ─────────────────────────────────────────
 async function initDB() {
+  await ensureDatabaseExists();
   const conn = await db.getConnection();
   try {
     await conn.query(`
@@ -308,12 +342,14 @@ async function initDB() {
       "SELECT id FROM users WHERE role = 'admin' LIMIT 1"
     );
     if (admins.length === 0) {
-      const hash = await bcrypt.hash("admin@MDE2025", 10);
+      const adminEmail = process.env.ADMIN_EMAIL || "admin@mde.gov.lk";
+      const adminPassword = process.env.ADMIN_PASSWORD || "admin@MDE2025";
+      const hash = await bcrypt.hash(adminPassword, 10);
       await conn.query(
         "INSERT INTO users (username, email, password_hash, role) VALUES (?,?,?,?)",
-        ["admin", "admin@mde.gov.lk", hash, "admin"]
+        ["admin", adminEmail, hash, "admin"]
       );
-      console.log("✅  Default admin created: admin@mde.gov.lk / admin@MDE2025");
+      console.log(`✅  Default admin created: ${adminEmail} / ${adminPassword}`);
     }
 
     // Seed test user if none exists
